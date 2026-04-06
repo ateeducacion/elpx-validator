@@ -303,6 +303,26 @@
     var URL_REGEX = /url\(\s*["']?([^"')]+)["']?\s*\)/gi;
     var RESOURCE_MATCH = /(content|custom|theme|libs|idevices)\//i;
 
+    /* Known file extensions for asset path heuristic */
+    var KNOWN_ASSET_EXTENSIONS = [
+        'jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp', 'ico',     // images
+        'mp3', 'ogg', 'wav',                                            // audio
+        'mp4', 'webm', 'ogv',                                           // video
+        'pdf', 'json', 'xml', 'html', 'htm', 'css', 'js',              // documents/code
+        'woff', 'woff2', 'ttf', 'eot',                                  // fonts
+        'zip', 'txt', 'map'                                             // other
+    ];
+    var ASSET_EXTENSION_REGEX = new RegExp(
+        '\\.(' + KNOWN_ASSET_EXTENSIONS.join('|') + ')(\\?[^"\']*)?$', 'i'
+    );
+
+    /* File extensions/paths to skip when checking for orphaned assets */
+    var ORPHAN_IGNORE_EXTENSIONS = new Set(['.map']);
+    var ORPHAN_IGNORE_PATTERNS = [
+        /^theme\/icons\//i,                // Theme icon sets
+        /^idevices\/[^/]+\/[^/]+\.html$/i  // iDevice HTML templates
+    ];
+
     function extractPathsFromString(text, sourceType, source, references, referencesByPath, sourcePath) {
         var regexes = [ATTR_REGEX, URL_REGEX];
         regexes.forEach(function (regex) {
@@ -327,7 +347,7 @@
         // Accept if it starts with a known asset prefix or relative path
         if (/^(content\/|custom\/|theme\/|libs\/|idevices\/|\.\.\/|\.\/|\{\{context_path\}\})/.test(value)) return true;
         // Accept if it looks like a filename with a known extension
-        if (/\.(jpg|jpeg|png|gif|svg|webp|bmp|ico|mp3|ogg|wav|mp4|webm|ogv|pdf|json|xml|html|htm|css|js|woff|woff2|ttf|eot|zip|txt|map)(\?[^"']*)?$/i.test(value)) return true;
+        if (ASSET_EXTENSION_REGEX.test(value)) return true;
         return false;
     }
 
@@ -528,13 +548,6 @@
                 }));
             }
         });
-
-        // File extensions/paths to skip when checking for orphaned assets
-        var ORPHAN_IGNORE_EXTENSIONS = new Set(['.map']);
-        var ORPHAN_IGNORE_PATTERNS = [
-            /^theme\/icons\//i,                // Theme icon sets
-            /^idevices\/[^/]+\/[^/]+\.html$/i  // iDevice HTML templates
-        ];
 
         // Find orphaned assets (in asset dirs but never referenced)
         assets.forEach(function (asset) {

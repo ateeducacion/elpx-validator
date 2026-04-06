@@ -11,6 +11,8 @@ describe('iDevice registry', () => {
             expect(typeof def.requiresImages).toBe('boolean');
             expect(typeof def.requiresUrl).toBe('boolean');
             expect(typeof def.deep).toBe('boolean');
+            expect(typeof def.requiresHtmlView).toBe('boolean');
+            expect(typeof def.requiresJsonProperties).toBe('boolean');
         });
     });
 

@@ -109,10 +109,10 @@
             }
         }
 
-        // Empty htmlView check — skip for types that don't require htmlView
-        var jsonOnlyIdeviceTypes = { 'form': true };
-        var compTypeName = (comp.odeIdeviceTypeName || '').toLowerCase().trim();
-        if (comp.htmlView !== undefined && comp.htmlView.trim() === '' && !jsonOnlyIdeviceTypes[compTypeName]) {
+        // Empty htmlView check — skip for types that don't require htmlView per the registry
+        var compTypeLookup = registry.lookup(comp.odeIdeviceTypeName);
+        var typeRequiresHtmlView = !compTypeLookup.known || !compTypeLookup.definition || compTypeLookup.definition.requiresHtmlView !== false;
+        if (comp.htmlView !== undefined && comp.htmlView.trim() === '' && typeRequiresHtmlView) {
             findings.push(createFinding('IDEV003', {
                 details: 'The htmlView for iDevice "' + (comp.odeIdeviceId || '?') + '" is empty.',
                 location: location,

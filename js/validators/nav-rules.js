@@ -7,11 +7,12 @@
 (function (global, factory) {
     if (typeof module === 'object' && module.exports) {
         var rules = require('../core/rules');
-        module.exports = factory(rules);
+        var registry = require('../registries/idevice-types');
+        module.exports = factory(rules, registry);
     } else {
-        global.ELPXNavRules = factory(global.ELPXRules);
+        global.ELPXNavRules = factory(global.ELPXRules, global.ELPXIdeviceRegistry);
     }
-})(typeof self !== 'undefined' ? self : this, function (rules) {
+})(typeof self !== 'undefined' ? self : this, function (rules, registry) {
     'use strict';
 
     var createFinding = rules.createFinding;
@@ -221,16 +222,16 @@
         }
 
         // htmlView and jsonProperties — conditional by iDevice type.
-        // Not all types need both; validate based on type requirements.
+        // Not all types need both; validate based on type requirements from the registry.
         var typeName = (comp.odeIdeviceTypeName || '').toLowerCase().trim();
+        var lookupResult = registry.lookup(typeName);
+        var needsHtmlView = true;
+        var needsJsonProps = true;
 
-        // Types that need jsonProperties but not necessarily htmlView
-        var jsonOnlyTypes = { 'form': true };
-        // Types that need htmlView but not necessarily jsonProperties
-        var htmlOnlyTypes = { 'rubric': true, 'download-source-file': true };
-
-        var needsHtmlView = !jsonOnlyTypes[typeName];
-        var needsJsonProps = !htmlOnlyTypes[typeName];
+        if (lookupResult.known && lookupResult.definition) {
+            needsHtmlView = lookupResult.definition.requiresHtmlView !== false;
+            needsJsonProps = lookupResult.definition.requiresJsonProperties !== false;
+        }
 
         if (needsHtmlView && needsJsonProps) {
             // Generic: at least one of htmlView/jsonProperties should be present
