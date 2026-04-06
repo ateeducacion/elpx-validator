@@ -1,33 +1,262 @@
+/**
+ * eXeLearning Package Validator – main module.
+ *
+ * This module orchestrates all validation sub-modules and exposes both
+ * the new structured-finding API and the original legacy helpers so
+ * that existing tests and consumers continue to work.
+ *
+ * @module ELPValidator
+ */
 (function (global, factory) {
     if (typeof module === 'object' && module.exports) {
-        module.exports = factory();
+        var rulesModule      = require('./core/rules');
+        var modelModule      = require('./core/model');
+        var packageRules     = require('./validators/package-rules');
+        var xmlRules         = require('./validators/xml-rules');
+        var navRules         = require('./validators/nav-rules');
+        var ideviceRules     = require('./validators/idevice-rules');
+        var assetRules       = require('./validators/asset-rules');
+        var ideviceRegistry  = require('./registries/idevice-types');
+        module.exports = factory(rulesModule, modelModule, packageRules, xmlRules, navRules, ideviceRules, assetRules, ideviceRegistry);
     } else {
-        global.ELPValidator = factory();
+        global.ELPValidator = factory(
+            global.ELPXRules,
+            global.ELPXModel,
+            global.ELPXPackageRules,
+            global.ELPXXmlRules,
+            global.ELPXNavRules,
+            global.ELPXIdeviceRules,
+            global.ELPXAssetRules,
+            global.ELPXIdeviceRegistry
+        );
     }
-})(typeof self !== 'undefined' ? self : this, function () {
-    const REQUIRED_NAV_FIELDS = [
+})(typeof self !== 'undefined' ? self : this, function (rulesModule, modelModule, packageRules, xmlRules, navRules, ideviceRules, assetRules, ideviceRegistry) {
+    'use strict';
+
+    /* ================================================================== */
+    /*  New structured validation API                                     */
+    /* ================================================================== */
+
+    /**
+     * Run the full validation pipeline on a loaded ZIP.
+     *
+     * @param {object} zip      - A JSZip instance.
+     * @param {object} [opts]   - Optional settings.
+     * @returns {Promise<object>} The complete validation report.
+     */
+    async function runFullValidation(zip, opts) {
+        var options = opts || {};
+        var report = {
+            format: 'unknown',
+            findings: [],
+            model: null,
+            metadata: null,
+            packageInfo: null,
+            ideviceSummary: null,
+            assetInventory: [],
+            assetSummary: null,
+            pageTitles: [],
+            counts: { errors: 0, warnings: 0, infos: 0 }
+        };
+
+        var zipFiles = zip.files;
+
+        /* -------------------------------------------------------------- */
+        /*  1. Package-level validation                                   */
+        /* -------------------------------------------------------------- */
+
+        var hasContentXml = !!zip.file('content.xml');
+        var hasContentV3 = !!zip.file('contentv3.xml');
+
+        if (hasContentXml) {
+            report.format = 'elpx';
+        } else if (hasContentV3) {
+            report.format = 'elp';
+        }
+
+        var pkgResult = packageRules.validatePackage(zipFiles, report.format);
+        report.findings = report.findings.concat(pkgResult.findings);
+        report.packageInfo = pkgResult.packageInfo;
+
+        /* -------------------------------------------------------------- */
+        /*  2. Read and parse manifest XML                                */
+        /* -------------------------------------------------------------- */
+
+        var manifestName = report.format === 'elp' ? 'contentv3.xml' : 'content.xml';
+        var manifestFile = zip.file(manifestName);
+
+        if (!manifestFile) {
+            // Already reported by package rules; add compatibility finding
+            report.findings.push(rulesModule.createFinding(report.format === 'elp' ? 'COMPAT001' : 'PKG002', {
+                details: 'No usable manifest file was found in the package.'
+            }));
+            tallyFindings(report);
+            return report;
+        }
+
+        var xmlString;
+        try {
+            xmlString = await manifestFile.async('string');
+        } catch (e) {
+            report.findings.push(rulesModule.createFinding('XML001', {
+                details: 'Unable to read ' + manifestName + ' from the archive: ' + e.message
+            }));
+            tallyFindings(report);
+            return report;
+        }
+
+        var parseResult = xmlRules.parseAndValidateXml(xmlString);
+        report.findings = report.findings.concat(parseResult.findings);
+
+        if (!parseResult.document) {
+            tallyFindings(report);
+            return report;
+        }
+
+        var xmlDoc = parseResult.document;
+
+        /* -------------------------------------------------------------- */
+        /*  3. Legacy .elp handling                                       */
+        /* -------------------------------------------------------------- */
+
+        if (report.format === 'elp') {
+            report.findings.push(rulesModule.createFinding('COMPAT001', {
+                details: 'This is a legacy .elp package using contentv3.xml. Structural and semantic validation is limited.'
+            }));
+            report.metadata = normalizeLegacyMetadata(extractLegacyMetadata(xmlDoc));
+            tallyFindings(report);
+            return report;
+        }
+
+        /* -------------------------------------------------------------- */
+        /*  4. XML schema validation (modern .elpx)                       */
+        /* -------------------------------------------------------------- */
+
+        report.findings.push(rulesModule.createFinding('COMPAT002', {
+            details: 'Modern .elpx package detected with content.xml ODE 2.0 format.'
+        }));
+
+        var schemaFindings = xmlRules.validateSchema(xmlDoc, xmlString);
+        report.findings = report.findings.concat(schemaFindings);
+
+        /* -------------------------------------------------------------- */
+        /*  5. Build project model                                        */
+        /* -------------------------------------------------------------- */
+
+        var model = modelModule.buildModel(xmlDoc);
+        report.model = model;
+
+        if (!model) {
+            tallyFindings(report);
+            return report;
+        }
+
+        /* -------------------------------------------------------------- */
+        /*  6. Extract metadata                                           */
+        /* -------------------------------------------------------------- */
+
+        report.metadata = {
+            properties: model.properties || {},
+            resources: model.resources || {}
+        };
+
+        // Metadata & ID validation
+        var metaFindings = navRules.validateMetadata(model.properties);
+        report.findings = report.findings.concat(metaFindings);
+
+        var idFindings = navRules.validateIdFormats(model.resources);
+        report.findings = report.findings.concat(idFindings);
+
+        /* -------------------------------------------------------------- */
+        /*  7. Navigation & reference validation                          */
+        /* -------------------------------------------------------------- */
+
+        var navFindings = navRules.validateNavigation(model);
+        report.findings = report.findings.concat(navFindings);
+
+        // Extract page titles
+        report.pageTitles = model.pages.map(function (p) {
+            return p.pageName || p.odePageId || '(untitled)';
+        });
+
+        /* -------------------------------------------------------------- */
+        /*  8. iDevice validation                                         */
+        /* -------------------------------------------------------------- */
+
+        var idevResult = ideviceRules.validateIdevices(model);
+        report.findings = report.findings.concat(idevResult.findings);
+        report.ideviceSummary = idevResult.ideviceSummary;
+
+        /* -------------------------------------------------------------- */
+        /*  9. Asset inventory & validation                               */
+        /* -------------------------------------------------------------- */
+
+        report.assetInventory = assetRules.buildInventory(zipFiles);
+
+        // Optionally read exported HTML for cross-references
+        var htmlContents = {};
+        if (!options.skipHtmlCrossCheck) {
+            var htmlFiles = Object.keys(zipFiles).filter(function (name) {
+                return (name === 'index.html' || name.startsWith('html/')) && name.endsWith('.html');
+            });
+            for (var i = 0; i < htmlFiles.length; i++) {
+                try {
+                    htmlContents[htmlFiles[i]] = await zip.file(htmlFiles[i]).async('string');
+                } catch (e) {
+                    // Skip unreadable files
+                }
+            }
+        }
+
+        var refResult = assetRules.extractReferences(model, htmlContents);
+        var assetResult = assetRules.validateAssets(report.assetInventory, refResult.referencesByPath, zipFiles);
+        report.findings = report.findings.concat(assetResult.findings);
+        report.assetSummary = assetResult.assetSummary;
+
+        /* -------------------------------------------------------------- */
+        /*  10. Tally                                                     */
+        /* -------------------------------------------------------------- */
+
+        tallyFindings(report);
+        return report;
+    }
+
+    function tallyFindings(report) {
+        report.counts = { errors: 0, warnings: 0, infos: 0 };
+        report.findings.forEach(function (f) {
+            if (f.severity === 'error') report.counts.errors++;
+            else if (f.severity === 'warning') report.counts.warnings++;
+            else report.counts.infos++;
+        });
+    }
+
+    /* ================================================================== */
+    /*  Legacy API (backward-compatible)                                  */
+    /* ================================================================== */
+
+    var REQUIRED_NAV_FIELDS = [
         'odePageId',
         'pageName',
         ['odeNavStructureSyncOrder', 'odeNavStructureOrder']
     ];
-    const REQUIRED_BLOCK_FIELDS = ['odeBlockId', 'blockName'];
-    const REQUIRED_COMPONENT_FIELDS = ['odeIdeviceId', 'odeIdeviceTypeName', 'htmlView', 'jsonProperties'];
+    var REQUIRED_BLOCK_FIELDS = ['odeBlockId', 'blockName'];
+    var REQUIRED_COMPONENT_FIELDS = ['odeIdeviceId', 'odeIdeviceTypeName', 'htmlView', 'jsonProperties'];
 
     function parseContentXml(xmlString) {
         if (typeof xmlString !== 'string') {
             return { status: 'error', message: 'The provided XML payload is not a string.' };
         }
 
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
-        const parserError = xmlDoc.querySelector('parsererror');
+        var parser = new DOMParser();
+        var xmlDoc = parser.parseFromString(xmlString, 'application/xml');
+        var parserError = xmlDoc.querySelector('parsererror');
 
         if (parserError) {
-            const detail = (parserError.textContent || '').trim();
-            const message = detail
-                ? `The XML document is not well-formed: ${detail}`
+            var detail = (parserError.textContent || '').trim();
+            var message = detail
+                ? 'The XML document is not well-formed: ' + detail
                 : 'The XML document is not well-formed.';
-            return { status: 'error', message };
+            return { status: 'error', message: message };
         }
 
         return { status: 'success', document: xmlDoc };
@@ -38,7 +267,7 @@
             return { status: 'error', message: 'Unable to read the XML root element.' };
         }
 
-        const tagName = xmlDoc.documentElement.tagName;
+        var tagName = xmlDoc.documentElement.tagName;
         if (!tagName) {
             return { status: 'error', message: 'The XML root element is missing a tag name.' };
         }
@@ -46,7 +275,7 @@
         if (tagName.toLowerCase() !== 'ode') {
             return {
                 status: 'error',
-                message: `Expected the root element to be <ode>, found <${tagName}> instead.`
+                message: 'Expected the root element to be <ode>, found <' + tagName + '> instead.'
             };
         }
 
@@ -54,7 +283,7 @@
     }
 
     function checkNavStructures(xmlDoc) {
-        const navStructures = xmlDoc.getElementsByTagName('odeNavStructures');
+        var navStructures = xmlDoc.getElementsByTagName('odeNavStructures');
         if (!navStructures || navStructures.length === 0) {
             return { status: 'error', message: 'The <odeNavStructures> element is missing.' };
         }
@@ -63,7 +292,7 @@
     }
 
     function checkPagePresence(xmlDoc) {
-        const pages = xmlDoc.getElementsByTagName('odeNavStructure');
+        var pages = xmlDoc.getElementsByTagName('odeNavStructure');
         if (!pages || pages.length === 0) {
             return {
                 status: 'warning',
@@ -71,20 +300,20 @@
             };
         }
 
-        return { status: 'success', message: `Found ${pages.length} page${pages.length === 1 ? '' : 's'}.` };
+        return { status: 'success', message: 'Found ' + pages.length + ' page' + (pages.length === 1 ? '' : 's') + '.' };
     }
 
     function extractPageTitles(xmlDoc) {
         if (!xmlDoc) {
             return [];
         }
-        const navStructures = Array.from(xmlDoc.getElementsByTagName('odeNavStructure'));
-        return navStructures.map((nav) => {
-            const nameNode = nav.getElementsByTagName('pageName')[0];
-            const idNode = nav.getElementsByTagName('odePageId')[0];
-            const title = nameNode && nameNode.textContent ? nameNode.textContent.trim() : '';
+        var navStructures = Array.from(xmlDoc.getElementsByTagName('odeNavStructure'));
+        return navStructures.map(function (nav) {
+            var nameNode = nav.getElementsByTagName('pageName')[0];
+            var idNode = nav.getElementsByTagName('odePageId')[0];
+            var title = nameNode && nameNode.textContent ? nameNode.textContent.trim() : '';
             if (title) return title;
-            const fallback = idNode && idNode.textContent ? idNode.textContent.trim() : '';
+            var fallback = idNode && idNode.textContent ? idNode.textContent.trim() : '';
             return fallback || '(untitled)';
         });
     }
@@ -94,10 +323,10 @@
     }
 
     function ensureChildTags(node, requiredTags) {
-        const missing = [];
-        requiredTags.forEach((requirement) => {
-            const tags = Array.isArray(requirement) ? requirement : [requirement];
-            const hasAny = tags.some((tag) => node.getElementsByTagName(tag)[0]);
+        var missing = [];
+        requiredTags.forEach(function (requirement) {
+            var tags = Array.isArray(requirement) ? requirement : [requirement];
+            var hasAny = tags.some(function (tag) { return node.getElementsByTagName(tag)[0]; });
             if (!hasAny) {
                 missing.push(formatRequirement(requirement));
             }
@@ -106,27 +335,27 @@
     }
 
     function validateStructuralIntegrity(xmlDoc) {
-        const issues = [];
-        const navStructures = Array.from(xmlDoc.getElementsByTagName('odeNavStructure'));
+        var issues = [];
+        var navStructures = Array.from(xmlDoc.getElementsByTagName('odeNavStructure'));
 
-        navStructures.forEach((navStructure, index) => {
-            const missingNavFields = ensureChildTags(navStructure, REQUIRED_NAV_FIELDS);
+        navStructures.forEach(function (navStructure, index) {
+            var missingNavFields = ensureChildTags(navStructure, REQUIRED_NAV_FIELDS);
             if (missingNavFields.length > 0) {
-                issues.push(`Navigation structure #${index + 1} is missing fields: ${missingNavFields.join(', ')}`);
+                issues.push('Navigation structure #' + (index + 1) + ' is missing fields: ' + missingNavFields.join(', '));
             }
 
-            const pageStructures = navStructure.getElementsByTagName('odePagStructure');
-            Array.from(pageStructures).forEach((pageStructure, blockIndex) => {
-                const missingBlockFields = ensureChildTags(pageStructure, REQUIRED_BLOCK_FIELDS);
+            var pageStructures = navStructure.getElementsByTagName('odePagStructure');
+            Array.from(pageStructures).forEach(function (pageStructure, blockIndex) {
+                var missingBlockFields = ensureChildTags(pageStructure, REQUIRED_BLOCK_FIELDS);
                 if (missingBlockFields.length > 0) {
-                    issues.push(`Block #${blockIndex + 1} in page #${index + 1} is missing fields: ${missingBlockFields.join(', ')}`);
+                    issues.push('Block #' + (blockIndex + 1) + ' in page #' + (index + 1) + ' is missing fields: ' + missingBlockFields.join(', '));
                 }
 
-                const components = pageStructure.getElementsByTagName('odeComponent');
-                Array.from(components).forEach((component, componentIndex) => {
-                    const missingComponentFields = ensureChildTags(component, REQUIRED_COMPONENT_FIELDS);
+                var components = pageStructure.getElementsByTagName('odeComponent');
+                Array.from(components).forEach(function (component, componentIndex) {
+                    var missingComponentFields = ensureChildTags(component, REQUIRED_COMPONENT_FIELDS);
                     if (missingComponentFields.length > 0) {
-                        issues.push(`Component #${componentIndex + 1} in block #${blockIndex + 1} of page #${index + 1} is missing fields: ${missingComponentFields.join(', ')}`);
+                        issues.push('Component #' + (componentIndex + 1) + ' in block #' + (blockIndex + 1) + ' of page #' + (index + 1) + ' is missing fields: ' + missingComponentFields.join(', '));
                     }
                 });
             });
@@ -143,34 +372,32 @@
     }
 
     function extractResourcePaths(xmlDoc) {
-        const resourcePaths = new Set();
-        const htmlNodes = Array.from(xmlDoc.getElementsByTagName('htmlView'));
-        const jsonNodes = Array.from(xmlDoc.getElementsByTagName('jsonProperties'));
-        const attributeRegex = /(?:src|href)=["']([^"']+)["']/gi;
-        const resourceRegex = /(content|custom)\//i;
+        var resourcePaths = new Set();
+        var htmlNodes = Array.from(xmlDoc.getElementsByTagName('htmlView'));
+        var jsonNodes = Array.from(xmlDoc.getElementsByTagName('jsonProperties'));
+        var attributeRegex = /(?:src|href)=["']([^"']+)["']/gi;
+        var resourceRegex = /(content|custom)\//i;
 
-        htmlNodes.forEach((node) => {
-            const text = node.textContent || '';
-            let match;
+        htmlNodes.forEach(function (node) {
+            var text = node.textContent || '';
+            var match;
             while ((match = attributeRegex.exec(text)) !== null) {
-                const value = match[1];
+                var value = match[1];
                 if (resourceRegex.test(value)) {
                     resourcePaths.add(normalizeResourcePath(value));
                 }
             }
         });
 
-        jsonNodes.forEach((node) => {
-            const text = node.textContent || '';
+        jsonNodes.forEach(function (node) {
+            var text = node.textContent || '';
             try {
-                const json = JSON.parse(text);
+                var json = JSON.parse(text);
                 collectPathsFromJson(json, resourcePaths);
             } catch (error) {
-                // The JSON block may include template variables that are not valid JSON.
-                // Fallback to a regex search similar to the HTML view parsing.
-                let match;
+                var match;
                 while ((match = attributeRegex.exec(text)) !== null) {
-                    const value = match[1];
+                    var value = match[1];
                     if (resourceRegex.test(value)) {
                         resourcePaths.add(normalizeResourcePath(value));
                     }
@@ -194,12 +421,12 @@
         }
 
         if (Array.isArray(value)) {
-            value.forEach((item) => collectPathsFromJson(item, accumulator));
+            value.forEach(function (item) { collectPathsFromJson(item, accumulator); });
             return;
         }
 
         if (typeof value === 'object') {
-            Object.values(value).forEach((item) => collectPathsFromJson(item, accumulator));
+            Object.values(value).forEach(function (item) { collectPathsFromJson(item, accumulator); });
         }
     }
 
@@ -215,12 +442,11 @@
             return [];
         }
 
-        const missing = [];
-        paths.forEach((path) => {
-            const normalized = normalizeResourcePath(path);
+        var missing = [];
+        paths.forEach(function (path) {
+            var normalized = normalizeResourcePath(path);
             if (!zip.file(normalized)) {
-                // Some resources might be stored with URI encoded file names.
-                const encoded = encodeURI(normalized);
+                var encoded = encodeURI(normalized);
                 if (!zip.file(encoded)) {
                     missing.push(path);
                 }
@@ -230,31 +456,31 @@
     }
 
     function extractMetadata(xmlDoc) {
-        const metadata = { properties: {}, resources: {} };
+        var metadata = { properties: {}, resources: {} };
 
-        const propertyNodes = Array.from(xmlDoc.getElementsByTagName('odeProperty'));
-        propertyNodes.forEach((property) => {
-            const keyNode = property.getElementsByTagName('key')[0];
+        var propertyNodes = Array.from(xmlDoc.getElementsByTagName('odeProperty'));
+        propertyNodes.forEach(function (property) {
+            var keyNode = property.getElementsByTagName('key')[0];
             if (!keyNode || !keyNode.textContent) {
                 return;
             }
-            const valueNode = property.getElementsByTagName('value')[0];
-            const key = keyNode.textContent.trim();
-            const value = valueNode && valueNode.textContent ? valueNode.textContent.trim() : '';
+            var valueNode = property.getElementsByTagName('value')[0];
+            var key = keyNode.textContent.trim();
+            var value = valueNode && valueNode.textContent ? valueNode.textContent.trim() : '';
             if (key) {
                 metadata.properties[key] = value;
             }
         });
 
-        const resourceNodes = Array.from(xmlDoc.getElementsByTagName('odeResource'));
-        resourceNodes.forEach((resource) => {
-            const keyNode = resource.getElementsByTagName('key')[0];
+        var resourceNodes = Array.from(xmlDoc.getElementsByTagName('odeResource'));
+        resourceNodes.forEach(function (resource) {
+            var keyNode = resource.getElementsByTagName('key')[0];
             if (!keyNode || !keyNode.textContent) {
                 return;
             }
-            const valueNode = resource.getElementsByTagName('value')[0];
-            const key = keyNode.textContent.trim();
-            const value = valueNode && valueNode.textContent ? valueNode.textContent.trim() : '';
+            var valueNode = resource.getElementsByTagName('value')[0];
+            var key = keyNode.textContent.trim();
+            var value = valueNode && valueNode.textContent ? valueNode.textContent.trim() : '';
             if (key) {
                 metadata.resources[key] = value;
             }
@@ -268,9 +494,9 @@
             return null;
         }
 
-        const metadata = { properties: {}, resources: {} };
-        const root = xmlDoc.documentElement;
-        const topDictionary = findFirstChildByLocalName(root, 'dictionary');
+        var metadata = { properties: {}, resources: {} };
+        var root = xmlDoc.documentElement;
+        var topDictionary = findFirstChildByLocalName(root, 'dictionary');
 
         if (!topDictionary) {
             return metadata;
@@ -278,12 +504,12 @@
 
         metadata.properties = extractLegacyDictionary(topDictionary);
 
-        const version = root.getAttribute('version');
+        var version = root.getAttribute('version');
         if (version) {
             metadata.properties.legacy_manifest_version = version;
         }
 
-        const legacyClass = root.getAttribute('class');
+        var legacyClass = root.getAttribute('class');
         if (legacyClass) {
             metadata.properties.legacy_manifest_class = legacyClass;
         }
@@ -296,12 +522,12 @@
             return null;
         }
 
-        const normalized = {
+        var normalized = {
             properties: {},
-            resources: { ...(metadata.resources || {}) }
+            resources: Object.assign({}, metadata.resources || {})
         };
 
-        const properties = { ...(metadata.properties || {}) };
+        var properties = Object.assign({}, metadata.properties || {});
 
         if (properties._title && !properties.pp_title) {
             properties.pp_title = properties._title;
@@ -327,32 +553,32 @@
         if (!node || !node.children) {
             return null;
         }
-        return Array.from(node.children).find((child) => child.localName === localName);
+        return Array.from(node.children).find(function (child) { return child.localName === localName; });
     }
 
     function extractLegacyDictionary(dictionaryNode) {
-        const result = {};
+        var result = {};
         if (!dictionaryNode || !dictionaryNode.children) {
             return result;
         }
 
-        const children = Array.from(dictionaryNode.children);
-        for (let index = 0; index < children.length; index += 1) {
-            const child = children[index];
+        var children = Array.from(dictionaryNode.children);
+        for (var index = 0; index < children.length; index += 1) {
+            var child = children[index];
             if (!child.getAttribute) {
                 continue;
             }
-            const role = child.getAttribute('role');
+            var role = child.getAttribute('role');
             if (role !== 'key') {
                 continue;
             }
 
-            const key = child.getAttribute('value') || child.textContent || '';
+            var key = child.getAttribute('value') || child.textContent || '';
             if (!key) {
                 continue;
             }
 
-            const valueNode = children[index + 1];
+            var valueNode = children[index + 1];
             if (valueNode) {
                 result[key] = extractLegacyValue(valueNode);
                 index += 1;
@@ -367,7 +593,7 @@
             return {};
         }
 
-        const dictionary = findFirstChildByLocalName(instanceNode, 'dictionary');
+        var dictionary = findFirstChildByLocalName(instanceNode, 'dictionary');
         return dictionary ? extractLegacyDictionary(dictionary) : {};
     }
 
@@ -375,7 +601,7 @@
         if (!listNode || !listNode.children) {
             return [];
         }
-        return Array.from(listNode.children).map((child) => extractLegacyValue(child));
+        return Array.from(listNode.children).map(function (child) { return extractLegacyValue(child); });
     }
 
     function extractLegacyValue(node) {
@@ -383,13 +609,13 @@
             return '';
         }
 
-        const name = node.localName || node.tagName;
+        var name = node.localName || node.tagName;
         switch (name) {
             case 'unicode':
             case 'string':
             case 'bool':
             case 'int':
-                return node.getAttribute('value') ?? (node.textContent || '');
+                return node.getAttribute('value') !== null ? node.getAttribute('value') : (node.textContent || '');
             case 'list':
                 return extractLegacyList(node);
             case 'dictionary':
@@ -401,18 +627,36 @@
         }
     }
 
+    /* ================================================================== */
+    /*  Public API                                                        */
+    /* ================================================================== */
+
     return {
-        parseContentXml,
-        checkRootElement,
-        checkNavStructures,
-        checkPagePresence,
-        validateStructuralIntegrity,
-        extractResourcePaths,
-        findMissingResources,
-        normalizeResourcePath,
-        extractMetadata,
-        extractLegacyMetadata,
-        normalizeLegacyMetadata,
-        extractPageTitles
+        // New structured API
+        runFullValidation: runFullValidation,
+
+        // Sub-modules (for direct access)
+        rules: rulesModule,
+        model: modelModule,
+        packageRules: packageRules,
+        xmlRules: xmlRules,
+        navRules: navRules,
+        ideviceRules: ideviceRules,
+        assetRules: assetRules,
+        ideviceRegistry: ideviceRegistry,
+
+        // Legacy API (backward-compatible)
+        parseContentXml: parseContentXml,
+        checkRootElement: checkRootElement,
+        checkNavStructures: checkNavStructures,
+        checkPagePresence: checkPagePresence,
+        validateStructuralIntegrity: validateStructuralIntegrity,
+        extractResourcePaths: extractResourcePaths,
+        findMissingResources: findMissingResources,
+        normalizeResourcePath: normalizeResourcePath,
+        extractMetadata: extractMetadata,
+        extractLegacyMetadata: extractLegacyMetadata,
+        normalizeLegacyMetadata: normalizeLegacyMetadata,
+        extractPageTitles: extractPageTitles
     };
 });
