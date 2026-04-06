@@ -84,7 +84,7 @@ describe('Reference extraction', () => {
                 }]
             }]
         };
-        const { references, referencesByPath } = extractReferences(model);
+        const { referencesByPath } = extractReferences(model);
         expect(Object.keys(referencesByPath)).toContain('content/resources/photo.jpg');
         expect(Object.keys(referencesByPath)).toContain('content/resources/doc.pdf');
     });
