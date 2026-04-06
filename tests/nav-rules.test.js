@@ -177,3 +177,170 @@ describe('Metadata validation', () => {
         expect(findings.some(f => f.code === 'META006')).toBe(false);
     });
 });
+
+describe('META003 eXeVersion aliases', () => {
+    test('accepts exe_version as alias', () => {
+        const findings = validateIdFormats({
+            odeId: '20251125215855LURLBW',
+            odeVersionId: '20251125220103ABCXYZ',
+            exe_version: '3.0'
+        });
+        // Should not produce a fully missing META003
+        const meta003 = findings.filter(f => f.code === 'META003');
+        // Should detect the alias and note it
+        expect(meta003.length).toBe(1);
+        expect(meta003[0].details).toContain('exe_version');
+    });
+
+    test('accepts pp_exelearning_version as alias', () => {
+        const findings = validateIdFormats({
+            odeId: '20251125215855LURLBW',
+            odeVersionId: '20251125220103ABCXYZ',
+            pp_exelearning_version: '3.0.1'
+        });
+        const meta003 = findings.filter(f => f.code === 'META003');
+        expect(meta003.length).toBe(1);
+        expect(meta003[0].details).toContain('pp_exelearning_version');
+    });
+
+    test('no META003 when eXeVersion is present', () => {
+        const findings = validateIdFormats({
+            odeId: '20251125215855LURLBW',
+            odeVersionId: '20251125220103ABCXYZ',
+            eXeVersion: 'v3.0.0'
+        });
+        const meta003 = findings.filter(f => f.code === 'META003');
+        expect(meta003.length).toBe(0);
+    });
+
+    test('flags fully missing version when no aliases exist', () => {
+        const findings = validateIdFormats({
+            odeId: '20251125215855LURLBW',
+            odeVersionId: '20251125220103ABCXYZ'
+        });
+        const meta003 = findings.filter(f => f.code === 'META003');
+        expect(meta003.length).toBe(1);
+        expect(meta003[0].details).toContain('missing');
+    });
+});
+
+describe('NAV011 blockName relaxed', () => {
+    test('does not flag single-component blocks without blockName', () => {
+        const model = {
+            pages: [{
+                odePageId: 'p1', pageName: 'Page', odeParentPageId: '', order: '1',
+                blocks: [{
+                    odeBlockId: 'b1', blockName: '', components: [
+                        { odeIdeviceId: 'c1', odeIdeviceTypeName: 'text', odePageId: 'p1', odeBlockId: 'b1', htmlView: '<p>x</p>', jsonProperties: '{}', order: '1' }
+                    ]
+                }]
+            }]
+        };
+        const findings = validateNavigation(model);
+        expect(findings.some(f => f.code === 'NAV011')).toBe(false);
+    });
+
+    test('flags multi-component blocks without blockName', () => {
+        const model = {
+            pages: [{
+                odePageId: 'p1', pageName: 'Page', odeParentPageId: '', order: '1',
+                blocks: [{
+                    odeBlockId: 'b1', blockName: '', components: [
+                        { odeIdeviceId: 'c1', odeIdeviceTypeName: 'text', odePageId: 'p1', odeBlockId: 'b1', htmlView: '<p>x</p>', jsonProperties: '{}', order: '1' },
+                        { odeIdeviceId: 'c2', odeIdeviceTypeName: 'text', odePageId: 'p1', odeBlockId: 'b1', htmlView: '<p>y</p>', jsonProperties: '{}', order: '2' }
+                    ]
+                }]
+            }]
+        };
+        const findings = validateNavigation(model);
+        expect(findings.some(f => f.code === 'NAV011')).toBe(true);
+    });
+});
+
+describe('NAV017/NAV018 conditional by type', () => {
+    test('form with empty htmlView and valid jsonProperties — no NAV017', () => {
+        const model = {
+            pages: [{
+                odePageId: 'p1', pageName: 'Page', odeParentPageId: '', order: '1',
+                blocks: [{
+                    odeBlockId: 'b1', blockName: 'Block', components: [{
+                        odeIdeviceId: 'c1', odeIdeviceTypeName: 'form',
+                        odePageId: 'p1', odeBlockId: 'b1',
+                        htmlView: '', jsonProperties: '{"field":"value"}', order: '1'
+                    }]
+                }]
+            }]
+        };
+        const findings = validateNavigation(model);
+        expect(findings.some(f => f.code === 'NAV017')).toBe(false);
+    });
+
+    test('rubric with valid htmlView and empty jsonProperties — no NAV018', () => {
+        const model = {
+            pages: [{
+                odePageId: 'p1', pageName: 'Page', odeParentPageId: '', order: '1',
+                blocks: [{
+                    odeBlockId: 'b1', blockName: 'Block', components: [{
+                        odeIdeviceId: 'c1', odeIdeviceTypeName: 'rubric',
+                        odePageId: 'p1', odeBlockId: 'b1',
+                        htmlView: '<table>rubric</table>', jsonProperties: '', order: '1'
+                    }]
+                }]
+            }]
+        };
+        const findings = validateNavigation(model);
+        expect(findings.some(f => f.code === 'NAV018')).toBe(false);
+    });
+
+    test('download-source-file with valid htmlView and empty jsonProperties — no NAV018', () => {
+        const model = {
+            pages: [{
+                odePageId: 'p1', pageName: 'Page', odeParentPageId: '', order: '1',
+                blocks: [{
+                    odeBlockId: 'b1', blockName: 'Block', components: [{
+                        odeIdeviceId: 'c1', odeIdeviceTypeName: 'download-source-file',
+                        odePageId: 'p1', odeBlockId: 'b1',
+                        htmlView: '<p>Download</p>', jsonProperties: '', order: '1'
+                    }]
+                }]
+            }]
+        };
+        const findings = validateNavigation(model);
+        expect(findings.some(f => f.code === 'NAV018')).toBe(false);
+    });
+
+    test('generic type with both empty triggers NAV017', () => {
+        const model = {
+            pages: [{
+                odePageId: 'p1', pageName: 'Page', odeParentPageId: '', order: '1',
+                blocks: [{
+                    odeBlockId: 'b1', blockName: 'Block', components: [{
+                        odeIdeviceId: 'c1', odeIdeviceTypeName: 'text',
+                        odePageId: 'p1', odeBlockId: 'b1',
+                        htmlView: '', jsonProperties: '', order: '1'
+                    }]
+                }]
+            }]
+        };
+        const findings = validateNavigation(model);
+        expect(findings.some(f => f.code === 'NAV017')).toBe(true);
+    });
+
+    test('generic type with htmlView only — no warnings', () => {
+        const model = {
+            pages: [{
+                odePageId: 'p1', pageName: 'Page', odeParentPageId: '', order: '1',
+                blocks: [{
+                    odeBlockId: 'b1', blockName: 'Block', components: [{
+                        odeIdeviceId: 'c1', odeIdeviceTypeName: 'text',
+                        odePageId: 'p1', odeBlockId: 'b1',
+                        htmlView: '<p>Hello</p>', jsonProperties: '', order: '1'
+                    }]
+                }]
+            }]
+        };
+        const findings = validateNavigation(model);
+        expect(findings.some(f => f.code === 'NAV017')).toBe(false);
+        expect(findings.some(f => f.code === 'NAV018')).toBe(false);
+    });
+});

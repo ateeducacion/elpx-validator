@@ -76,7 +76,7 @@
         NAV008: { code: 'NAV008', severity: SEVERITY.WARNING, category: CATEGORY.NAVIGATION, message: 'Inconsistent sibling order' },
         NAV009: { code: 'NAV009', severity: SEVERITY.ERROR,   category: CATEGORY.NAVIGATION, message: 'Missing block ID' },
         NAV010: { code: 'NAV010', severity: SEVERITY.ERROR,   category: CATEGORY.NAVIGATION, message: 'Duplicate block ID' },
-        NAV011: { code: 'NAV011', severity: SEVERITY.WARNING, category: CATEGORY.NAVIGATION, message: 'Missing block name' },
+        NAV011: { code: 'NAV011', severity: SEVERITY.INFO,    category: CATEGORY.NAVIGATION, message: 'Missing block name' },
         NAV012: { code: 'NAV012', severity: SEVERITY.ERROR,   category: CATEGORY.NAVIGATION, message: 'Component page ID mismatch' },
         NAV013: { code: 'NAV013', severity: SEVERITY.ERROR,   category: CATEGORY.NAVIGATION, message: 'Component block ID mismatch' },
         NAV014: { code: 'NAV014', severity: SEVERITY.ERROR,   category: CATEGORY.NAVIGATION, message: 'Missing component iDevice ID' },
@@ -103,7 +103,7 @@
         IDEV003: { code: 'IDEV003', severity: SEVERITY.INFO,    category: CATEGORY.IDEVICE, message: 'Empty htmlView' },
         IDEV004: { code: 'IDEV004', severity: SEVERITY.WARNING, category: CATEGORY.IDEVICE, message: 'Image iDevice missing image references' },
         IDEV005: { code: 'IDEV005', severity: SEVERITY.WARNING, category: CATEGORY.IDEVICE, message: 'External website missing URL' },
-        IDEV006: { code: 'IDEV006', severity: SEVERITY.WARNING, category: CATEGORY.IDEVICE, message: 'Download iDevice inconsistency' },
+        IDEV006: { code: 'IDEV006', severity: SEVERITY.INFO,    category: CATEGORY.IDEVICE, message: 'Download iDevice inconsistency' },
 
         /* Asset ---------------------------------------------------------- */
         ASSET001: { code: 'ASSET001', severity: SEVERITY.WARNING, category: CATEGORY.ASSET, message: 'Referenced asset missing from package' },

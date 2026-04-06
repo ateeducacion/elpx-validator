@@ -109,8 +109,10 @@
             }
         }
 
-        // Empty htmlView check
-        if (comp.htmlView !== undefined && comp.htmlView.trim() === '') {
+        // Empty htmlView check — skip for types that don't require htmlView per the registry
+        var compTypeLookup = registry.lookup(comp.odeIdeviceTypeName);
+        var typeRequiresHtmlView = !compTypeLookup.known || !compTypeLookup.definition || compTypeLookup.definition.requiresHtmlView !== false;
+        if (comp.htmlView !== undefined && comp.htmlView.trim() === '' && typeRequiresHtmlView) {
             findings.push(createFinding('IDEV003', {
                 details: 'The htmlView for iDevice "' + (comp.odeIdeviceId || '?') + '" is empty.',
                 location: location,
@@ -158,14 +160,15 @@
                 }
             }
 
-            // download-source-file consistency
+            // download-source-file consistency — check functional chain
+            // rather than just the isDownload flag, which may not be set in all exports.
             if (comp.odeIdeviceTypeName === 'download-source-file') {
                 if (model.resources && model.resources.isDownload !== 'true') {
                     findings.push(createFinding('IDEV006', {
-                        details: 'A download-source-file iDevice is present but odeResources.isDownload is not "true".',
+                        details: 'A download-source-file iDevice is present but odeResources.isDownload is not "true". This may be normal for some eXeLearning exports.',
                         location: location,
                         evidence: { isDownload: model.resources ? model.resources.isDownload : 'missing' },
-                        suggestion: 'When a download-source-file iDevice is used, the isDownload resource should be "true".'
+                        suggestion: 'Verify the download iDevice works correctly in the exported package.'
                     }));
                 }
             }
