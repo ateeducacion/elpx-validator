@@ -126,4 +126,40 @@ describe('iDevice validation', () => {
         expect(ideviceSummary.typeCounts['text']).toBe(2);
         expect(ideviceSummary.typeCounts['crossword']).toBe(1);
     });
+
+    test('form with empty htmlView does not trigger IDEV003', () => {
+        const model = makeModel([{
+            odeIdeviceId: 'c1', odeIdeviceTypeName: 'form',
+            odePageId: 'p1', odeBlockId: 'b1',
+            htmlView: '', jsonProperties: '{"field":"value"}', order: '1'
+        }]);
+        const { findings } = validateIdevices(model);
+        expect(findings.some(f => f.code === 'IDEV003')).toBe(false);
+    });
+
+    test('IDEV006 has info severity', () => {
+        const model = makeModel([{
+            odeIdeviceId: 'c1', odeIdeviceTypeName: 'download-source-file',
+            odePageId: 'p1', odeBlockId: 'b1',
+            htmlView: '<p>Download</p>', jsonProperties: '{}', order: '1'
+        }]);
+        model.resources = { isDownload: 'false' };
+        const { findings } = validateIdevices(model);
+        const idev006 = findings.filter(f => f.code === 'IDEV006');
+        expect(idev006.length).toBe(1);
+        expect(idev006[0].severity).toBe('info');
+    });
+
+    test('recognizes new types udl-content, scrambled-list, interactive-video', () => {
+        const types = ['udl-content', 'scrambled-list', 'interactive-video'];
+        types.forEach(typeName => {
+            const model = makeModel([{
+                odeIdeviceId: 'c1', odeIdeviceTypeName: typeName,
+                odePageId: 'p1', odeBlockId: 'b1',
+                htmlView: '<p>Content</p>', jsonProperties: '{}', order: '1'
+            }]);
+            const { findings } = validateIdevices(model);
+            expect(findings.some(f => f.code === 'IDEV001')).toBe(false);
+        });
+    });
 });

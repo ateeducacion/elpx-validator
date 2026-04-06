@@ -368,6 +368,8 @@
 
     /**
      * Extract url(...) references from CSS content.
+     * CSS url() paths are always relative to the CSS file's directory,
+     * so we resolve them accordingly even when they don't contain ../
      */
     function extractPathsFromCss(css, source, references, referencesByPath, sourcePath) {
         URL_REGEX.lastIndex = 0;
@@ -376,7 +378,34 @@
             var raw = match[1];
             // Skip data URIs and absolute URLs
             if (/^(data:|https?:|\/\/)/.test(raw)) continue;
-            addReference(raw, 'css', source, references, referencesByPath, sourcePath);
+
+            // Resolve the path relative to the CSS file's directory
+            var cleaned = normalizeResourcePath(raw);
+            if (!cleaned) continue;
+
+            var baseDir = '';
+            if (sourcePath) {
+                var lastSlash = sourcePath.lastIndexOf('/');
+                if (lastSlash !== -1) {
+                    baseDir = sourcePath.substring(0, lastSlash);
+                }
+            }
+            var resolved = baseDir ? posixNormalize(baseDir + '/' + cleaned) : cleaned;
+            if (!resolved) continue;
+
+            var ref = {
+                rawPath: raw,
+                normalizedPath: resolved,
+                sourceType: 'css',
+                source: source,
+                sourcePath: sourcePath || null
+            };
+            references.push(ref);
+
+            if (!referencesByPath[resolved]) {
+                referencesByPath[resolved] = [];
+            }
+            referencesByPath[resolved].push(ref);
         }
     }
 
