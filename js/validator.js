@@ -208,7 +208,22 @@
             }
         }
 
-        var refResult = assetRules.extractReferences(model, htmlContents);
+        // Read CSS files for url(...) cross-references
+        var cssContents = {};
+        if (!options.skipHtmlCrossCheck) {
+            var cssFiles = Object.keys(zipFiles).filter(function (name) {
+                return name.endsWith('.css') && !zipFiles[name].dir;
+            });
+            for (var j = 0; j < cssFiles.length; j++) {
+                try {
+                    cssContents[cssFiles[j]] = await zip.file(cssFiles[j]).async('string');
+                } catch (e) {
+                    // Skip unreadable files
+                }
+            }
+        }
+
+        var refResult = assetRules.extractReferences(model, htmlContents, cssContents);
         var assetResult = assetRules.validateAssets(report.assetInventory, refResult.referencesByPath, zipFiles);
         report.findings = report.findings.concat(assetResult.findings);
         report.assetSummary = assetResult.assetSummary;

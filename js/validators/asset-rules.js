@@ -141,13 +141,108 @@
     }
 
     /**
+     * Resolve a raw reference path relative to the source file that contains it,
+     * then normalize to a ZIP-root-relative path using POSIX semantics.
+     *
+     * @param {string} rawPath       - The raw path as found in the source.
+     * @param {string} [sourcePath]  - ZIP-root-relative path of the source file (e.g. "html/page1.html").
+     * @returns {string} ZIP-root-relative normalized path.
+     */
+    function resolveReferencePath(rawPath, sourcePath) {
+        var cleaned = normalizeResourcePath(rawPath);
+        if (!cleaned) return cleaned;
+
+        // If the path doesn't contain ../ or is already absolute-style, return as-is
+        if (cleaned.indexOf('../') === -1 && cleaned.indexOf('./') === -1) {
+            return cleaned;
+        }
+
+        // Resolve relative to the directory of the source file
+        var baseDir = '';
+        if (sourcePath) {
+            var lastSlash = sourcePath.lastIndexOf('/');
+            if (lastSlash !== -1) {
+                baseDir = sourcePath.substring(0, lastSlash);
+            }
+        }
+
+        // Combine base directory with relative path and normalize
+        var combined = baseDir ? baseDir + '/' + cleaned : cleaned;
+        return posixNormalize(combined);
+    }
+
+    /**
+     * Normalize a POSIX-style path, resolving `.` and `..` segments.
+     * Returns '' if the path resolves to the root.
+     *
+     * @param {string} path
+     * @returns {string}
+     */
+    function posixNormalize(path) {
+        var parts = path.split('/');
+        var resolved = [];
+        for (var i = 0; i < parts.length; i++) {
+            var segment = parts[i];
+            if (segment === '.' || segment === '') {
+                continue;
+            } else if (segment === '..') {
+                if (resolved.length > 0 && resolved[resolved.length - 1] !== '..') {
+                    resolved.pop();
+                }
+                // If we can't go further up, the segment is silently dropped
+                // (it would escape the ZIP root)
+            } else {
+                resolved.push(segment);
+            }
+        }
+        return resolved.join('/');
+    }
+
+    /**
+     * Check whether a resolved path has escaped the ZIP root.
+     * This happens when there are more `..` segments than parent directories.
+     *
+     * @param {string} rawPath       - The raw path before resolution.
+     * @param {string} [sourcePath]  - ZIP-root-relative path of the source file.
+     * @returns {boolean} True if the path escapes the ZIP root.
+     */
+    function escapesZipRoot(rawPath, sourcePath) {
+        var cleaned = normalizeResourcePath(rawPath);
+        if (!cleaned) return false;
+
+        // Count the depth of the source directory
+        var depth = 0;
+        if (sourcePath) {
+            var lastSlash = sourcePath.lastIndexOf('/');
+            if (lastSlash !== -1) {
+                var baseDir = sourcePath.substring(0, lastSlash);
+                depth = baseDir.split('/').length;
+            }
+        }
+
+        // Count leading ../ segments in the cleaned path
+        var parts = cleaned.split('/');
+        var upCount = 0;
+        for (var i = 0; i < parts.length; i++) {
+            if (parts[i] === '..') {
+                upCount++;
+            } else {
+                break;
+            }
+        }
+
+        return upCount > depth;
+    }
+
+    /**
      * Extract all resource references from the project model.
      *
      * @param {object} model     - The project model.
      * @param {object} [htmlContents] - Map of filename → HTML string for exported pages.
+     * @param {object} [cssContents]  - Map of filename → CSS string for stylesheets.
      * @returns {{ references: object[], referencesByPath: object }}
      */
-    function extractReferences(model, htmlContents) {
+    function extractReferences(model, htmlContents, cssContents) {
         var references = [];
         var referencesByPath = {};
 
@@ -163,19 +258,19 @@
                             ideviceType: comp.odeIdeviceTypeName
                         };
 
-                        // Extract from htmlView
+                        // Extract from htmlView (content.xml lives at root)
                         if (comp.htmlView) {
-                            extractPathsFromString(comp.htmlView, 'htmlView', source, references, referencesByPath);
+                            extractPathsFromString(comp.htmlView, 'htmlView', source, references, referencesByPath, null);
                         }
 
                         // Extract from jsonProperties
                         if (comp.jsonProperties) {
                             try {
                                 var json = JSON.parse(comp.jsonProperties);
-                                extractPathsFromJson(json, 'jsonProperties', source, references, referencesByPath);
+                                extractPathsFromJson(json, 'jsonProperties', source, references, referencesByPath, null);
                             } catch (e) {
                                 // Fallback to regex
-                                extractPathsFromString(comp.jsonProperties, 'jsonProperties', source, references, referencesByPath);
+                                extractPathsFromString(comp.jsonProperties, 'jsonProperties', source, references, referencesByPath, null);
                             }
                         }
                     });
@@ -188,7 +283,16 @@
             Object.keys(htmlContents).forEach(function (htmlFile) {
                 var html = htmlContents[htmlFile];
                 var source = { htmlFile: htmlFile };
-                extractPathsFromString(html, 'exportedHtml', source, references, referencesByPath);
+                extractPathsFromString(html, 'exportedHtml', source, references, referencesByPath, htmlFile);
+            });
+        }
+
+        // Extract from CSS files
+        if (cssContents) {
+            Object.keys(cssContents).forEach(function (cssFile) {
+                var css = cssContents[cssFile];
+                var source = { cssFile: cssFile };
+                extractPathsFromCss(css, source, references, referencesByPath, cssFile);
             });
         }
 
@@ -199,7 +303,7 @@
     var URL_REGEX = /url\(\s*["']?([^"')]+)["']?\s*\)/gi;
     var RESOURCE_MATCH = /(content|custom|theme|libs|idevices)\//i;
 
-    function extractPathsFromString(text, sourceType, source, references, referencesByPath) {
+    function extractPathsFromString(text, sourceType, source, references, referencesByPath, sourcePath) {
         var regexes = [ATTR_REGEX, URL_REGEX];
         regexes.forEach(function (regex) {
             regex.lastIndex = 0;
@@ -207,41 +311,85 @@
             while ((match = regex.exec(text)) !== null) {
                 var raw = match[1];
                 if (!RESOURCE_MATCH.test(raw)) continue;
-                addReference(raw, sourceType, source, references, referencesByPath);
+                addReference(raw, sourceType, source, references, referencesByPath, sourcePath);
             }
         });
     }
 
-    function extractPathsFromJson(value, sourceType, source, references, referencesByPath) {
+    /**
+     * Check if a string looks like an isolated asset path (not HTML, not prose).
+     */
+    function looksLikeAssetPath(value) {
+        // Reject if it looks like HTML
+        if (/<[^>]+>/.test(value)) return false;
+        // Reject if it contains newlines (multi-line text)
+        if (/\n/.test(value)) return false;
+        // Accept if it starts with a known asset prefix or relative path
+        if (/^(content\/|custom\/|theme\/|libs\/|idevices\/|\.\.\/|\.\/|\{\{context_path\}\})/.test(value)) return true;
+        // Accept if it looks like a filename with a known extension
+        if (/\.(jpg|jpeg|png|gif|svg|webp|bmp|ico|mp3|ogg|wav|mp4|webm|ogv|pdf|json|xml|html|htm|css|js|woff|woff2|ttf|eot|zip|txt|map)(\?[^"']*)?$/i.test(value)) return true;
+        return false;
+    }
+
+    function extractPathsFromJson(value, sourceType, source, references, referencesByPath, sourcePath) {
         if (!value) return;
         if (typeof value === 'string') {
-            if (RESOURCE_MATCH.test(value)) {
-                addReference(value, sourceType, source, references, referencesByPath);
+            // If the string looks like HTML, extract paths from HTML attributes
+            if (/<[^>]+(?:src|href|poster|data-src)=/.test(value)) {
+                extractPathsFromString(value, sourceType, source, references, referencesByPath, sourcePath);
+                return;
             }
-            // Also check for paths embedded in HTML strings
-            if (/<[^>]+(?:src|href)=/.test(value)) {
-                extractPathsFromString(value, sourceType, source, references, referencesByPath);
+            // If it contains url(...) CSS patterns, extract them
+            if (URL_REGEX.test(value)) {
+                URL_REGEX.lastIndex = 0;
+                var urlMatch;
+                while ((urlMatch = URL_REGEX.exec(value)) !== null) {
+                    var urlRaw = urlMatch[1];
+                    if (RESOURCE_MATCH.test(urlRaw)) {
+                        addReference(urlRaw, sourceType, source, references, referencesByPath, sourcePath);
+                    }
+                }
+                return;
+            }
+            // Only treat as path if it looks like an isolated asset path
+            if (RESOURCE_MATCH.test(value) && looksLikeAssetPath(value)) {
+                addReference(value, sourceType, source, references, referencesByPath, sourcePath);
             }
             return;
         }
         if (Array.isArray(value)) {
-            value.forEach(function (item) { extractPathsFromJson(item, sourceType, source, references, referencesByPath); });
+            value.forEach(function (item) { extractPathsFromJson(item, sourceType, source, references, referencesByPath, sourcePath); });
             return;
         }
         if (typeof value === 'object') {
-            Object.values(value).forEach(function (item) { extractPathsFromJson(item, sourceType, source, references, referencesByPath); });
+            Object.values(value).forEach(function (item) { extractPathsFromJson(item, sourceType, source, references, referencesByPath, sourcePath); });
         }
     }
 
-    function addReference(rawPath, sourceType, source, references, referencesByPath) {
-        var normalized = normalizeResourcePath(rawPath);
+    /**
+     * Extract url(...) references from CSS content.
+     */
+    function extractPathsFromCss(css, source, references, referencesByPath, sourcePath) {
+        URL_REGEX.lastIndex = 0;
+        var match;
+        while ((match = URL_REGEX.exec(css)) !== null) {
+            var raw = match[1];
+            // Skip data URIs and absolute URLs
+            if (/^(data:|https?:|\/\/)/.test(raw)) continue;
+            addReference(raw, 'css', source, references, referencesByPath, sourcePath);
+        }
+    }
+
+    function addReference(rawPath, sourceType, source, references, referencesByPath, sourcePath) {
+        var normalized = resolveReferencePath(rawPath, sourcePath);
         if (!normalized) return;
 
         var ref = {
             rawPath: rawPath,
             normalizedPath: normalized,
             sourceType: sourceType,
-            source: source
+            source: source,
+            sourcePath: sourcePath || null
         };
         references.push(ref);
 
@@ -319,18 +467,26 @@
                     details: 'The referenced asset "' + refPath + '" was not found in the package.',
                     evidence: {
                         path: refPath,
-                        referencedFrom: refs.map(function (r) { return r.sourceType + ': ' + (r.source.ideviceId || r.source.htmlFile || 'unknown'); })
+                        referencedFrom: refs.map(function (r) { return r.sourceType + ': ' + (r.source.ideviceId || r.source.htmlFile || r.source.cssFile || 'unknown'); })
                     },
                     suggestion: 'Ensure the asset exists in the package or update the reference.'
                 }));
             }
 
-            // Check for path traversal in references
-            if (/\.\.[\\/]/.test(refPath)) {
+            // Check for path traversal in references.
+            // Only flag if the raw path actually escapes the ZIP root
+            // after resolving relative to its source file.
+            var hasTraversal = false;
+            refs.forEach(function (r) {
+                if (/\.\.[\\/]/.test(r.rawPath) && escapesZipRoot(r.rawPath, r.sourcePath)) {
+                    hasTraversal = true;
+                }
+            });
+            if (hasTraversal) {
                 findings.push(createFinding('ASSET004', {
-                    details: 'Path traversal detected in asset reference "' + refPath + '".',
+                    details: 'Path traversal detected in asset reference "' + refPath + '" — the resolved path escapes the package root.',
                     evidence: { path: refPath },
-                    suggestion: 'Asset references should not use ".." path segments.'
+                    suggestion: 'Asset references should not escape the package root directory.'
                 }));
             }
 
@@ -344,6 +500,13 @@
             }
         });
 
+        // File extensions/paths to skip when checking for orphaned assets
+        var ORPHAN_IGNORE_EXTENSIONS = new Set(['.map']);
+        var ORPHAN_IGNORE_PATTERNS = [
+            /^theme\/icons\//i,                // Theme icon sets
+            /^idevices\/[^/]+\/[^/]+\.html$/i  // iDevice HTML templates
+        ];
+
         // Find orphaned assets (in asset dirs but never referenced)
         assets.forEach(function (asset) {
             if (!asset.referenced && asset.isAssetDir) {
@@ -351,6 +514,16 @@
                 var isContentFile = /^(content\.xml|content\.dtd|contentv3\.xml|index\.html)$/i.test(asset.path);
                 var isHtmlPage = /^html\//i.test(asset.path);
                 if (!isContentFile && !isHtmlPage) {
+                    // Skip source maps and other non-essential files by default
+                    var ext = getExtension(asset.path);
+                    if (ORPHAN_IGNORE_EXTENSIONS.has(ext)) return;
+
+                    // Skip known structural patterns that are rarely directly referenced
+                    var isIgnoredPattern = ORPHAN_IGNORE_PATTERNS.some(function (pattern) {
+                        return pattern.test(asset.path);
+                    });
+                    if (isIgnoredPattern) return;
+
                     orphanedCount++;
                     findings.push(createFinding('ASSET002', {
                         details: 'The asset "' + asset.path + '" exists in the package but is not referenced by any content.',
@@ -378,6 +551,9 @@
         extractReferences: extractReferences,
         validateAssets: validateAssets,
         normalizeResourcePath: normalizeResourcePath,
+        resolveReferencePath: resolveReferencePath,
+        looksLikeAssetPath: looksLikeAssetPath,
+        extractPathsFromCss: extractPathsFromCss,
         inferMime: inferMime,
         previewType: previewType,
         getExtension: getExtension,

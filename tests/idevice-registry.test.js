@@ -38,12 +38,15 @@ describe('iDevice registry', () => {
         expect(lookup(undefined).status).toBe('missing');
     });
 
-    test('allKnownTypes returns all 18 types', () => {
+    test('allKnownTypes returns all types', () => {
         const types = allKnownTypes();
-        expect(types.length).toBe(18);
+        expect(types.length).toBe(27);
         expect(types).toContain('text');
         expect(types).toContain('crossword');
         expect(types).toContain('download-source-file');
+        expect(types).toContain('udl-content');
+        expect(types).toContain('scrambled-list');
+        expect(types).toContain('interactive-video');
     });
 
     test('image types require images', () => {

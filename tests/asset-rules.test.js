@@ -168,7 +168,7 @@ describe('Asset validation', () => {
 
     test('flags path traversal in references', () => {
         const assets = [];
-        const refsByPath = { '../../../etc/passwd': [{ sourceType: 'htmlView', source: {} }] };
+        const refsByPath = { '../../../etc/passwd': [{ sourceType: 'htmlView', source: {}, rawPath: '../../../etc/passwd', sourcePath: null }] };
         const { findings } = validateAssets(assets, refsByPath, {});
         expect(findings.some(f => f.code === 'ASSET004')).toBe(true);
     });

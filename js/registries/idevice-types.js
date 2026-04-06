@@ -38,7 +38,16 @@
         'quick-questions':                 { label: 'Quick Questions',                group: 'quiz',     requiresImages: false, requiresUrl: false, deep: false },
         'quick-questions-multiple-choice': { label: 'Quick Questions (Multiple Choice)',  group: 'quiz',     requiresImages: false, requiresUrl: false, deep: false },
         'complete':                        { label: 'Complete (Fill in the Blanks)',   group: 'activity', requiresImages: false, requiresUrl: false, deep: false },
-        'download-source-file':            { label: 'Download Source File',            group: 'system',   requiresImages: false, requiresUrl: false, deep: true  }
+        'download-source-file':            { label: 'Download Source File',            group: 'system',   requiresImages: false, requiresUrl: false, deep: true  },
+        'udl-content':                     { label: 'UDL Content',                    group: 'content',  requiresImages: false, requiresUrl: false, deep: false },
+        'scrambled-list':                  { label: 'Scrambled List',                 group: 'activity', requiresImages: false, requiresUrl: false, deep: false },
+        'interactive-video':               { label: 'Interactive Video',              group: 'media',    requiresImages: false, requiresUrl: false, deep: false },
+        'dialogue':                        { label: 'Dialogue',                       group: 'content',  requiresImages: false, requiresUrl: false, deep: false },
+        'accordion':                       { label: 'Accordion',                      group: 'content',  requiresImages: false, requiresUrl: false, deep: false },
+        'tabs':                            { label: 'Tabs',                           group: 'content',  requiresImages: false, requiresUrl: false, deep: false },
+        'timeline':                        { label: 'Timeline',                       group: 'content',  requiresImages: false, requiresUrl: false, deep: false },
+        'carousel':                        { label: 'Carousel',                       group: 'media',    requiresImages: false, requiresUrl: false, deep: false },
+        'quiz-score-report':               { label: 'Quiz Score Report',              group: 'quiz',     requiresImages: false, requiresUrl: false, deep: false }
     });
 
     var GROUPS = Object.freeze({
@@ -72,6 +81,33 @@
     }
 
     /**
+     * Look up a type name, falling back to checking if the iDevice
+     * directory exists in the package (package-local type).
+     *
+     * @param {string} typeName
+     * @param {object} [zipFiles] - The zip.files map to check for idevices/<type>/
+     * @returns {{ known: boolean, definition: object|null, status: string }}
+     */
+    function lookupOrLocal(typeName, zipFiles) {
+        var result = lookup(typeName);
+        if (result.known) return result;
+        if (!typeName) return result;
+
+        // Check if idevices/<type>/ directory exists in the ZIP
+        if (zipFiles) {
+            var prefix = 'idevices/' + typeName.toLowerCase().trim() + '/';
+            var found = Object.keys(zipFiles).some(function (name) {
+                return name.toLowerCase().startsWith(prefix);
+            });
+            if (found) {
+                return { known: true, definition: null, status: 'package-local' };
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Return array of all known type names.
      * @returns {string[]}
      */
@@ -83,6 +119,7 @@
         KNOWN_TYPES: KNOWN_TYPES,
         GROUPS: GROUPS,
         lookup: lookup,
+        lookupOrLocal: lookupOrLocal,
         allKnownTypes: allKnownTypes
     };
 });

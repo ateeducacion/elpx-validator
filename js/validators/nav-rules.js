@@ -119,10 +119,12 @@
                     }
                 }
 
-                // Block name
-                if (!block.blockName) {
+                // Block name — only warn if the block has multiple components
+                // and lacks any descriptive properties. Single-component anonymous
+                // blocks are common in modern .elpx exports.
+                if (!block.blockName && block.components.length > 1) {
                     findings.push(createFinding('NAV011', {
-                        details: blockLabel + ' is missing a blockName.',
+                        details: blockLabel + ' is missing a blockName and contains ' + block.components.length + ' components.',
                         location: { pageId: page.odePageId, blockId: block.odeBlockId }
                     }));
                 }
@@ -218,18 +220,34 @@
             }));
         }
 
-        // htmlView
-        if (!comp.htmlView) {
+        // htmlView and jsonProperties — conditional by iDevice type.
+        // Not all types need both; validate based on type requirements.
+        var typeName = (comp.odeIdeviceTypeName || '').toLowerCase().trim();
+
+        // Types that need jsonProperties but not necessarily htmlView
+        var jsonOnlyTypes = { 'form': true };
+        // Types that need htmlView but not necessarily jsonProperties
+        var htmlOnlyTypes = { 'rubric': true, 'download-source-file': true };
+
+        var needsHtmlView = !jsonOnlyTypes[typeName];
+        var needsJsonProps = !htmlOnlyTypes[typeName];
+
+        if (needsHtmlView && needsJsonProps) {
+            // Generic: at least one of htmlView/jsonProperties should be present
+            if (!comp.htmlView && !comp.jsonProperties) {
+                findings.push(createFinding('NAV017', {
+                    details: compLabel + ' has an empty htmlView and empty jsonProperties. At least one should have content.',
+                    location: { pageId: page.odePageId, blockId: block.odeBlockId, ideviceId: comp.odeIdeviceId }
+                }));
+            }
+        } else if (needsHtmlView && !comp.htmlView) {
             findings.push(createFinding('NAV017', {
-                details: compLabel + ' has an empty htmlView.',
+                details: compLabel + ' (' + typeName + ') has an empty htmlView, which is expected for this type.',
                 location: { pageId: page.odePageId, blockId: block.odeBlockId, ideviceId: comp.odeIdeviceId }
             }));
-        }
-
-        // jsonProperties
-        if (!comp.jsonProperties) {
+        } else if (needsJsonProps && !comp.jsonProperties) {
             findings.push(createFinding('NAV018', {
-                details: compLabel + ' has empty jsonProperties.',
+                details: compLabel + ' (' + typeName + ') has empty jsonProperties, which is expected for this type.',
                 location: { pageId: page.odePageId, blockId: block.odeBlockId, ideviceId: comp.odeIdeviceId }
             }));
         }
@@ -389,10 +407,19 @@
             }));
         }
 
-        if (!resources.eXeVersion) {
+        if (!resources.eXeVersion && !resources.exe_version && !resources.pp_exelearning_version) {
             findings.push(createFinding('META003', {
-                details: 'The eXeVersion resource key is missing.',
+                details: 'The eXeVersion resource key is missing (also checked exe_version and pp_exelearning_version).',
                 suggestion: 'This key identifies which eXeLearning version created the package.'
+            }));
+        } else if (!resources.eXeVersion) {
+            // Found under an alias name — show the detected value
+            var detectedKey = resources.exe_version ? 'exe_version' : 'pp_exelearning_version';
+            var detectedValue = resources.exe_version || resources.pp_exelearning_version;
+            findings.push(createFinding('META003', {
+                details: 'eXeVersion key not found, but detected "' + detectedKey + '" with value "' + detectedValue + '".',
+                evidence: { detectedKey: detectedKey, detectedValue: detectedValue },
+                suggestion: 'The package uses an alternative key name for the eXe version. This is acceptable.'
             }));
         }
 
