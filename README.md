@@ -178,8 +178,8 @@ All validation rules return structured finding objects:
 
 ```js
 {
-  code: 'IDEV003',
-  severity: 'error',
+  code: 'IDEV001',
+  severity: 'info',
   category: 'idevice',
   message: 'Unknown iDevice type',
   details: 'The component uses an iDevice type not in the known registry.',

@@ -36,7 +36,7 @@
         'rubric':                          { label: 'Rubric',                         group: 'content',  requiresImages: false, requiresUrl: false, deep: false },
         'trueorfalse':                     { label: 'True or False',                  group: 'quiz',     requiresImages: false, requiresUrl: false, deep: false },
         'quick-questions':                 { label: 'Quick Questions',                group: 'quiz',     requiresImages: false, requiresUrl: false, deep: false },
-        'quick-questions-multiple-choice': { label: 'Quick Questions (Multiple)',      group: 'quiz',     requiresImages: false, requiresUrl: false, deep: false },
+        'quick-questions-multiple-choice': { label: 'Quick Questions (Multiple Choice)',  group: 'quiz',     requiresImages: false, requiresUrl: false, deep: false },
         'complete':                        { label: 'Complete (Fill in the Blanks)',   group: 'activity', requiresImages: false, requiresUrl: false, deep: false },
         'download-source-file':            { label: 'Download Source File',            group: 'system',   requiresImages: false, requiresUrl: false, deep: true  }
     });

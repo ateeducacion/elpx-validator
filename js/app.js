@@ -113,8 +113,9 @@
     }
 
     function escapeHtml(str) {
+        if (str == null) return '';
         var div = document.createElement('div');
-        div.textContent = str;
+        div.textContent = String(str);
         return div.innerHTML;
     }
 
@@ -174,7 +175,7 @@
         }
         if (labelElement && status !== 'pending') {
             var label = item.dataset.label || labelElement.textContent;
-            labelElement.innerHTML = label + (status === 'success' ? ' ✓' : '');
+            labelElement.textContent = label + (status === 'success' ? ' ✓' : '');
         }
     }
 
