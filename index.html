@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <a href="https://github.com/ateeducacion/elp-validator/" class="github-ribbon" aria-label="Fork me on GitHub">
+    <a href="https://github.com/ateeducacion/elpx-validator/" class="github-ribbon" aria-label="Fork me on GitHub">
         <img width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png"
              alt="Fork me on GitHub" loading="lazy">
     </a>
@@ -29,126 +29,186 @@
             </div>
         </section>
 
+        <!-- ============================================================ -->
+        <!-- Results section – redesigned as navigable inspector           -->
+        <!-- ============================================================ -->
         <section id="results" class="card results" hidden>
             <h2 id="fileName" class="file-name"></h2>
-            <div id="packageMetadata" class="metadata" hidden>
-                <h3>Package details</h3>
-                <table class="metadata-table">
-                    <tbody>
-                        <tr>
-                            <th scope="row">File size</th>
-                            <td id="meta-filesize">—</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Title</th>
-                            <td id="meta-title">—</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Author</th>
-                            <td id="meta-author">—</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Language</th>
-                            <td id="meta-language">—</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Description</th>
-                            <td id="meta-description">—</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">License</th>
-                            <td id="meta-license">—</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Version</th>
-                            <td id="meta-version">—</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Identifier</th>
-                            <td id="meta-identifier">—</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <details id="metadataMore" class="metadata-more" hidden>
-                    <summary>Show raw metadata</summary>
-                    <div class="metadata-more-content">
-                        <div class="metadata-more-section" id="meta-properties-section">
-                            <h4>Properties</h4>
-                            <ul id="meta-properties" class="metadata-list"></ul>
-                        </div>
-                        <div class="metadata-more-section" id="meta-resources-section">
-                            <h4>Resources</h4>
-                            <ul id="meta-resources" class="metadata-list"></ul>
-                        </div>
-                    </div>
-                </details>
+
+            <!-- Summary banner ------------------------------------------ -->
+            <div id="summaryBanner" class="summary-banner" hidden>
+                <span class="badge-format" id="badgeFormat"></span>
+                <div class="summary-counts">
+                    <span class="count-error" id="countErrors" title="Errors">❌ <strong>0</strong></span>
+                    <span class="count-warning" id="countWarnings" title="Warnings">⚠️ <strong>0</strong></span>
+                    <span class="count-info" id="countInfos" title="Info">ℹ️ <strong>0</strong></span>
+                </div>
             </div>
-            <p class="results-intro">Validation results:</p>
-            <ul id="checklist" class="checklist">
-                <li id="check-zip" class="check-item pending" data-label="Verifying ZIP archive integrity">
-                    <span class="icon" aria-hidden="true">⏳</span>
-                    <div>
-                        <span class="label">Verifying ZIP archive integrity...</span>
-                        <p class="details" role="alert"></p>
-                    </div>
-                </li>
-                <li id="check-content-xml" class="check-item pending" data-label="Looking for manifest">
-                    <span class="icon" aria-hidden="true">⏳</span>
-                    <div>
-                        <span class="label">Looking for manifest (<code>content.xml</code> / <code>contentv3.xml</code>)...</span>
-                        <p class="details" role="alert"></p>
-                    </div>
-                </li>
-                <li id="check-folders" class="check-item pending" data-label="Checking recommended resource folders">
-                    <span class="icon" aria-hidden="true">⏳</span>
-                    <div>
-                        <span class="label">Checking recommended resource folders...</span>
-                        <p class="details" role="alert"></p>
-                    </div>
-                </li>
-                <li id="check-xml-well-formed" class="check-item pending" data-label="Validating XML syntax">
-                    <span class="icon" aria-hidden="true">⏳</span>
-                    <div>
-                        <span class="label">Validating <code>content.xml</code> syntax...</span>
-                        <p class="details" role="alert"></p>
-                    </div>
-                </li>
-                <li id="check-root-element" class="check-item pending" data-label="Checking root element">
-                    <span class="icon" aria-hidden="true">⏳</span>
-                    <div>
-                        <span class="label">Checking root element...</span>
-                        <p class="details" role="alert"></p>
-                    </div>
-                </li>
-                <li id="check-nav-structures" class="check-item pending" data-label="Looking for navigation structure">
-                    <span class="icon" aria-hidden="true">⏳</span>
-                    <div>
-                        <span class="label">Verifying navigation structures...</span>
-                        <p class="details" role="alert"></p>
-                    </div>
-                </li>
-                <li id="check-pages" class="check-item pending" data-label="Checking for pages">
-                    <span class="icon" aria-hidden="true">⏳</span>
-                    <div>
-                        <span class="label">Checking for pages...</span>
-                        <p class="details" role="alert"></p>
-                    </div>
-                </li>
-                <li id="check-structure" class="check-item pending" data-label="Validating internal structure">
-                    <span class="icon" aria-hidden="true">⏳</span>
-                    <div>
-                        <span class="label">Validating internal structure...</span>
-                        <p class="details" role="alert"></p>
-                    </div>
-                </li>
-                <li id="check-resources" class="check-item pending" data-label="Checking linked resources">
-                    <span class="icon" aria-hidden="true">⏳</span>
-                    <div>
-                        <span class="label">Checking linked resources...</span>
-                        <p class="details" role="alert"></p>
-                    </div>
-                </li>
-            </ul>
+
+            <!-- Navigation tabs ----------------------------------------- -->
+            <nav class="tabs" role="tablist" aria-label="Validation sections">
+                <button class="tab active" role="tab" aria-selected="true"  data-tab="tab-overview"  id="btn-tab-overview">Overview</button>
+                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-findings"  id="btn-tab-findings">Findings</button>
+                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-pages"     id="btn-tab-pages">Pages</button>
+                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-idevices"  id="btn-tab-idevices">iDevices</button>
+                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-assets"    id="btn-tab-assets">Assets</button>
+                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-preview"   id="btn-tab-preview">Preview</button>
+            </nav>
+
+            <!-- Tab panels ---------------------------------------------- -->
+
+            <!-- OVERVIEW ------------------------------------------------ -->
+            <div class="tab-panel active" id="tab-overview" role="tabpanel">
+                <!-- Package metadata -->
+                <div id="packageMetadata" class="metadata" hidden>
+                    <h3>Package details</h3>
+                    <table class="metadata-table">
+                        <tbody>
+                            <tr><th scope="row">File size</th><td id="meta-filesize">—</td></tr>
+                            <tr><th scope="row">Title</th><td id="meta-title">—</td></tr>
+                            <tr><th scope="row">Author</th><td id="meta-author">—</td></tr>
+                            <tr><th scope="row">Language</th><td id="meta-language">—</td></tr>
+                            <tr><th scope="row">Description</th><td id="meta-description">—</td></tr>
+                            <tr><th scope="row">License</th><td id="meta-license">—</td></tr>
+                            <tr><th scope="row">Version</th><td id="meta-version">—</td></tr>
+                            <tr><th scope="row">Identifier</th><td id="meta-identifier">—</td></tr>
+                        </tbody>
+                    </table>
+                    <details id="metadataMore" class="metadata-more" hidden>
+                        <summary>Show raw metadata</summary>
+                        <div class="metadata-more-content">
+                            <div class="metadata-more-section" id="meta-properties-section">
+                                <h4>Properties</h4>
+                                <ul id="meta-properties" class="metadata-list"></ul>
+                            </div>
+                            <div class="metadata-more-section" id="meta-resources-section">
+                                <h4>Resources</h4>
+                                <ul id="meta-resources" class="metadata-list"></ul>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Legacy checklist (kept for backward compat) -->
+                <p class="results-intro">Validation results:</p>
+                <ul id="checklist" class="checklist">
+                    <li id="check-zip" class="check-item pending" data-label="Verifying ZIP archive integrity">
+                        <span class="icon" aria-hidden="true">⏳</span>
+                        <div><span class="label">Verifying ZIP archive integrity...</span><p class="details" role="alert"></p></div>
+                    </li>
+                    <li id="check-content-xml" class="check-item pending" data-label="Looking for manifest">
+                        <span class="icon" aria-hidden="true">⏳</span>
+                        <div><span class="label">Looking for manifest (<code>content.xml</code> / <code>contentv3.xml</code>)...</span><p class="details" role="alert"></p></div>
+                    </li>
+                    <li id="check-folders" class="check-item pending" data-label="Checking recommended resource folders">
+                        <span class="icon" aria-hidden="true">⏳</span>
+                        <div><span class="label">Checking recommended resource folders...</span><p class="details" role="alert"></p></div>
+                    </li>
+                    <li id="check-xml-well-formed" class="check-item pending" data-label="Validating XML syntax">
+                        <span class="icon" aria-hidden="true">⏳</span>
+                        <div><span class="label">Validating <code>content.xml</code> syntax...</span><p class="details" role="alert"></p></div>
+                    </li>
+                    <li id="check-root-element" class="check-item pending" data-label="Checking root element">
+                        <span class="icon" aria-hidden="true">⏳</span>
+                        <div><span class="label">Checking root element...</span><p class="details" role="alert"></p></div>
+                    </li>
+                    <li id="check-nav-structures" class="check-item pending" data-label="Looking for navigation structure">
+                        <span class="icon" aria-hidden="true">⏳</span>
+                        <div><span class="label">Verifying navigation structures...</span><p class="details" role="alert"></p></div>
+                    </li>
+                    <li id="check-pages" class="check-item pending" data-label="Checking for pages">
+                        <span class="icon" aria-hidden="true">⏳</span>
+                        <div><span class="label">Checking for pages...</span><p class="details" role="alert"></p></div>
+                    </li>
+                    <li id="check-structure" class="check-item pending" data-label="Validating internal structure">
+                        <span class="icon" aria-hidden="true">⏳</span>
+                        <div><span class="label">Validating internal structure...</span><p class="details" role="alert"></p></div>
+                    </li>
+                    <li id="check-resources" class="check-item pending" data-label="Checking linked resources">
+                        <span class="icon" aria-hidden="true">⏳</span>
+                        <div><span class="label">Checking linked resources...</span><p class="details" role="alert"></p></div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- FINDINGS ------------------------------------------------ -->
+            <div class="tab-panel" id="tab-findings" role="tabpanel" hidden>
+                <div class="findings-toolbar">
+                    <label>Filter:
+                        <select id="findingsFilterSeverity">
+                            <option value="all">All severities</option>
+                            <option value="error">Errors only</option>
+                            <option value="warning">Warnings only</option>
+                            <option value="info">Info only</option>
+                        </select>
+                    </label>
+                    <label>Category:
+                        <select id="findingsFilterCategory">
+                            <option value="all">All categories</option>
+                            <option value="package">Package</option>
+                            <option value="xml">XML / Schema</option>
+                            <option value="navigation">Navigation</option>
+                            <option value="metadata">Metadata</option>
+                            <option value="idevice">iDevice</option>
+                            <option value="asset">Asset</option>
+                            <option value="compatibility">Compatibility</option>
+                        </select>
+                    </label>
+                </div>
+                <div id="findingsList" class="findings-list"></div>
+            </div>
+
+            <!-- PAGES --------------------------------------------------- -->
+            <div class="tab-panel" id="tab-pages" role="tabpanel" hidden>
+                <div id="pagesTree" class="pages-tree"></div>
+            </div>
+
+            <!-- IDEVICES ------------------------------------------------ -->
+            <div class="tab-panel" id="tab-idevices" role="tabpanel" hidden>
+                <div id="ideviceSummaryPanel" class="idevice-summary"></div>
+                <div id="ideviceList" class="idevice-list"></div>
+            </div>
+
+            <!-- ASSETS -------------------------------------------------- -->
+            <div class="tab-panel" id="tab-assets" role="tabpanel" hidden>
+                <div class="assets-toolbar">
+                    <label>Show:
+                        <select id="assetsFilter">
+                            <option value="all">All assets</option>
+                            <option value="referenced">Referenced</option>
+                            <option value="orphaned">Orphaned / unreferenced</option>
+                            <option value="missing">Missing (referenced but absent)</option>
+                        </select>
+                    </label>
+                </div>
+                <div id="assetSummaryPanel" class="asset-summary"></div>
+                <div id="assetTableContainer" class="asset-table-container">
+                    <table id="assetTable" class="asset-table">
+                        <thead>
+                            <tr>
+                                <th>Path</th>
+                                <th>Type</th>
+                                <th>Extension</th>
+                                <th>Status</th>
+                                <th>Preview</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assetTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PREVIEW ------------------------------------------------- -->
+            <div class="tab-panel" id="tab-preview" role="tabpanel" hidden>
+                <div class="preview-toolbar">
+                    <label>Page:
+                        <select id="previewPageSelect"><option value="">— select a page —</option></select>
+                    </label>
+                </div>
+                <div id="previewContainer" class="preview-container">
+                    <iframe id="previewFrame" class="preview-frame" sandbox="allow-same-origin" title="Page preview"></iframe>
+                </div>
+            </div>
         </section>
     </main>
 
@@ -159,6 +219,15 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="js/core/rules.js"></script>
+    <script src="js/core/model.js"></script>
+    <script src="js/registries/idevice-types.js"></script>
+    <script src="js/validators/package-rules.js"></script>
+    <script src="js/validators/xml-rules.js"></script>
+    <script src="js/validators/nav-rules.js"></script>
+    <script src="js/validators/idevice-rules.js"></script>
+    <script src="js/validators/asset-rules.js"></script>
+    <script src="js/preview/virtual-fs.js"></script>
     <script src="js/validator.js"></script>
     <script src="js/app.js"></script>
 </body>
