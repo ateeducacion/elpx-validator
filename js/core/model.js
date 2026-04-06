@@ -23,15 +23,6 @@
         return child && child.textContent ? child.textContent.trim() : '';
     }
 
-    function childTextAll(node, tagName) {
-        var children = node.getElementsByTagName(tagName);
-        var result = [];
-        for (var i = 0; i < children.length; i++) {
-            result.push((children[i].textContent || '').trim());
-        }
-        return result;
-    }
-
     /* ------------------------------------------------------------------ */
     /*  Extract key/value maps                                            */
     /* ------------------------------------------------------------------ */
