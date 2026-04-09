@@ -18,6 +18,7 @@
     var ideviceRegistry = validator.ideviceRegistry || (typeof ELPXIdeviceRegistry !== 'undefined' ? ELPXIdeviceRegistry : {});
     var ediaCriteria = typeof EdiaCriteria !== 'undefined' ? EdiaCriteria : null;
     var ediaView     = typeof EdiaView     !== 'undefined' ? EdiaView     : null;
+    var i18n         = typeof ELPXI18n     !== 'undefined' ? ELPXI18n     : null;
 
     /* ================================================================== */
     /*  DOM references                                                    */
@@ -71,6 +72,7 @@
     // Preview
     var previewPageSelect   = document.getElementById('previewPageSelect');
     var previewFrame        = document.getElementById('previewFrame');
+    var languageSelect      = document.getElementById('languageSelect');
 
     // EDIA Validation
     var ediaPanel = document.getElementById('ediaPanel');
@@ -87,6 +89,7 @@
     var currentReport = null;
     var currentZip    = null;
     var virtualFS     = null;
+    var currentFileInfo = null;
 
     /* ================================================================== */
     /*  Helpers                                                           */
@@ -124,6 +127,94 @@
         return div.innerHTML;
     }
 
+    function translate(key, fallback, params) {
+        if (!i18n || typeof i18n.t !== 'function') return fallback != null ? fallback : key;
+        var value = i18n.t(key, params || {});
+        return value === key && fallback != null ? fallback : value;
+    }
+
+    function getEmptyValue() {
+        return translate('common.notAvailable', '—');
+    }
+
+    function getUntitledLabel() {
+        return translate('common.untitled', '(untitled)');
+    }
+
+    function getPageWord(count) {
+        return translate(count === 1 ? 'common.page' : 'common.pages', count === 1 ? 'page' : 'pages');
+    }
+
+    function getBlockWord(count) {
+        return translate(count === 1 ? 'common.block' : 'common.blocks', count === 1 ? 'block' : 'blocks');
+    }
+
+    function getComponentWord(count) {
+        return translate(count === 1 ? 'common.component' : 'common.components', count === 1 ? 'component' : 'components');
+    }
+
+    function getCategoryLabel(category) {
+        return translate('category.' + category, category);
+    }
+
+    function getIdeviceStatusLabel(status) {
+        return translate('idevice.statuses.' + status, status);
+    }
+
+    function getAssetStatusLabel(status) {
+        return translate('assets.statuses.' + status, status);
+    }
+
+    function getFindingTranslationParams(finding) {
+        var params = {
+            code: finding.code,
+            severity: finding.severity,
+            category: finding.category
+        };
+        if (finding.location) {
+            Object.keys(finding.location).forEach(function (key) {
+                params[key] = finding.location[key];
+            });
+        }
+        if (finding.evidence) {
+            Object.keys(finding.evidence).forEach(function (key) {
+                params[key] = finding.evidence[key];
+            });
+        }
+        return params;
+    }
+
+    function getFindingText(finding, field) {
+        var key = 'findings.' + finding.code + '.' + field;
+        var translated = translate(key, null, getFindingTranslationParams(finding));
+        if (translated !== key && translated != null) return translated;
+        return finding[field] || '';
+    }
+
+    function getPreviewPlaceholder() {
+        return translate('preview.placeholder', '— select a page —');
+    }
+
+    function syncLanguageSelector() {
+        if (languageSelect && i18n && typeof i18n.getLanguage === 'function') {
+            languageSelect.value = i18n.getLanguage();
+        }
+    }
+
+    function applyStaticTranslations() {
+        if (i18n && typeof i18n.translateDom === 'function') {
+            i18n.translateDom(document);
+        }
+        syncLanguageSelector();
+    }
+
+    function getChecklistLabel(item, asHtml) {
+        if (!item) return '';
+        var key = asHtml ? item.dataset.labelHtmlI18n : item.dataset.labelI18n;
+        if (!key) return item.dataset.label || '';
+        return translate(key, item.dataset.label || '');
+    }
+
     /* ================================================================== */
     /*  Tab navigation                                                    */
     /* ================================================================== */
@@ -152,11 +243,13 @@
         items.forEach(function (item) {
             item.className = 'check-item pending';
             var icon = item.querySelector('.icon');
-            var label = item.dataset.label || 'Running check';
+            var label = getChecklistLabel(item, false) || translate('checklist.runningCheck', 'Running check');
+            var labelHtml = getChecklistLabel(item, true) || label;
             var details = item.querySelector('.details');
+            item.dataset.label = label;
             if (icon) icon.textContent = iconMap.pending;
             var labelElement = item.querySelector('.label');
-            if (labelElement) labelElement.innerHTML = label + '...';
+            if (labelElement) labelElement.innerHTML = labelHtml + '...';
             if (details) { details.textContent = ''; details.style.display = 'none'; }
         });
         var pagesItem = document.getElementById('check-pages');
@@ -179,7 +272,7 @@
             else { details.textContent = ''; details.style.display = 'none'; }
         }
         if (labelElement && status !== 'pending') {
-            var label = item.dataset.label || labelElement.textContent;
+            var label = item.dataset.label || getChecklistLabel(item, false) || labelElement.textContent;
             labelElement.textContent = label + (status === 'success' ? ' ✓' : '');
         }
     }
@@ -197,14 +290,14 @@
         details.className = 'pages-collapsible';
         details.open = false;
         var summary = document.createElement('summary');
-        summary.textContent = 'Show page titles (' + titles.length + ')';
+        summary.textContent = translate('common.showPageTitles', 'Show page titles ({count})', { count: titles.length });
         details.appendChild(summary);
 
         var list = document.createElement('ul');
         list.className = 'pages-list';
         titles.forEach(function (title) {
             var li = document.createElement('li');
-            li.textContent = title || '(untitled)';
+            li.textContent = title || getUntitledLabel();
             list.appendChild(li);
         });
         details.appendChild(list);
@@ -217,7 +310,7 @@
 
     function clearMetadata() {
         if (metadataSection) metadataSection.hidden = true;
-        Object.values(metadataFields).forEach(function (field) { if (field) field.textContent = '—'; });
+        Object.values(metadataFields).forEach(function (field) { if (field) field.textContent = getEmptyValue(); });
         if (metadataMore) { metadataMore.hidden = true; metadataMore.open = false; }
         if (metadataPropertiesList) metadataPropertiesList.innerHTML = '';
         if (metadataResourcesList)  metadataResourcesList.innerHTML = '';
@@ -238,7 +331,7 @@
             valueElement.className = 'metadata-value';
             var displayValue = value;
             if (displayValue === null || displayValue === undefined || displayValue === '') {
-                displayValue = '—';
+                displayValue = getEmptyValue();
             } else if (typeof displayValue === 'object') {
                 try { displayValue = JSON.stringify(displayValue, null, 2); }
                 catch (e) { displayValue = String(displayValue); }
@@ -274,7 +367,7 @@
 
         Object.entries(fieldValues).forEach(function (entry) {
             var field = metadataFields[entry[0]];
-            if (field) field.textContent = entry[1] || '—';
+            if (field) field.textContent = entry[1] || getEmptyValue();
         });
 
         var primaryPropertyKeys = new Set(['pp_title', 'pp_author', 'pp_lang', 'pp_description', 'license', 'title', 'language', 'version']);
@@ -305,13 +398,13 @@
         // Format badge
         if (badgeFormat) {
             if (report.format === 'elpx') {
-                badgeFormat.textContent = 'Modern ELPX';
+                badgeFormat.textContent = translate('summary.format.elpx', 'Modern ELPX');
                 badgeFormat.className = 'badge-format badge-elpx';
             } else if (report.format === 'elp') {
-                badgeFormat.textContent = 'Legacy ELP';
+                badgeFormat.textContent = translate('summary.format.elp', 'Legacy ELP');
                 badgeFormat.className = 'badge-format badge-elp';
             } else {
-                badgeFormat.textContent = 'Unknown';
+                badgeFormat.textContent = translate('summary.format.unknown', 'Unknown');
                 badgeFormat.className = 'badge-format badge-unknown';
             }
         }
@@ -330,7 +423,7 @@
         findingsList.innerHTML = '';
 
         if (!findings || findings.length === 0) {
-            findingsList.innerHTML = '<p class="findings-empty">No findings to display.</p>';
+            findingsList.innerHTML = '<p class="findings-empty">' + escapeHtml(translate('findings.empty', 'No findings to display.')) + '</p>';
             return;
         }
 
@@ -344,11 +437,14 @@
         });
 
         if (filtered.length === 0) {
-            findingsList.innerHTML = '<p class="findings-empty">No findings match the current filters.</p>';
+            findingsList.innerHTML = '<p class="findings-empty">' + escapeHtml(translate('findings.filteredEmpty', 'No findings match the current filters.')) + '</p>';
             return;
         }
 
         filtered.forEach(function (f) {
+            var message = getFindingText(f, 'message');
+            var details = getFindingText(f, 'details');
+            var suggestionText = getFindingText(f, 'suggestion');
             var card = document.createElement('div');
             card.className = 'finding-card finding-' + f.severity;
 
@@ -356,28 +452,29 @@
             header.className = 'finding-header';
             header.innerHTML = '<span class="finding-icon">' + (severityIcon[f.severity] || '') + '</span>'
                 + '<code class="finding-code">' + escapeHtml(f.code) + '</code>'
-                + '<span class="finding-category">' + escapeHtml(f.category) + '</span>'
-                + '<span class="finding-message">' + escapeHtml(f.message) + '</span>';
+                + '<span class="finding-category">' + escapeHtml(getCategoryLabel(f.category)) + '</span>'
+                + '<span class="finding-message">' + escapeHtml(message) + '</span>';
             card.appendChild(header);
 
-            if (f.details) {
+            if (details) {
                 var detailsEl = document.createElement('p');
                 detailsEl.className = 'finding-details';
-                detailsEl.textContent = f.details;
+                detailsEl.textContent = details;
                 card.appendChild(detailsEl);
             }
 
-            if (f.suggestion) {
+            if (suggestionText) {
                 var suggestion = document.createElement('p');
                 suggestion.className = 'finding-suggestion';
-                suggestion.textContent = '💡 ' + f.suggestion;
+                suggestion.textContent = translate('findings.suggestionPrefix', '💡 ') + suggestionText;
                 card.appendChild(suggestion);
             }
 
             if (f.location && Object.keys(f.location).length > 0) {
                 var loc = document.createElement('p');
                 loc.className = 'finding-location';
-                loc.textContent = '📍 ' + Object.entries(f.location).map(function (e) { return e[0] + ': ' + e[1]; }).join(', ');
+                loc.textContent = '📍 ' + translate('findings.location', 'Location') + ': '
+                    + Object.entries(f.location).map(function (e) { return e[0] + ': ' + e[1]; }).join(', ');
                 card.appendChild(loc);
             }
 
@@ -397,7 +494,7 @@
         pagesTree.innerHTML = '';
 
         if (!model || !model.pages || model.pages.length === 0) {
-            pagesTree.innerHTML = '<p class="panel-empty">No pages found in this package.</p>';
+            pagesTree.innerHTML = '<p class="panel-empty">' + escapeHtml(translate('pages.empty', 'No pages found in this package.')) + '</p>';
             return;
         }
 
@@ -428,11 +525,12 @@
                 li.className = 'tree-item';
                 var label = document.createElement('span');
                 label.className = 'tree-label';
-                label.innerHTML = '<strong>' + escapeHtml(page.pageName || '(untitled)') + '</strong>'
+                var blockCount = page.blocks.length;
+                var componentCount = page.blocks.reduce(function (sum, b) { return sum + b.components.length; }, 0);
+                label.innerHTML = '<strong>' + escapeHtml(page.pageName || getUntitledLabel()) + '</strong>'
                     + ' <code>' + escapeHtml(page.odePageId || '?') + '</code>'
-                    + ' <span class="tree-meta">' + page.blocks.length + ' block' + (page.blocks.length !== 1 ? 's' : '') + ', '
-                    + page.blocks.reduce(function (sum, b) { return sum + b.components.length; }, 0) + ' component'
-                    + (page.blocks.reduce(function (sum, b) { return sum + b.components.length; }, 0) !== 1 ? 's' : '') + '</span>';
+                    + ' <span class="tree-meta">' + blockCount + ' ' + getBlockWord(blockCount) + ', '
+                    + componentCount + ' ' + getComponentWord(componentCount) + '</span>';
                 li.appendChild(label);
 
                 // Blocks
@@ -442,7 +540,7 @@
                     page.blocks.forEach(function (block) {
                         var bli = document.createElement('li');
                         bli.className = 'tree-block';
-                        bli.innerHTML = '📦 <strong>' + escapeHtml(block.blockName || '(unnamed)') + '</strong>'
+                        bli.innerHTML = '📦 <strong>' + escapeHtml(block.blockName || getUntitledLabel()) + '</strong>'
                             + ' <code>' + escapeHtml(block.odeBlockId || '?') + '</code>';
 
                         if (block.components.length > 0) {
@@ -483,7 +581,7 @@
 
         if (orphaned.length > 0) {
             var orphanHeader = document.createElement('h4');
-            orphanHeader.textContent = 'Orphaned pages (dangling parent reference)';
+            orphanHeader.textContent = translate('pages.orphaned', 'Orphaned pages (dangling parent reference)');
             orphanHeader.className = 'orphan-header';
             pagesTree.appendChild(orphanHeader);
             var orphanTree = buildTree('__orphaned__');
@@ -500,29 +598,32 @@
         ideviceSummaryPanel.innerHTML = '';
 
         if (!ideviceSummary) {
-            ideviceSummaryPanel.innerHTML = '<p class="panel-empty">No iDevice information available.</p>';
+            ideviceSummaryPanel.innerHTML = '<p class="panel-empty">' + escapeHtml(translate('idevice.empty', 'No iDevice information available.')) + '</p>';
             return;
         }
 
         var html = '<div class="idevice-counts">'
-            + '<span>Total: <strong>' + ideviceSummary.total + '</strong></span>'
-            + '<span>Known (deep): <strong>' + ideviceSummary.knownDeep + '</strong></span>'
-            + '<span>Known (shallow): <strong>' + ideviceSummary.knownShallow + '</strong></span>'
-            + '<span>Unknown: <strong>' + ideviceSummary.unknown + '</strong></span>'
-            + (ideviceSummary.parseErrors > 0 ? '<span class="parse-errors">Parse errors: <strong>' + ideviceSummary.parseErrors + '</strong></span>' : '')
+            + '<span>' + escapeHtml(translate('idevice.total', 'Total')) + ': <strong>' + ideviceSummary.total + '</strong></span>'
+            + '<span>' + escapeHtml(translate('idevice.knownDeep', 'Known (deep)')) + ': <strong>' + ideviceSummary.knownDeep + '</strong></span>'
+            + '<span>' + escapeHtml(translate('idevice.knownShallow', 'Known (shallow)')) + ': <strong>' + ideviceSummary.knownShallow + '</strong></span>'
+            + '<span>' + escapeHtml(translate('idevice.unknown', 'Unknown')) + ': <strong>' + ideviceSummary.unknown + '</strong></span>'
+            + (ideviceSummary.parseErrors > 0 ? '<span class="parse-errors">' + escapeHtml(translate('idevice.parseErrors', 'Parse errors')) + ': <strong>' + ideviceSummary.parseErrors + '</strong></span>' : '')
             + '</div>';
 
         // Type breakdown
         if (ideviceSummary.typeCounts && Object.keys(ideviceSummary.typeCounts).length > 0) {
-            html += '<h4>Types used</h4><table class="idevice-type-table"><thead><tr><th>Type</th><th>Count</th><th>Status</th></tr></thead><tbody>';
+            html += '<h4>' + escapeHtml(translate('idevice.typesUsed', 'Types used')) + '</h4><table class="idevice-type-table"><thead><tr><th>'
+                + escapeHtml(translate('idevice.type', 'Type')) + '</th><th>'
+                + escapeHtml(translate('idevice.count', 'Count')) + '</th><th>'
+                + escapeHtml(translate('idevice.status', 'Status')) + '</th></tr></thead><tbody>';
             var sorted = Object.entries(ideviceSummary.typeCounts).sort(function (a, b) { return b[1] - a[1]; });
             sorted.forEach(function (entry) {
                 var typeName = entry[0];
                 var count = entry[1];
                 var lookup = ideviceRegistry.lookup ? ideviceRegistry.lookup(typeName) : { known: false, status: 'unknown' };
                 var statusBadge = lookup.known
-                    ? '<span class="badge badge-success">' + lookup.status + '</span>'
-                    : '<span class="badge badge-warning">unknown</span>';
+                    ? '<span class="badge badge-success">' + escapeHtml(getIdeviceStatusLabel(lookup.status)) + '</span>'
+                    : '<span class="badge badge-warning">' + escapeHtml(getIdeviceStatusLabel('unknown')) + '</span>';
                 html += '<tr><td><code>' + escapeHtml(typeName) + '</code></td><td>' + count + '</td><td>' + statusBadge + '</td></tr>';
             });
             html += '</tbody></table>';
@@ -542,10 +643,10 @@
             return;
         }
         assetSummaryPanel.innerHTML = '<div class="asset-counts">'
-            + '<span>Total files: <strong>' + assetSummary.totalAssets + '</strong></span>'
-            + '<span>Referenced: <strong>' + assetSummary.referencedAssets + '</strong></span>'
-            + '<span>Missing: <strong>' + assetSummary.missingAssets + '</strong></span>'
-            + '<span>Orphaned: <strong>' + assetSummary.orphanedAssets + '</strong></span>'
+            + '<span>' + escapeHtml(translate('assets.totalFiles', 'Total files')) + ': <strong>' + assetSummary.totalAssets + '</strong></span>'
+            + '<span>' + escapeHtml(translate('assets.referenced', 'Referenced')) + ': <strong>' + assetSummary.referencedAssets + '</strong></span>'
+            + '<span>' + escapeHtml(translate('assets.missing', 'Missing')) + ': <strong>' + assetSummary.missingAssets + '</strong></span>'
+            + '<span>' + escapeHtml(translate('assets.orphaned', 'Orphaned')) + ': <strong>' + assetSummary.orphanedAssets + '</strong></span>'
             + '</div>';
     }
 
@@ -554,7 +655,7 @@
         assetTableBody.innerHTML = '';
 
         if (!assets || assets.length === 0) {
-            assetTableBody.innerHTML = '<tr><td colspan="5">No assets found.</td></tr>';
+            assetTableBody.innerHTML = '<tr><td colspan="5">' + escapeHtml(translate('assets.empty', 'No assets found.')) + '</td></tr>';
             return;
         }
 
@@ -581,11 +682,11 @@
             missingPaths.forEach(function (path) {
                 var tr = document.createElement('tr');
                 tr.className = 'asset-missing';
-                tr.innerHTML = '<td>' + escapeHtml(path) + '</td><td>—</td><td>—</td><td><span class="badge badge-error">missing</span></td><td>—</td>';
+                tr.innerHTML = '<td>' + escapeHtml(path) + '</td><td>' + escapeHtml(getEmptyValue()) + '</td><td>' + escapeHtml(getEmptyValue()) + '</td><td><span class="badge badge-error">' + escapeHtml(getAssetStatusLabel('missing')) + '</span></td><td>' + escapeHtml(getEmptyValue()) + '</td>';
                 assetTableBody.appendChild(tr);
             });
             if (missingPaths.size === 0) {
-                assetTableBody.innerHTML = '<tr><td colspan="5">No missing assets detected.</td></tr>';
+                assetTableBody.innerHTML = '<tr><td colspan="5">' + escapeHtml(translate('assets.missingEmpty', 'No missing assets detected.')) + '</td></tr>';
             }
             return;
         }
@@ -602,8 +703,12 @@
 
         shown.forEach(function (asset) {
             var tr = document.createElement('tr');
-            var status = asset.referenced ? '<span class="badge badge-success">referenced</span>' : (asset.isAssetDir ? '<span class="badge badge-warning">orphaned</span>' : '<span class="badge badge-muted">structural</span>');
-            var previewCell = '—';
+            var status = asset.referenced
+                ? '<span class="badge badge-success">' + escapeHtml(getAssetStatusLabel('referenced')) + '</span>'
+                : (asset.isAssetDir
+                    ? '<span class="badge badge-warning">' + escapeHtml(getAssetStatusLabel('orphaned')) + '</span>'
+                    : '<span class="badge badge-muted">' + escapeHtml(getAssetStatusLabel('structural')) + '</span>');
+            var previewCell = getEmptyValue();
             if (asset.previewType === 'image') {
                 previewCell = '🖼️';
             } else if (asset.previewType === 'audio') {
@@ -617,7 +722,7 @@
             }
             tr.innerHTML = '<td title="' + escapeHtml(asset.path) + '">' + escapeHtml(asset.path) + '</td>'
                 + '<td>' + escapeHtml(asset.mimeType) + '</td>'
-                + '<td>' + escapeHtml(asset.extension || '—') + '</td>'
+                + '<td>' + escapeHtml(asset.extension || getEmptyValue()) + '</td>'
                 + '<td>' + status + '</td>'
                 + '<td>' + previewCell + '</td>';
             assetTableBody.appendChild(tr);
@@ -625,7 +730,10 @@
 
         if (filtered.length > limit) {
             var tr = document.createElement('tr');
-            tr.innerHTML = '<td colspan="5"><em>Showing ' + limit + ' of ' + filtered.length + ' assets…</em></td>';
+            tr.innerHTML = '<td colspan="5"><em>' + escapeHtml(translate('assets.showingLimit', 'Showing {shown} of {total} assets…', {
+                shown: limit,
+                total: filtered.length
+            })) + '</em></td>';
             assetTableBody.appendChild(tr);
         }
     }
@@ -642,9 +750,9 @@
     /*  Preview panel                                                     */
     /* ================================================================== */
 
-    function renderPreviewOptions(zip) {
+    function renderPreviewOptions(zip, selectedValue) {
         if (!previewPageSelect) return;
-        previewPageSelect.innerHTML = '<option value="">— select a page —</option>';
+        previewPageSelect.innerHTML = '<option value="">' + escapeHtml(getPreviewPlaceholder()) + '</option>';
 
         if (!zip) return;
         var htmlFiles = Object.keys(zip.files).filter(function (name) {
@@ -657,6 +765,10 @@
             opt.textContent = name;
             previewPageSelect.appendChild(opt);
         });
+
+        if (selectedValue) {
+            previewPageSelect.value = selectedValue;
+        }
     }
 
     if (previewPageSelect) {
@@ -682,7 +794,9 @@
                 previewFrame.src = url;
             } catch (e) {
                 console.error('Preview error:', e);
-                previewFrame.srcdoc = '<p style="padding:1rem;color:red;">Error loading preview: ' + escapeHtml(e.message) + '</p>';
+                previewFrame.srcdoc = '<p style="padding:1rem;color:red;">' + escapeHtml(translate('preview.errorLoading', 'Error loading preview: {message}', {
+                    message: e.message
+                })) + '</p>';
             }
         });
     }
@@ -704,6 +818,30 @@
         ediaView.renderEdiaDashboard(ediaPanel, criteria, report || null);
     }
 
+    function rerenderCurrentState() {
+        applyStaticTranslations();
+        resetChecklist();
+
+        if (!currentReport) {
+            if (previewPageSelect) previewPageSelect.innerHTML = '<option value="">' + escapeHtml(getPreviewPlaceholder()) + '</option>';
+            renderEdiaPanel(null);
+            return;
+        }
+
+        var selectedPreview = previewPageSelect ? previewPageSelect.value : '';
+        renderSummary(currentReport);
+        renderMetadata(currentReport.metadata);
+        if (metadataFields.fileSize && currentFileInfo) metadataFields.fileSize.textContent = formatBytes(currentFileInfo.size);
+        populateLegacyChecklist(currentReport, currentZip);
+        renderFindings(currentReport.findings);
+        renderPagesTree(currentReport.model);
+        renderIdeviceSummary(currentReport.ideviceSummary, currentReport.model);
+        renderAssetSummary(currentReport.assetSummary);
+        renderAssetTable(currentReport.assetInventory, currentReport.findings, assetsFilter ? assetsFilter.value : 'all');
+        renderPreviewOptions(currentZip, selectedPreview);
+        renderEdiaPanel(currentReport);
+    }
+
     /* ================================================================== */
     /*  Main file handler                                                 */
     /* ================================================================== */
@@ -715,6 +853,7 @@
         currentReport = null;
         currentZip = null;
         virtualFS = null;
+        currentFileInfo = { name: file.name, size: file.size };
         if (preview.revokeAll) preview.revokeAll();
 
         resultsSection.hidden = false;
@@ -732,7 +871,7 @@
         if (ideviceList) ideviceList.innerHTML = '';
         if (assetSummaryPanel) assetSummaryPanel.innerHTML = '';
         if (assetTableBody) assetTableBody.innerHTML = '';
-        if (previewPageSelect) previewPageSelect.innerHTML = '<option value="">— select a page —</option>';
+        if (previewPageSelect) previewPageSelect.innerHTML = '<option value="">' + escapeHtml(getPreviewPlaceholder()) + '</option>';
         if (previewFrame) previewFrame.srcdoc = '';
 
         // Activate overview tab
@@ -752,10 +891,10 @@
             var arrayBuffer = await file.arrayBuffer();
             zip = await JSZip.loadAsync(arrayBuffer);
             currentZip = zip;
-            setChecklistStatus('check-zip', 'success', 'The archive was loaded successfully.');
+            setChecklistStatus('check-zip', 'success', translate('checklist.zip.success', 'The archive was loaded successfully.'));
         } catch (error) {
             console.error(error);
-            setChecklistStatus('check-zip', 'error', 'The file is not a valid ZIP archive or is corrupted.');
+            setChecklistStatus('check-zip', 'error', translate('checklist.zip.error', 'The file is not a valid ZIP archive or is corrupted.'));
             return;
         }
 
@@ -769,7 +908,9 @@
             currentReport = report;
         } catch (err) {
             console.error('Validation error:', err);
-            setChecklistStatus('check-content-xml', 'error', 'Validation failed: ' + err.message);
+            setChecklistStatus('check-content-xml', 'error', translate('checklist.contentXml.validationFailed', 'Validation failed: {message}', {
+                message: err.message
+            }));
             return;
         }
 
@@ -792,7 +933,7 @@
         renderPagesTree(report.model);
         renderIdeviceSummary(report.ideviceSummary, report.model);
         renderAssetSummary(report.assetSummary);
-        renderAssetTable(report.assetInventory, report.findings, 'all');
+        renderAssetTable(report.assetInventory, report.findings, assetsFilter ? assetsFilter.value : 'all');
         renderPreviewOptions(zip);
         renderEdiaPanel(report);
     }
@@ -804,11 +945,11 @@
         // Manifest detection
         if (report.format === 'elp') {
             setChecklistStatus('check-content-xml', 'warning',
-                'content.xml is missing, but legacy contentv3.xml was found. This package was created with an eXeLearning version earlier than 3.0.');
+                translate('checklist.contentXml.legacyFound', 'content.xml is missing, but legacy contentv3.xml was found. This package was created with an eXeLearning version earlier than 3.0.'));
         } else if (report.format === 'elpx') {
-            setChecklistStatus('check-content-xml', 'success', 'Found content.xml in the package.');
+            setChecklistStatus('check-content-xml', 'success', translate('checklist.contentXml.found', 'Found content.xml in the package.'));
         } else {
-            setChecklistStatus('check-content-xml', 'error', 'Neither content.xml nor legacy contentv3.xml were found.');
+            setChecklistStatus('check-content-xml', 'error', translate('checklist.contentXml.missing', 'Neither content.xml nor legacy contentv3.xml were found.'));
             return;
         }
 
@@ -816,10 +957,10 @@
         var pkgInfo = report.packageInfo;
         if (pkgInfo) {
             var folderMsgs = [];
-            if (pkgInfo.directories['content/resources/']) folderMsgs.push('content/resources/ detected');
-            if (pkgInfo.directories['theme/']) folderMsgs.push('theme/ detected');
-            if (pkgInfo.directories['html/']) folderMsgs.push('html/ detected');
-            if (pkgInfo.directories['libs/']) folderMsgs.push('libs/ detected');
+            if (pkgInfo.directories['content/resources/']) folderMsgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'content/resources/' }));
+            if (pkgInfo.directories['theme/']) folderMsgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'theme/' }));
+            if (pkgInfo.directories['html/']) folderMsgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'html/' }));
+            if (pkgInfo.directories['libs/']) folderMsgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'libs/' }));
             if (folderMsgs.length > 0) {
                 setChecklistStatus('check-folders', 'success', folderMsgs.join(' • '));
             } else {
@@ -827,11 +968,11 @@
                 var hasCustomDir = Object.keys(zip.files).some(function (n) { return n.startsWith('custom/'); });
                 if (hasContentDir || hasCustomDir) {
                     var msgs = [];
-                    if (hasContentDir) msgs.push('content/ directory detected');
-                    if (hasCustomDir) msgs.push('custom/ directory detected');
+                    if (hasContentDir) msgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'content/' }));
+                    if (hasCustomDir) msgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'custom/' }));
                     setChecklistStatus('check-folders', 'success', msgs.join(' • '));
                 } else {
-                    setChecklistStatus('check-folders', 'warning', 'Recommended resource folders were not found.');
+                    setChecklistStatus('check-folders', 'warning', translate('checklist.folders.recommendedMissing', 'Recommended resource folders were not found.'));
                 }
             }
         }
@@ -844,17 +985,19 @@
             return;
         }
         var manifestLabel = report.format === 'elp' ? 'contentv3.xml' : 'content.xml';
-        setChecklistStatus('check-xml-well-formed', 'success', manifestLabel + ' is well-formed.');
+        setChecklistStatus('check-xml-well-formed', 'success', translate('checklist.xmlWellFormed.wellFormed', '{manifest} is well-formed.', {
+            manifest: manifestLabel
+        }));
 
         // For legacy, skip remaining
         if (report.format === 'elp') {
-            var skippedMsg = 'Skipped: legacy eXeLearning manifests (contentv3.xml) do not expose modern navigation structures.';
-            setChecklistStatus('check-root-element', 'warning', 'Legacy manifest format detected. Structural checks skipped.');
+            var skippedMsg = translate('checklist.navStructures.skipped', 'Skipped: legacy eXeLearning manifests (contentv3.xml) do not expose modern navigation structures.');
+            setChecklistStatus('check-root-element', 'warning', translate('checklist.rootElement.skipped', 'Legacy manifest format detected. Structural checks skipped.'));
             setChecklistStatus('check-nav-structures', 'warning', skippedMsg);
             setChecklistStatus('check-pages', 'warning', skippedMsg);
             renderPageTitles([]);
-            setChecklistStatus('check-structure', 'warning', 'Skipped: legacy manifest layout is incompatible with modern structural rules.');
-            setChecklistStatus('check-resources', 'warning', 'Resource validation is unavailable for legacy manifests.');
+            setChecklistStatus('check-structure', 'warning', translate('checklist.structure.skipped', 'Skipped: legacy manifest layout is incompatible with modern structural rules.'));
+            setChecklistStatus('check-resources', 'warning', translate('checklist.resources.skipped', 'Resource validation is unavailable for legacy manifests.'));
             return;
         }
 
@@ -864,7 +1007,7 @@
             setChecklistStatus('check-root-element', rootErr.severity, rootErr.details);
             return;
         }
-        setChecklistStatus('check-root-element', 'success', 'The root element is <ode>.');
+        setChecklistStatus('check-root-element', 'success', translate('checklist.rootElement.success', 'The root element is <ode>.'));
 
         // Nav structures
         var navErr = report.findings.find(function (f) { return f.code === 'XML007'; });
@@ -872,27 +1015,36 @@
             setChecklistStatus('check-nav-structures', 'error', navErr.details);
             return;
         }
-        setChecklistStatus('check-nav-structures', 'success', 'Navigation structures found.');
+        setChecklistStatus('check-nav-structures', 'success', translate('checklist.navStructures.success', 'Navigation structures found.'));
 
         // Pages
         if (report.pageTitles && report.pageTitles.length > 0) {
-            setChecklistStatus('check-pages', 'success', 'Found ' + report.pageTitles.length + ' page' + (report.pageTitles.length === 1 ? '' : 's') + '.');
+            setChecklistStatus('check-pages', 'success', translate('checklist.pages.found', 'Found {count} {pageLabel}.', {
+                count: report.pageTitles.length,
+                pageLabel: getPageWord(report.pageTitles.length)
+            }));
             renderPageTitles(report.pageTitles);
         } else {
-            setChecklistStatus('check-pages', 'warning', 'No pages found. The project appears empty.');
+            setChecklistStatus('check-pages', 'warning', translate('checklist.pages.empty', 'No pages found. The project appears empty.'));
             renderPageTitles([]);
         }
 
         // Structure
         var navIssues = report.findings.filter(function (f) { return f.category === 'navigation' && f.severity === 'error'; });
         if (navIssues.length > 0) {
-            setChecklistStatus('check-structure', 'error', navIssues.length + ' structural issue' + (navIssues.length === 1 ? '' : 's') + ' found. See the Findings tab for details.');
+            setChecklistStatus('check-structure', 'error', translate('checklist.structure.error', '{count} structural {issueLabel} found. See the Findings tab for details.', {
+                count: navIssues.length,
+                issueLabel: translate(navIssues.length === 1 ? 'checklist.issue' : 'checklist.issues', navIssues.length === 1 ? 'issue' : 'issues')
+            }));
         } else {
             var navWarnings = report.findings.filter(function (f) { return f.category === 'navigation' && f.severity === 'warning'; });
             if (navWarnings.length > 0) {
-                setChecklistStatus('check-structure', 'warning', navWarnings.length + ' structural warning' + (navWarnings.length === 1 ? '' : 's') + '. See the Findings tab.');
+                setChecklistStatus('check-structure', 'warning', translate('checklist.structure.warning', '{count} structural {warningLabel}. See the Findings tab.', {
+                    count: navWarnings.length,
+                    warningLabel: translate(navWarnings.length === 1 ? 'checklist.warningSingle' : 'checklist.warningPlural', navWarnings.length === 1 ? 'warning' : 'warnings')
+                }));
             } else {
-                setChecklistStatus('check-structure', 'success', 'The internal XML structure matches the expected layout.');
+                setChecklistStatus('check-structure', 'success', translate('checklist.structure.success', 'The internal XML structure matches the expected layout.'));
             }
         }
 
@@ -901,14 +1053,19 @@
         if (missingAssets.length > 0) {
             var paths = missingAssets.map(function (f) { return f.evidence.path || 'unknown'; });
             setChecklistStatus('check-resources', 'warning',
-                'Missing assets: ' + paths.slice(0, 5).join(', ') + (paths.length > 5 ? ', …' : '') + ' — see Assets tab.'
+                translate('checklist.resources.missing', 'Missing assets: {paths} — see Assets tab.', {
+                    paths: paths.slice(0, 5).join(', ') + (paths.length > 5 ? ', …' : '')
+                })
             );
         } else {
             var refCount = report.assetSummary ? report.assetSummary.totalReferences : 0;
             if (refCount > 0) {
-                setChecklistStatus('check-resources', 'success', 'All ' + refCount + ' referenced asset' + (refCount === 1 ? '' : 's') + ' are present.');
+                setChecklistStatus('check-resources', 'success', translate('checklist.resources.allPresent', 'All {count} referenced {assetLabel} are present.', {
+                    count: refCount,
+                    assetLabel: translate(refCount === 1 ? 'checklist.assetSingle' : 'checklist.assetPlural', refCount === 1 ? 'asset' : 'assets')
+                }));
             } else {
-                setChecklistStatus('check-resources', 'success', 'No linked resources were detected.');
+                setChecklistStatus('check-resources', 'success', translate('checklist.resources.noneDetected', 'No linked resources were detected.'));
             }
         }
     }
@@ -959,6 +1116,18 @@
         }
     });
 
-    // Initialise the EDIA panel with placeholder data (no file loaded yet)
-    renderEdiaPanel(null);
+    if (languageSelect && i18n && typeof i18n.setLanguage === 'function') {
+        syncLanguageSelector();
+        languageSelect.addEventListener('change', function () {
+            i18n.setLanguage(languageSelect.value);
+        });
+    }
+
+    if (i18n && i18n.LANGUAGE_CHANGE_EVENT) {
+        document.addEventListener(i18n.LANGUAGE_CHANGE_EVENT, function () {
+            rerenderCurrentState();
+        });
+    }
+
+    rerenderCurrentState();
 })();
