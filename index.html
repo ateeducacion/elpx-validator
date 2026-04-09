@@ -3,28 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>eXeLearning Package Validator</title>
+    <title data-i18n="app.title">eXeLearning Package Validator</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <a href="https://github.com/ateeducacion/elpx-validator/" class="github-ribbon" aria-label="Fork me on GitHub">
+    <a href="https://github.com/ateeducacion/elpx-validator/" class="github-ribbon" data-i18n-aria-label="app.githubRibbonAriaLabel" aria-label="Fork me on GitHub">
         <img width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_darkblue_121621.png"
              alt="Fork me on GitHub" loading="lazy">
     </a>
     <header class="app-header">
-        <h1>eXeLearning Package Validator</h1>
-        <p>Validate the structure of your <code>.elp</code> or <code>.elpx</code> projects directly in your browser.</p>
+        <div class="app-header-top">
+            <div>
+                <h1 data-i18n="app.heading">eXeLearning Package Validator</h1>
+                <p data-i18n-html="app.subtitleHtml">Validate the structure of your <code>.elp</code> or <code>.elpx</code> projects directly in your browser.</p>
+            </div>
+            <label class="language-switcher" for="languageSelect">
+                <span data-i18n="common.language">Language</span>
+                <select id="languageSelect" data-i18n-aria-label="common.language" aria-label="Language">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                </select>
+            </label>
+        </div>
     </header>
 
     <main>
         <section id="upload" class="card">
-            <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload .elp, .elpx, or .zip file">
+            <div id="dropzone" class="dropzone" tabindex="0" role="button" data-i18n-aria-label="upload.ariaLabel" aria-label="Upload .elp, .elpx, or .zip file">
                 <div class="dropzone-icon" aria-hidden="true">📁</div>
-                <p class="dropzone-title">Drag &amp; drop your <strong>.elp</strong>, <strong>.elpx</strong>, or <strong>.zip</strong> file here</p>
-                <p class="dropzone-subtitle">or click to choose a file from your device</p>
+                <p class="dropzone-title" data-i18n-html="upload.titleHtml">Drag &amp; drop your <strong>.elp</strong>, <strong>.elpx</strong>, or <strong>.zip</strong> file here</p>
+                <p class="dropzone-subtitle" data-i18n="upload.subtitle">or click to choose a file from your device</p>
                 <input id="fileInput" type="file" accept=".elp,.elpx,.zip" hidden>
             </div>
         </section>
@@ -39,21 +50,21 @@
             <div id="summaryBanner" class="summary-banner" hidden>
                 <span class="badge-format" id="badgeFormat"></span>
                 <div class="summary-counts">
-                    <span class="count-error" id="countErrors" title="Errors">❌ <strong>0</strong></span>
-                    <span class="count-warning" id="countWarnings" title="Warnings">⚠️ <strong>0</strong></span>
-                    <span class="count-info" id="countInfos" title="Info">ℹ️ <strong>0</strong></span>
+                    <span class="count-error" id="countErrors" data-i18n-title="summary.errorsTitle" title="Errors">❌ <strong>0</strong></span>
+                    <span class="count-warning" id="countWarnings" data-i18n-title="summary.warningsTitle" title="Warnings">⚠️ <strong>0</strong></span>
+                    <span class="count-info" id="countInfos" data-i18n-title="summary.infoTitle" title="Info">ℹ️ <strong>0</strong></span>
                 </div>
             </div>
 
             <!-- Navigation tabs ----------------------------------------- -->
-            <nav class="tabs" role="tablist" aria-label="Validation sections">
-                <button class="tab active" role="tab" aria-selected="true"  data-tab="tab-overview"  id="btn-tab-overview">Overview</button>
-                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-findings"  id="btn-tab-findings">Findings</button>
-                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-pages"     id="btn-tab-pages">Pages</button>
-                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-idevices"  id="btn-tab-idevices">iDevices</button>
-                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-assets"    id="btn-tab-assets">Assets</button>
-                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-preview"   id="btn-tab-preview">Preview</button>
-                <button class="tab tab-edia" role="tab" aria-selected="false" data-tab="tab-edia" id="btn-tab-edia">🎓 EDIA Validation</button>
+            <nav class="tabs" role="tablist" data-i18n-aria-label="edia.tabAriaLabel" aria-label="Validation sections">
+                <button class="tab active" role="tab" aria-selected="true"  data-tab="tab-overview"  id="btn-tab-overview" data-i18n="tabs.overview">Overview</button>
+                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-findings"  id="btn-tab-findings" data-i18n="tabs.findings">Findings</button>
+                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-pages"     id="btn-tab-pages" data-i18n="tabs.pages">Pages</button>
+                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-idevices"  id="btn-tab-idevices" data-i18n="tabs.idevices">iDevices</button>
+                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-assets"    id="btn-tab-assets" data-i18n="tabs.assets">Assets</button>
+                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-preview"   id="btn-tab-preview" data-i18n="tabs.preview">Preview</button>
+                <button class="tab tab-edia" role="tab" aria-selected="false" data-tab="tab-edia" id="btn-tab-edia" data-i18n="tabs.edia">🎓 EDIA Validation</button>
             </nav>
 
             <!-- Tab panels ---------------------------------------------- -->
@@ -62,28 +73,28 @@
             <div class="tab-panel active" id="tab-overview" role="tabpanel">
                 <!-- Package metadata -->
                 <div id="packageMetadata" class="metadata" hidden>
-                    <h3>Package details</h3>
+                    <h3 data-i18n="metadata.packageDetails">Package details</h3>
                     <table class="metadata-table">
                         <tbody>
-                            <tr><th scope="row">File size</th><td id="meta-filesize">—</td></tr>
-                            <tr><th scope="row">Title</th><td id="meta-title">—</td></tr>
-                            <tr><th scope="row">Author</th><td id="meta-author">—</td></tr>
-                            <tr><th scope="row">Language</th><td id="meta-language">—</td></tr>
-                            <tr><th scope="row">Description</th><td id="meta-description">—</td></tr>
-                            <tr><th scope="row">License</th><td id="meta-license">—</td></tr>
-                            <tr><th scope="row">Version</th><td id="meta-version">—</td></tr>
-                            <tr><th scope="row">Identifier</th><td id="meta-identifier">—</td></tr>
+                            <tr><th scope="row" data-i18n="metadata.fileSize">File size</th><td id="meta-filesize">—</td></tr>
+                            <tr><th scope="row" data-i18n="metadata.title">Title</th><td id="meta-title">—</td></tr>
+                            <tr><th scope="row" data-i18n="metadata.author">Author</th><td id="meta-author">—</td></tr>
+                            <tr><th scope="row" data-i18n="metadata.language">Language</th><td id="meta-language">—</td></tr>
+                            <tr><th scope="row" data-i18n="metadata.description">Description</th><td id="meta-description">—</td></tr>
+                            <tr><th scope="row" data-i18n="metadata.license">License</th><td id="meta-license">—</td></tr>
+                            <tr><th scope="row" data-i18n="metadata.version">Version</th><td id="meta-version">—</td></tr>
+                            <tr><th scope="row" data-i18n="metadata.identifier">Identifier</th><td id="meta-identifier">—</td></tr>
                         </tbody>
                     </table>
                     <details id="metadataMore" class="metadata-more" hidden>
-                        <summary>Show raw metadata</summary>
+                        <summary data-i18n="metadata.showRawMetadata">Show raw metadata</summary>
                         <div class="metadata-more-content">
                             <div class="metadata-more-section" id="meta-properties-section">
-                                <h4>Properties</h4>
+                                <h4 data-i18n="metadata.properties">Properties</h4>
                                 <ul id="meta-properties" class="metadata-list"></ul>
                             </div>
                             <div class="metadata-more-section" id="meta-resources-section">
-                                <h4>Resources</h4>
+                                <h4 data-i18n="metadata.resources">Resources</h4>
                                 <ul id="meta-resources" class="metadata-list"></ul>
                             </div>
                         </div>
@@ -91,41 +102,41 @@
                 </div>
 
                 <!-- Legacy checklist (kept for backward compat) -->
-                <p class="results-intro">Validation results:</p>
+                <p class="results-intro" data-i18n="summary.validationResults">Validation results:</p>
                 <ul id="checklist" class="checklist">
-                    <li id="check-zip" class="check-item pending" data-label="Verifying ZIP archive integrity">
+                    <li id="check-zip" class="check-item pending" data-label-i18n="checklist.zip.label" data-label-html-i18n="checklist.zip.labelHtml">
                         <span class="icon" aria-hidden="true">⏳</span>
                         <div><span class="label">Verifying ZIP archive integrity...</span><p class="details" role="alert"></p></div>
                     </li>
-                    <li id="check-content-xml" class="check-item pending" data-label="Looking for manifest">
+                    <li id="check-content-xml" class="check-item pending" data-label-i18n="checklist.contentXml.label" data-label-html-i18n="checklist.contentXml.labelHtml">
                         <span class="icon" aria-hidden="true">⏳</span>
                         <div><span class="label">Looking for manifest (<code>content.xml</code> / <code>contentv3.xml</code>)...</span><p class="details" role="alert"></p></div>
                     </li>
-                    <li id="check-folders" class="check-item pending" data-label="Checking recommended resource folders">
+                    <li id="check-folders" class="check-item pending" data-label-i18n="checklist.folders.label" data-label-html-i18n="checklist.folders.labelHtml">
                         <span class="icon" aria-hidden="true">⏳</span>
                         <div><span class="label">Checking recommended resource folders...</span><p class="details" role="alert"></p></div>
                     </li>
-                    <li id="check-xml-well-formed" class="check-item pending" data-label="Validating XML syntax">
+                    <li id="check-xml-well-formed" class="check-item pending" data-label-i18n="checklist.xmlWellFormed.label" data-label-html-i18n="checklist.xmlWellFormed.labelHtml">
                         <span class="icon" aria-hidden="true">⏳</span>
                         <div><span class="label">Validating <code>content.xml</code> syntax...</span><p class="details" role="alert"></p></div>
                     </li>
-                    <li id="check-root-element" class="check-item pending" data-label="Checking root element">
+                    <li id="check-root-element" class="check-item pending" data-label-i18n="checklist.rootElement.label" data-label-html-i18n="checklist.rootElement.labelHtml">
                         <span class="icon" aria-hidden="true">⏳</span>
                         <div><span class="label">Checking root element...</span><p class="details" role="alert"></p></div>
                     </li>
-                    <li id="check-nav-structures" class="check-item pending" data-label="Looking for navigation structure">
+                    <li id="check-nav-structures" class="check-item pending" data-label-i18n="checklist.navStructures.label" data-label-html-i18n="checklist.navStructures.labelHtml">
                         <span class="icon" aria-hidden="true">⏳</span>
                         <div><span class="label">Verifying navigation structures...</span><p class="details" role="alert"></p></div>
                     </li>
-                    <li id="check-pages" class="check-item pending" data-label="Checking for pages">
+                    <li id="check-pages" class="check-item pending" data-label-i18n="checklist.pages.label" data-label-html-i18n="checklist.pages.labelHtml">
                         <span class="icon" aria-hidden="true">⏳</span>
                         <div><span class="label">Checking for pages...</span><p class="details" role="alert"></p></div>
                     </li>
-                    <li id="check-structure" class="check-item pending" data-label="Validating internal structure">
+                    <li id="check-structure" class="check-item pending" data-label-i18n="checklist.structure.label" data-label-html-i18n="checklist.structure.labelHtml">
                         <span class="icon" aria-hidden="true">⏳</span>
                         <div><span class="label">Validating internal structure...</span><p class="details" role="alert"></p></div>
                     </li>
-                    <li id="check-resources" class="check-item pending" data-label="Checking linked resources">
+                    <li id="check-resources" class="check-item pending" data-label-i18n="checklist.resources.label" data-label-html-i18n="checklist.resources.labelHtml">
                         <span class="icon" aria-hidden="true">⏳</span>
                         <div><span class="label">Checking linked resources...</span><p class="details" role="alert"></p></div>
                     </li>
@@ -135,24 +146,24 @@
             <!-- FINDINGS ------------------------------------------------ -->
             <div class="tab-panel" id="tab-findings" role="tabpanel" hidden>
                 <div class="findings-toolbar">
-                    <label>Filter:
+                    <label><span data-i18n="filters.filter">Filter:</span>
                         <select id="findingsFilterSeverity">
-                            <option value="all">All severities</option>
-                            <option value="error">Errors only</option>
-                            <option value="warning">Warnings only</option>
-                            <option value="info">Info only</option>
+                            <option value="all" data-i18n="filters.allSeverities">All severities</option>
+                            <option value="error" data-i18n="filters.errorsOnly">Errors only</option>
+                            <option value="warning" data-i18n="filters.warningsOnly">Warnings only</option>
+                            <option value="info" data-i18n="filters.infoOnly">Info only</option>
                         </select>
                     </label>
-                    <label>Category:
+                    <label><span data-i18n="filters.category">Category:</span>
                         <select id="findingsFilterCategory">
-                            <option value="all">All categories</option>
-                            <option value="package">Package</option>
-                            <option value="xml">XML / Schema</option>
-                            <option value="navigation">Navigation</option>
-                            <option value="metadata">Metadata</option>
-                            <option value="idevice">iDevice</option>
-                            <option value="asset">Asset</option>
-                            <option value="compatibility">Compatibility</option>
+                            <option value="all" data-i18n="filters.allCategories">All categories</option>
+                            <option value="package" data-i18n="category.package">Package</option>
+                            <option value="xml" data-i18n="category.xml">XML / Schema</option>
+                            <option value="navigation" data-i18n="category.navigation">Navigation</option>
+                            <option value="metadata" data-i18n="category.metadata">Metadata</option>
+                            <option value="idevice" data-i18n="category.idevice">iDevice</option>
+                            <option value="asset" data-i18n="category.asset">Asset</option>
+                            <option value="compatibility" data-i18n="category.compatibility">Compatibility</option>
                         </select>
                     </label>
                 </div>
@@ -173,12 +184,12 @@
             <!-- ASSETS -------------------------------------------------- -->
             <div class="tab-panel" id="tab-assets" role="tabpanel" hidden>
                 <div class="assets-toolbar">
-                    <label>Show:
+                    <label><span data-i18n="filters.show">Show:</span>
                         <select id="assetsFilter">
-                            <option value="all">All assets</option>
-                            <option value="referenced">Referenced</option>
-                            <option value="orphaned">Orphaned / unreferenced</option>
-                            <option value="missing">Missing (referenced but absent)</option>
+                            <option value="all" data-i18n="filters.allAssets">All assets</option>
+                            <option value="referenced" data-i18n="filters.referenced">Referenced</option>
+                            <option value="orphaned" data-i18n="filters.orphaned">Orphaned / unreferenced</option>
+                            <option value="missing" data-i18n="filters.missing">Missing (referenced but absent)</option>
                         </select>
                     </label>
                 </div>
@@ -187,11 +198,11 @@
                     <table id="assetTable" class="asset-table">
                         <thead>
                             <tr>
-                                <th>Path</th>
-                                <th>Type</th>
-                                <th>Extension</th>
-                                <th>Status</th>
-                                <th>Preview</th>
+                                <th data-i18n="assets.path">Path</th>
+                                <th data-i18n="assets.type">Type</th>
+                                <th data-i18n="assets.extension">Extension</th>
+                                <th data-i18n="assets.status">Status</th>
+                                <th data-i18n="assets.preview">Preview</th>
                             </tr>
                         </thead>
                         <tbody id="assetTableBody"></tbody>
@@ -202,12 +213,12 @@
             <!-- PREVIEW ------------------------------------------------- -->
             <div class="tab-panel" id="tab-preview" role="tabpanel" hidden>
                 <div class="preview-toolbar">
-                    <label>Page:
-                        <select id="previewPageSelect"><option value="">— select a page —</option></select>
+                    <label><span data-i18n="filters.page">Page:</span>
+                        <select id="previewPageSelect"><option value="" data-i18n="preview.placeholder">— select a page —</option></select>
                     </label>
                 </div>
                 <div id="previewContainer" class="preview-container">
-                    <iframe id="previewFrame" class="preview-frame" sandbox="allow-scripts" title="Page preview"></iframe>
+                    <iframe id="previewFrame" class="preview-frame" sandbox="allow-scripts" data-i18n-title="preview.frameTitle" title="Page preview"></iframe>
                 </div>
             </div>
 
@@ -219,12 +230,15 @@
     </main>
 
     <footer class="app-footer">
-        <p>All processing happens in your browser. No files are uploaded to a server.</p>
-        <p class="small-print">Built with JSZip and vanilla JavaScript.</p>
-        <p class="credits"> &copy; 2025 &ndash; <a href="https://www3.gobiernodecanarias.org/medusa/ecoescuela/ate" target="_blank" rel="noopener noreferrer">Área de Tecnología Educativa</a> &ndash; Gobierno de Canarias</p>
+        <p data-i18n="footer.processing">All processing happens in your browser. No files are uploaded to a server.</p>
+        <p class="small-print" data-i18n="footer.builtWith">Built with JSZip and vanilla JavaScript.</p>
+        <p class="credits"><span data-i18n="footer.creditsPrefix">© 2025 – </span><a href="https://www3.gobiernodecanarias.org/medusa/ecoescuela/ate" target="_blank" rel="noopener noreferrer">Área de Tecnología Educativa</a><span data-i18n="footer.creditsSuffix"> – Gobierno de Canarias</span></p>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="js/i18n/locales/en.js"></script>
+    <script src="js/i18n/locales/es.js"></script>
+    <script src="js/i18n/index.js"></script>
     <script src="js/core/rules.js"></script>
     <script src="js/core/model.js"></script>
     <script src="js/registries/idevice-types.js"></script>
