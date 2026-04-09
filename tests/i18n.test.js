@@ -1,4 +1,6 @@
-const MODULE_PATH = '/home/runner/work/elpx-validator/elpx-validator/js/i18n/index.js';
+const path = require('path');
+
+const MODULE_PATH = path.resolve(__dirname, '../js/i18n/index.js');
 
 function loadI18n() {
     jest.resetModules();

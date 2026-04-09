@@ -43,6 +43,50 @@
         });
     }
 
+    function sanitizeHtml(html) {
+        if (typeof document === 'undefined') return html;
+        var template = document.createElement('template');
+        template.innerHTML = html;
+
+        var allowedTags = {
+            A: ['href', 'target', 'rel'],
+            CODE: [],
+            EM: [],
+            STRONG: []
+        };
+
+        function walk(node) {
+            Array.prototype.slice.call(node.children).forEach(function (child) {
+                var allowedAttributes = allowedTags[child.tagName];
+                if (!allowedAttributes) {
+                    var replacement = document.createTextNode(child.textContent || '');
+                    child.replaceWith(replacement);
+                    return;
+                }
+
+                Array.prototype.slice.call(child.attributes).forEach(function (attribute) {
+                    var name = attribute.name.toLowerCase();
+                    if (allowedAttributes.indexOf(name) === -1) {
+                        child.removeAttribute(attribute.name);
+                        return;
+                    }
+                    if (child.tagName === 'A' && name === 'href' && !/^https?:\/\//i.test(attribute.value)) {
+                        child.removeAttribute(attribute.name);
+                    }
+                });
+
+                if (child.tagName === 'A' && child.getAttribute('target') === '_blank' && !child.getAttribute('rel')) {
+                    child.setAttribute('rel', 'noopener noreferrer');
+                }
+
+                walk(child);
+            });
+        }
+
+        walk(template.content);
+        return template.innerHTML;
+    }
+
     function normalizeLanguage(lang) {
         var value = String(lang || '').trim().toLowerCase();
         if (locales[value]) return value;
@@ -123,7 +167,7 @@
 
         var htmlKey = element.getAttribute('data-i18n-html');
         if (htmlKey) {
-            element.innerHTML = t(htmlKey);
+            element.innerHTML = sanitizeHtml(t(htmlKey));
         }
 
         var placeholderKey = element.getAttribute('data-i18n-placeholder');
