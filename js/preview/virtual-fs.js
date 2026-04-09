@@ -1,5 +1,5 @@
 /**
- * Asset preview system using Blob URLs.
+ * Asset preview system using in-memory URLs.
  *
  * Provides a virtual file system layer for browsing and previewing
  * assets from the ZIP package without a server.
@@ -13,25 +13,24 @@
 })(typeof self !== 'undefined' ? self : this, function () {
     'use strict';
 
-    var blobUrls = {};
+    var previewUrls = {};
 
     /**
-     * Create a Blob URL for a ZIP file entry.
+     * Create a preview URL for a ZIP file entry.
      *
      * @param {object} zipEntry - A JSZip file object.
      * @param {string} mimeType - The MIME type for the blob.
-     * @returns {Promise<string>} The Blob URL.
+     * @returns {Promise<string>} The preview URL.
      */
-    async function createBlobUrl(zipEntry, mimeType) {
-        var data = await zipEntry.async('arraybuffer');
-        var blob = new Blob([data], { type: mimeType || 'application/octet-stream' });
-        var url = URL.createObjectURL(blob);
-        blobUrls[zipEntry.name] = url;
+    async function createPreviewUrl(zipEntry, mimeType) {
+        var data = await zipEntry.async('base64');
+        var url = 'data:' + (mimeType || 'application/octet-stream') + ';base64,' + data;
+        previewUrls[zipEntry.name] = url;
         return url;
     }
 
     /**
-     * Build a virtual file system map of Blob URLs for all files in the ZIP.
+     * Build a virtual file system map of preview URLs for all files in the ZIP.
      *
      * @param {object} zip         - A JSZip instance.
      * @param {function} mimeResolver - Function to resolve MIME type from filename.
@@ -47,7 +46,7 @@
         for (var i = 0; i < fileNames.length; i++) {
             var name = fileNames[i];
             var mime = mimeResolver ? mimeResolver(name) : 'application/octet-stream';
-            urlMap[name] = await createBlobUrl(zip.file(name), mime);
+            urlMap[name] = await createPreviewUrl(zip.file(name), mime);
         }
 
         return urlMap;
@@ -107,17 +106,18 @@
     }
 
     /**
-     * Revoke all created Blob URLs to free memory.
+     * Clear cached preview URLs.
      */
     function revokeAll() {
-        Object.keys(blobUrls).forEach(function (key) {
-            URL.revokeObjectURL(blobUrls[key]);
-        });
-        blobUrls = {};
+        previewUrls = {};
     }
 
+    var createBlobUrl = createPreviewUrl;
+
     return {
+        // Deprecated alias kept for backwards compatibility with existing consumers.
         createBlobUrl: createBlobUrl,
+        createPreviewUrl: createPreviewUrl,
         buildVirtualFS: buildVirtualFS,
         rewriteHtmlForPreview: rewriteHtmlForPreview,
         resolvePath: resolvePath,

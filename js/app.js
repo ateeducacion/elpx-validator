@@ -789,9 +789,7 @@
                     htmlContent = preview.rewriteHtmlForPreview(htmlContent, virtualFS, basePath);
                 }
 
-                var blob = new Blob([htmlContent], { type: 'text/html' });
-                var url = URL.createObjectURL(blob);
-                previewFrame.src = url;
+                previewFrame.srcdoc = htmlContent;
             } catch (e) {
                 console.error('Preview error:', e);
                 previewFrame.srcdoc = '<p style="padding:1rem;color:red;">' + escapeHtml(translate('preview.errorLoading', 'Error loading preview: {message}', {
