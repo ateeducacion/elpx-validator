@@ -66,19 +66,18 @@
         div.innerHTML = [
             '<div class="edia-hero-content">',
             '  <div class="edia-hero-text">',
-            '    <h3 class="edia-hero-title">' + escHtml(translate('edia.hero.title', 'EDIA Quality Dashboard')) + '</h3>',
-            '    <p class="edia-hero-subtitle">' + translate('edia.hero.subtitleHtml', 'This dashboard evaluates your eXeLearning resource against the <strong>EDIA / CEDEC</strong> open educational resource quality checklist. Some criteria are checked automatically from the package; others require human judgement and are flagged for manual review.') + '</p>',
+            '    <h3 class="edia-hero-title" data-i18n="edia.hero.title">EDIA Quality Dashboard</h3>',
+            '    <p class="edia-hero-subtitle" data-i18n-html="edia.hero.subtitleHtml">This dashboard evaluates your eXeLearning resource against the <strong>EDIA / CEDEC</strong> open educational resource quality checklist. Some criteria are checked automatically from the package; others require human judgement and are flagged for manual review.</p>',
             '    <div class="edia-hero-links">',
-            '      <a href="https://cedec.intef.es/recursos/criterios-edia/" target="_blank" rel="noopener noreferrer" class="edia-hero-btn edia-hero-btn-primary">',
-            '        ' + escHtml(translate('edia.hero.checklistLink', '🌐 EDIA Checklist (CEDEC)')),
-            '      </a>',
-            '      <a href="https://cedec.intef.es/wp-content/uploads/2021/11/EDIA-Rubrica-2021.pdf" target="_blank" rel="noopener noreferrer" class="edia-hero-btn edia-hero-btn-secondary">',
-            '        ' + escHtml(translate('edia.hero.rubricLink', '📄 Download EDIA Rubric (PDF)')),
-            '      </a>',
+            '      <a href="https://cedec.intef.es/recursos/criterios-edia/" target="_blank" rel="noopener noreferrer" class="edia-hero-btn edia-hero-btn-primary" data-i18n="edia.hero.checklistLink">🌐 EDIA Checklist (CEDEC)</a>',
+            '      <a href="https://cedec.intef.es/wp-content/uploads/2021/11/EDIA-Rubrica-2021.pdf" target="_blank" rel="noopener noreferrer" class="edia-hero-btn edia-hero-btn-secondary" data-i18n="edia.hero.rubricLink">📄 Download EDIA Rubric (PDF)</a>',
             '    </div>',
             '  </div>',
             '</div>'
         ].join('');
+        if (i18n && typeof i18n.translateDom === 'function') {
+            i18n.translateDom(div);
+        }
         return div;
     }
 
@@ -287,9 +286,12 @@
         div.className = 'edia-no-file-notice';
         div.innerHTML = [
             '<div class="edia-no-file-icon" aria-hidden="true">📂</div>',
-            '<p class="edia-no-file-text">' + translate('edia.noFile.textHtml', 'Load an <strong>.elpx</strong> or <strong>.elp</strong> file using the upload area above to see your personalized EDIA quality assessment.') + '</p>',
-            '<p class="edia-no-file-subtext">' + escHtml(translate('edia.noFile.subtext', 'The criteria below are shown with placeholder statuses. They will update automatically once a file has been loaded.')) + '</p>'
+            '<p class="edia-no-file-text" data-i18n-html="edia.noFile.textHtml">Load an <strong>.elpx</strong> or <strong>.elp</strong> file using the upload area above to see your personalized EDIA quality assessment.</p>',
+            '<p class="edia-no-file-subtext" data-i18n="edia.noFile.subtext">The criteria below are shown with placeholder statuses. They will update automatically once a file has been loaded.</p>'
         ].join('');
+        if (i18n && typeof i18n.translateDom === 'function') {
+            i18n.translateDom(div);
+        }
         return div;
     }
 

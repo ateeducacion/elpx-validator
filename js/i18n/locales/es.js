@@ -98,7 +98,7 @@
             rootElement: {
                 label: 'Comprobando el elemento raíz',
                 labelHtml: 'Comprobando el elemento raíz',
-                success: 'El elemento raíz es <ode>.',
+                success: 'El elemento raíz es \"ode\".',
                 skipped: 'Se detectó un formato de manifiesto heredado. Se omitieron las comprobaciones estructurales.'
             },
             navStructures: {
@@ -286,7 +286,8 @@
         footer: {
             processing: 'Todo el procesamiento ocurre en tu navegador. No se sube ningún archivo a un servidor.',
             builtWith: 'Desarrollado con JSZip y JavaScript sin frameworks.',
-            creditsHtml: '© 2025 – <a href="https://www3.gobiernodecanarias.org/medusa/ecoescuela/ate" target="_blank" rel="noopener noreferrer">Área de Tecnología Educativa</a> – Gobierno de Canarias'
+            creditsPrefix: '© 2025 – ',
+            creditsSuffix: ' – Gobierno de Canarias'
         },
         edia: {
             tabAriaLabel: 'Secciones de validación',

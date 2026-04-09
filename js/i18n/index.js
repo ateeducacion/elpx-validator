@@ -48,31 +48,18 @@
         parent.appendChild(document.createTextNode(text));
     }
 
-    function applySafeAttributes(element, rawAttributes) {
-        if (element.tagName !== 'A') return;
-        var attrRegex = /(\w+)="([^"]*)"/g;
-        var match;
-        while ((match = attrRegex.exec(rawAttributes))) {
-            var name = match[1].toLowerCase();
-            var value = match[2];
-            if (name === 'href' && /^https?:\/\//i.test(value)) {
-                element.setAttribute('href', value);
-            } else if (name === 'target' && value === '_blank') {
-                element.setAttribute('target', value);
-            } else if (name === 'rel') {
-                element.setAttribute('rel', value);
-            }
-        }
-        if (element.getAttribute('target') === '_blank' && !element.getAttribute('rel')) {
-            element.setAttribute('rel', 'noopener noreferrer');
-        }
+    function createAllowedElement(tagName) {
+        if (tagName === 'strong') return document.createElement('strong');
+        if (tagName === 'code') return document.createElement('code');
+        if (tagName === 'em') return document.createElement('em');
+        return null;
     }
 
     function createSafeHtmlFragment(html) {
         var fragment = document.createDocumentFragment();
         var stack = [fragment];
-        var tokenRegex = /(<\/?(?:a|code|em|strong)(?:\s+[^>]*?)?>)/ig;
-        var tagRegex = /^<([a-z]+)([^>]*)>$/i;
+        var tokenRegex = /(<\/?(?:code|em|strong)>)/ig;
+        var tagRegex = /^<([a-z]+)>$/i;
         var closeTagRegex = /^<\/([a-z]+)>$/i;
         var lastIndex = 0;
         var match;
@@ -101,8 +88,12 @@
             }
 
             var tagName = openMatch[1].toLowerCase();
-            var element = document.createElement(tagName);
-            applySafeAttributes(element, openMatch[2] || '');
+            var element = createAllowedElement(tagName);
+            if (!element) {
+                appendText(stack[stack.length - 1], token);
+                lastIndex = match.index + token.length;
+                continue;
+            }
             stack[stack.length - 1].appendChild(element);
             stack.push(element);
             lastIndex = match.index + token.length;

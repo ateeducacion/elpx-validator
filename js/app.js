@@ -1007,7 +1007,7 @@
             setChecklistStatus('check-root-element', rootErr.severity, rootErr.details);
             return;
         }
-        setChecklistStatus('check-root-element', 'success', translate('checklist.rootElement.success', 'The root element is <ode>.'));
+        setChecklistStatus('check-root-element', 'success', translate('checklist.rootElement.success', 'The root element is "ode".'));
 
         // Nav structures
         var navErr = report.findings.find(function (f) { return f.code === 'XML007'; });
