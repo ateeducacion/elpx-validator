@@ -43,48 +43,73 @@
         });
     }
 
-    function sanitizeHtml(html) {
-        if (typeof document === 'undefined') return html;
-        var template = document.createElement('template');
-        template.innerHTML = html;
+    function appendText(parent, text) {
+        if (!text) return;
+        parent.appendChild(document.createTextNode(text));
+    }
 
-        var allowedTags = {
-            A: ['href', 'target', 'rel'],
-            CODE: [],
-            EM: [],
-            STRONG: []
-        };
+    function applySafeAttributes(element, rawAttributes) {
+        if (element.tagName !== 'A') return;
+        var attrRegex = /(\w+)="([^"]*)"/g;
+        var match;
+        while ((match = attrRegex.exec(rawAttributes))) {
+            var name = match[1].toLowerCase();
+            var value = match[2];
+            if (name === 'href' && /^https?:\/\//i.test(value)) {
+                element.setAttribute('href', value);
+            } else if (name === 'target' && value === '_blank') {
+                element.setAttribute('target', value);
+            } else if (name === 'rel') {
+                element.setAttribute('rel', value);
+            }
+        }
+        if (element.getAttribute('target') === '_blank' && !element.getAttribute('rel')) {
+            element.setAttribute('rel', 'noopener noreferrer');
+        }
+    }
 
-        function walk(node) {
-            Array.prototype.slice.call(node.children).forEach(function (child) {
-                var allowedAttributes = allowedTags[child.tagName];
-                if (!allowedAttributes) {
-                    var replacement = document.createTextNode(child.textContent || '');
-                    child.replaceWith(replacement);
-                    return;
+    function createSafeHtmlFragment(html) {
+        var fragment = document.createDocumentFragment();
+        var stack = [fragment];
+        var tokenRegex = /(<\/?(?:a|code|em|strong)(?:\s+[^>]*?)?>)/ig;
+        var tagRegex = /^<([a-z]+)([^>]*)>$/i;
+        var closeTagRegex = /^<\/([a-z]+)>$/i;
+        var lastIndex = 0;
+        var match;
+
+        while ((match = tokenRegex.exec(html))) {
+            appendText(stack[stack.length - 1], html.slice(lastIndex, match.index));
+
+            var token = match[0];
+            var closeMatch = token.match(closeTagRegex);
+            if (closeMatch) {
+                var closingTag = closeMatch[1].toUpperCase();
+                if (stack.length > 1 && stack[stack.length - 1].nodeName === closingTag) {
+                    stack.pop();
+                } else {
+                    appendText(stack[stack.length - 1], token);
                 }
+                lastIndex = match.index + token.length;
+                continue;
+            }
 
-                Array.prototype.slice.call(child.attributes).forEach(function (attribute) {
-                    var name = attribute.name.toLowerCase();
-                    if (allowedAttributes.indexOf(name) === -1) {
-                        child.removeAttribute(attribute.name);
-                        return;
-                    }
-                    if (child.tagName === 'A' && name === 'href' && !/^https?:\/\//i.test(attribute.value)) {
-                        child.removeAttribute(attribute.name);
-                    }
-                });
+            var openMatch = token.match(tagRegex);
+            if (!openMatch) {
+                appendText(stack[stack.length - 1], token);
+                lastIndex = match.index + token.length;
+                continue;
+            }
 
-                if (child.tagName === 'A' && child.getAttribute('target') === '_blank' && !child.getAttribute('rel')) {
-                    child.setAttribute('rel', 'noopener noreferrer');
-                }
-
-                walk(child);
-            });
+            var tagName = openMatch[1].toLowerCase();
+            var element = document.createElement(tagName);
+            applySafeAttributes(element, openMatch[2] || '');
+            stack[stack.length - 1].appendChild(element);
+            stack.push(element);
+            lastIndex = match.index + token.length;
         }
 
-        walk(template.content);
-        return template.innerHTML;
+        appendText(stack[stack.length - 1], html.slice(lastIndex));
+        return fragment;
     }
 
     function normalizeLanguage(lang) {
@@ -167,7 +192,7 @@
 
         var htmlKey = element.getAttribute('data-i18n-html');
         if (htmlKey) {
-            element.innerHTML = sanitizeHtml(t(htmlKey));
+            element.replaceChildren(createSafeHtmlFragment(t(htmlKey)));
         }
 
         var placeholderKey = element.getAttribute('data-i18n-placeholder');

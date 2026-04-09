@@ -40,7 +40,7 @@
         },
         upload: {
             ariaLabel: 'Upload .elp, .elpx, or .zip file',
-            titleHtml: 'Drag &amp; drop your <strong>.elp</strong>, <strong>.elpx</strong>, or <strong>.zip</strong> file here',
+            titleHtml: 'Drag & drop your <strong>.elp</strong>, <strong>.elpx</strong>, or <strong>.zip</strong> file here',
             subtitle: 'or click to choose a file from your device'
         },
         summary: {
@@ -286,7 +286,7 @@
         footer: {
             processing: 'All processing happens in your browser. No files are uploaded to a server.',
             builtWith: 'Built with JSZip and vanilla JavaScript.',
-            creditsHtml: '&copy; 2025 &ndash; <a href="https://www3.gobiernodecanarias.org/medusa/ecoescuela/ate" target="_blank" rel="noopener noreferrer">Área de Tecnología Educativa</a> &ndash; Gobierno de Canarias'
+            creditsHtml: '© 2025 – <a href="https://www3.gobiernodecanarias.org/medusa/ecoescuela/ate" target="_blank" rel="noopener noreferrer">Área de Tecnología Educativa</a> – Gobierno de Canarias'
         },
         edia: {
             tabAriaLabel: 'Validation sections',

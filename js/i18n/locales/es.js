@@ -286,7 +286,7 @@
         footer: {
             processing: 'Todo el procesamiento ocurre en tu navegador. No se sube ningún archivo a un servidor.',
             builtWith: 'Desarrollado con JSZip y JavaScript sin frameworks.',
-            creditsHtml: '&copy; 2025 &ndash; <a href="https://www3.gobiernodecanarias.org/medusa/ecoescuela/ate" target="_blank" rel="noopener noreferrer">Área de Tecnología Educativa</a> &ndash; Gobierno de Canarias'
+            creditsHtml: '© 2025 – <a href="https://www3.gobiernodecanarias.org/medusa/ecoescuela/ate" target="_blank" rel="noopener noreferrer">Área de Tecnología Educativa</a> – Gobierno de Canarias'
         },
         edia: {
             tabAriaLabel: 'Secciones de validación',

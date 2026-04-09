@@ -853,7 +853,7 @@
         currentReport = null;
         currentZip = null;
         virtualFS = null;
-        currentFileInfo = { name: file.name, size: file.size };
+        currentFileInfo = { size: file.size };
         if (preview.revokeAll) preview.revokeAll();
 
         resultsSection.hidden = false;
