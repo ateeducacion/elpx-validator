@@ -281,7 +281,7 @@
             '<div class="edia-no-file-icon" aria-hidden="true">📂</div>',
             '<p class="edia-no-file-text">',
             '  Load an <strong>.elpx</strong> or <strong>.elp</strong> file using the upload area above',
-            '  to see your personalised EDIA quality assessment.',
+            '  to see your personalized EDIA quality assessment.',
             '</p>',
             '<p class="edia-no-file-subtext">',
             '  The criteria below are shown with placeholder statuses. They will update',

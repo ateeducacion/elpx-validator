@@ -73,7 +73,7 @@
     var previewFrame        = document.getElementById('previewFrame');
 
     // EDIA Validation
-    var edaPanel = document.getElementById('edaPanel');
+    var ediaPanel = document.getElementById('ediaPanel');
 
     if (!dropzone || !fileInput || !checklist) {
         console.error('The validator UI elements are missing.');
@@ -699,9 +699,9 @@
      * @param {object|null} report – validator report, or null if no file loaded
      */
     function renderEdiaPanel(report) {
-        if (!edaPanel || !ediaCriteria || !ediaView) return;
+        if (!ediaPanel || !ediaCriteria || !ediaView) return;
         var criteria = ediaCriteria.evaluateEdiaCriteria(report || null);
-        ediaView.renderEdiaDashboard(edaPanel, criteria, report || null);
+        ediaView.renderEdiaDashboard(ediaPanel, criteria, report || null);
     }
 
     /* ================================================================== */
