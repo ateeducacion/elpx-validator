@@ -16,6 +16,8 @@
     var preview   = typeof ELPXPreview !== 'undefined' ? ELPXPreview : {};
     var assetRules = validator.assetRules || (typeof ELPXAssetRules !== 'undefined' ? ELPXAssetRules : {});
     var ideviceRegistry = validator.ideviceRegistry || (typeof ELPXIdeviceRegistry !== 'undefined' ? ELPXIdeviceRegistry : {});
+    var ediaCriteria = typeof EdiaCriteria !== 'undefined' ? EdiaCriteria : null;
+    var ediaView     = typeof EdiaView     !== 'undefined' ? EdiaView     : null;
 
     /* ================================================================== */
     /*  DOM references                                                    */
@@ -69,6 +71,9 @@
     // Preview
     var previewPageSelect   = document.getElementById('previewPageSelect');
     var previewFrame        = document.getElementById('previewFrame');
+
+    // EDIA Validation
+    var ediaPanel = document.getElementById('ediaPanel');
 
     if (!dropzone || !fileInput || !checklist) {
         console.error('The validator UI elements are missing.');
@@ -683,6 +688,23 @@
     }
 
     /* ================================================================== */
+    /*  EDIA Validation panel                                             */
+    /* ================================================================== */
+
+    /**
+     * Renders (or re-renders) the EDIA quality dashboard.
+     * Called after each file load and also once on page initialisation
+     * so the EDIA tab shows useful content even before a file is loaded.
+     *
+     * @param {object|null} report – validator report, or null if no file loaded
+     */
+    function renderEdiaPanel(report) {
+        if (!ediaPanel || !ediaCriteria || !ediaView) return;
+        var criteria = ediaCriteria.evaluateEdiaCriteria(report || null);
+        ediaView.renderEdiaDashboard(ediaPanel, criteria, report || null);
+    }
+
+    /* ================================================================== */
     /*  Main file handler                                                 */
     /* ================================================================== */
 
@@ -772,6 +794,7 @@
         renderAssetSummary(report.assetSummary);
         renderAssetTable(report.assetInventory, report.findings, 'all');
         renderPreviewOptions(zip);
+        renderEdiaPanel(report);
     }
 
     /**
@@ -935,4 +958,7 @@
             fileInput.value = '';
         }
     });
+
+    // Initialise the EDIA panel with placeholder data (no file loaded yet)
+    renderEdiaPanel(null);
 })();
