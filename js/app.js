@@ -829,6 +829,9 @@
         }
 
         var selectedPreview = previewPageSelect ? previewPageSelect.value : '';
+        if (fileNameElement && currentFileInfo && currentFileInfo.name) {
+            fileNameElement.textContent = currentFileInfo.name;
+        }
         renderSummary(currentReport);
         renderMetadata(currentReport.metadata);
         if (metadataFields.fileSize && currentFileInfo) metadataFields.fileSize.textContent = formatBytes(currentFileInfo.size);
@@ -853,7 +856,7 @@
         currentReport = null;
         currentZip = null;
         virtualFS = null;
-        currentFileInfo = { size: file.size };
+        currentFileInfo = { name: file.name, size: file.size, type: file.type || '' };
         if (preview.revokeAll) preview.revokeAll();
 
         resultsSection.hidden = false;
