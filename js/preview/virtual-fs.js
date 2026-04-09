@@ -112,8 +112,11 @@
         previewUrls = {};
     }
 
+    var createBlobUrl = createPreviewUrl;
+
     return {
-        createBlobUrl: createPreviewUrl,
+        // Deprecated alias kept for backwards compatibility with existing consumers.
+        createBlobUrl: createBlobUrl,
         createPreviewUrl: createPreviewUrl,
         buildVirtualFS: buildVirtualFS,
         rewriteHtmlForPreview: rewriteHtmlForPreview,
