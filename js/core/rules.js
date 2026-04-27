@@ -54,6 +54,9 @@
         PKG012: { code: 'PKG012', severity: SEVERITY.WARNING, category: CATEGORY.PACKAGE, message: 'Suspicious filename' },
         PKG013: { code: 'PKG013', severity: SEVERITY.WARNING, category: CATEGORY.PACKAGE, message: 'Duplicate normalized paths' },
         PKG014: { code: 'PKG014', severity: SEVERITY.INFO,    category: CATEGORY.PACKAGE, message: 'Legacy contentv3.xml detected' },
+        PKG015: { code: 'PKG015', severity: SEVERITY.WARNING, category: CATEGORY.PACKAGE, message: 'Missing screenshot.png' },
+        PKG016: { code: 'PKG016', severity: SEVERITY.WARNING, category: CATEGORY.PACKAGE, message: 'screenshot.png is not a valid PNG' },
+        PKG017: { code: 'PKG017', severity: SEVERITY.WARNING, category: CATEGORY.PACKAGE, message: 'Legacy v3 UUID-pattern subfolder under content/resources/' },
 
         /* XML / schema --------------------------------------------------- */
         XML001: { code: 'XML001', severity: SEVERITY.ERROR,   category: CATEGORY.XML, message: 'XML is not well-formed' },

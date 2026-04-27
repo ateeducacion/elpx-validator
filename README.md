@@ -130,7 +130,7 @@ Each finding includes:
 
 | Code Range | Category | Examples |
 |-----------|----------|----------|
-| `PKG001`–`PKG014` | Package | Missing files, path traversal, suspicious names |
+| `PKG001`–`PKG017` | Package | Missing files, path traversal, suspicious names, missing/invalid `screenshot.png`, legacy v3 UUID-pattern subfolders under `content/resources/` |
 | `XML001`–`XML008` | XML/Schema | Malformed XML, wrong root, namespace, ordering |
 | `NAV001`–`NAV022` | Navigation | Missing IDs, duplicates, cycles, containment |
 | `META001`–`META006` | Metadata | Missing/invalid odeId, odeVersionId, title |
