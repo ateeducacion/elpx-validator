@@ -1,7 +1,7 @@
 {
-  "name": "elp-validator",
+  "name": "elpx-validator",
   "version": "1.0.0",
-  "description": "Client-side validator for eXeLearning .elp packages",
+  "description": "Client-side validator for eXeLearning .elp and .elpx packages",
   "scripts": {
     "test": "jest",
     "start": "http-server -c-1 .",
@@ -11,6 +11,7 @@
     "eXeLearning",
     "validator",
     "ELP",
+    "ELPX",
     "JSZip"
   ],
   "author": "Área de Tecnología Educativa",
