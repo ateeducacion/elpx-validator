@@ -29,6 +29,11 @@
             component: 'component',
             components: 'components'
         },
+        theme: {
+            toggleAriaLabel: 'Toggle color mode',
+            light: 'Light',
+            dark: 'Dark'
+        },
         tabs: {
             overview: 'Overview',
             findings: 'Findings',
