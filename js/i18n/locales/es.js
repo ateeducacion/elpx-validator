@@ -29,6 +29,11 @@
             component: 'componente',
             components: 'componentes'
         },
+        theme: {
+            toggleAriaLabel: 'Cambiar modo de color',
+            light: 'Claro',
+            dark: 'Oscuro'
+        },
         tabs: {
             overview: 'Resumen',
             findings: 'Hallazgos',

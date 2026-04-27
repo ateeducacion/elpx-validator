@@ -19,6 +19,7 @@
     var ediaCriteria = typeof EdiaCriteria !== 'undefined' ? EdiaCriteria : null;
     var ediaView     = typeof EdiaView     !== 'undefined' ? EdiaView     : null;
     var i18n         = typeof ELPXI18n     !== 'undefined' ? ELPXI18n     : null;
+    var themeManager = typeof ELPXTheme   !== 'undefined' ? ELPXTheme   : null;
 
     /* ================================================================== */
     /*  DOM references                                                    */
@@ -73,6 +74,7 @@
     var previewPageSelect   = document.getElementById('previewPageSelect');
     var previewFrame        = document.getElementById('previewFrame');
     var languageSelect      = document.getElementById('languageSelect');
+    var themeToggle         = document.getElementById('themeToggle');
 
     // EDIA Validation
     var ediaPanel = document.getElementById('ediaPanel');
@@ -206,6 +208,18 @@
             i18n.translateDom(document);
         }
         syncLanguageSelector();
+        syncThemeToggle();
+    }
+
+    function syncThemeToggle() {
+        if (!themeToggle || !themeManager || typeof themeManager.getTheme !== 'function') return;
+        var currentTheme = themeManager.getTheme();
+        var isDark = currentTheme === 'dark';
+        var icon = themeToggle.querySelector('.theme-toggle-icon');
+        var text = themeToggle.querySelector('.theme-toggle-text');
+        themeToggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+        if (icon) icon.textContent = isDark ? '☾' : '☀';
+        if (text) text.textContent = translate(isDark ? 'theme.dark' : 'theme.light', isDark ? 'Dark' : 'Light');
     }
 
     function getChecklistLabel(item, asHtml) {
@@ -1124,8 +1138,21 @@
         });
     }
 
+    if (themeManager && typeof themeManager.init === 'function') {
+        themeManager.init();
+        syncThemeToggle();
+    }
+
+    if (themeToggle && themeManager && typeof themeManager.toggleTheme === 'function') {
+        themeToggle.addEventListener('click', function () {
+            themeManager.toggleTheme();
+            syncThemeToggle();
+        });
+    }
+
     if (i18n && i18n.LANGUAGE_CHANGE_EVENT) {
         document.addEventListener(i18n.LANGUAGE_CHANGE_EVENT, function () {
+            syncThemeToggle();
             rerenderCurrentState();
         });
     }
