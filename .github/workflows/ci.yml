@@ -17,6 +17,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write # Codecov upload via OIDC, no secret token
     strategy:
       fail-fast: false
       matrix:
@@ -34,6 +37,13 @@ jobs:
       - run: npm audit --omit=dev --audit-level=high
       # Fails under the thresholds in package.json (jest.coverageThreshold).
       - run: npm run test:coverage
+      - uses: codecov/codecov-action@v7
+        if: matrix.node-version == '24.x'
+        with:
+          files: coverage/lcov.info
+          disable_search: true
+          use_oidc: true
+          fail_ci_if_error: false
 
       # The published CLI: install the packed tarball in a clean folder and use it there.
       - name: The npm package works

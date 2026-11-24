@@ -1,12 +1,19 @@
-# eXeLearning Package Validator
+# elpx-validator
+
+[![npm](https://img.shields.io/npm/v/elpx-validator?logo=npm)](https://www.npmjs.com/package/elpx-validator)
+[![CI](https://github.com/ateeducacion/elpx-validator/actions/workflows/ci.yml/badge.svg)](https://github.com/ateeducacion/elpx-validator/actions/workflows/ci.yml)
+[![GitHub Pages](https://img.shields.io/github/deployments/ateeducacion/elpx-validator/github-pages?label=web%20app&logo=github)](https://ateeducacion.github.io/elpx-validator/)
+[![Coverage](https://codecov.io/gh/ateeducacion/elpx-validator/graph/badge.svg)](https://codecov.io/gh/ateeducacion/elpx-validator)
+
+[![elpx-validator](img/social-card.png)](https://ateeducacion.github.io/elpx-validator/)
+
+[Español](README.es.md)
 
 An inspector, validator, asset explorer and preview tool for **eXeLearning** packages (`.elpx` and legacy `.elp`). The same validation runs three ways:
 
-- **Web app** — everything happens in the browser; no file is uploaded and the page loads nothing from other sites.
+- **Web app** — <https://ateeducacion.github.io/elpx-validator/>. Everything happens in the browser; no file is uploaded and the page loads nothing from other sites.
 - **CLI** — `npx elpx-validator course.elpx`, for scripts and CI. See [CLI](#cli).
 - **Agent Skill** — for AI assistants. See [Agent Skill](#agent-skill).
-
-> **Live demo:** [https://ateeducacion.github.io/elpx-validator/](https://ateeducacion.github.io/elpx-validator/)
 
 ---
 

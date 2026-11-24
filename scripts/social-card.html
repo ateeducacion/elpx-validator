@@ -1,0 +1,55 @@
+<!doctype html>
+<!--
+  Source of img/social-card.png (og:image, 1200×630). To redraw it: serve the repository root
+  (npm start), open /scripts/social-card.html at 1200×630 and save a screenshot.
+-->
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>elpx-validator social card</title>
+    <style>
+        body {
+            margin: 0;
+            width: 1200px;
+            height: 630px;
+            box-sizing: border-box;
+            padding: 56px 64px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background:
+                radial-gradient(circle at 10% 0%, rgba(20, 184, 166, 0.28), transparent 520px),
+                radial-gradient(circle at 92% 0%, rgba(37, 99, 235, 0.16), transparent 460px),
+                #f4f9fc;
+            color: #152238;
+            font: 400 26px/1.4 system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+        .brand { font: 600 30px ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+        h1 { margin: 18px 0 0; max-width: 940px; font-size: 62px; line-height: 1.06; font-weight: 700; letter-spacing: -0.02em; }
+        ol { margin: 0; padding: 0; list-style: none; border: 2px solid #c8d9e7; border-radius: 22px; overflow: hidden; background: #fff; font-size: 28px; }
+        li { display: flex; align-items: center; border-top: 2px solid #e3edf4; }
+        li:first-child { border-top: 0; }
+        li b { flex: none; width: 72px; padding: 13px 0; text-align: center; font-size: 30px; }
+        li code { flex: none; width: 170px; font: 600 24px ui-monospace, 'SF Mono', Menlo, Consolas, monospace; color: #627084; }
+        .ok b { color: #0f9f6e; }
+        .warn b { color: #c77700; }
+        .err b { color: #d9364f; }
+        footer { display: flex; justify-content: space-between; font-size: 22px; color: #627084; }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="brand">elpx-validator</div>
+        <h1>¿Es válido tu paquete de eXeLearning?</h1>
+    </div>
+    <ol>
+        <li class="ok"><b>✓</b><code>COMPAT002</code><span>Paquete .elpx moderno detectado</span></li>
+        <li class="warn"><b>!</b><code>ASSET001</code><span>Falta un recurso referenciado: mapa.png</span></li>
+        <li class="err"><b>✗</b><code>NAV007</code><span>Ciclo en la jerarquía de páginas</span></li>
+    </ol>
+    <footer>
+        <span>Web · CLI · Skill — nada sale de tu equipo</span>
+        <span>Área de Tecnología Educativa · Gobierno de Canarias</span>
+    </footer>
+</body>
+</html>
