@@ -14,13 +14,15 @@
     function canUseLocalStorage() {
         try {
             return typeof localStorage !== 'undefined';
-        } catch (error) {
+        } catch {
             return false;
         }
     }
 
     function normalizeTheme(value) {
-        var theme = String(value || '').trim().toLowerCase();
+        var theme = String(value || '')
+            .trim()
+            .toLowerCase();
         return themes[theme] ? theme : 'light';
     }
 

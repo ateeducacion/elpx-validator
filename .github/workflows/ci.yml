@@ -14,7 +14,40 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write # Codecov upload via OIDC, no secret token
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          # bun lint and bun fmt are the canary tool chain.
+          bun-version: canary
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - run: bun ci
+      - run: bun run check:lockfile
+      - run: bun audit --audit-level=high
+      - run: bun run lint # bun lint + bun fmt --check
+      # Fails when a file covers under 80 % of its lines or functions (bunfig.toml).
+      - run: bun run test:coverage
+      - uses: codecov/codecov-action@v7
+        with:
+          files: coverage/lcov.info
+          disable_search: true
+          use_oidc: true
+          fail_ci_if_error: false
+
+  # The published CLI runs on Node: install the packed tarball in a clean folder and use it there.
+  package:
+    name: npm package on Node ${{ matrix.node-version }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
@@ -28,16 +61,7 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
-          cache: npm
-
-      - run: npm ci
-      - run: npm audit --omit=dev --audit-level=high
-      # Fails under the thresholds in package.json (jest.coverageThreshold).
-      - run: npm run test:coverage
-
-      # The published CLI: install the packed tarball in a clean folder and use it there.
-      - name: The npm package works
-        run: |
+      - run: |
           npm pack --pack-destination "$RUNNER_TEMP"
           cd "$(mktemp -d)" && npm init -y >/dev/null && npm install "$RUNNER_TEMP"/elpx-validator-*.tgz
           npx elpx-validator --version

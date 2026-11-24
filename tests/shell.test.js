@@ -10,8 +10,12 @@ function load() {
     document.documentElement.innerHTML = html.replace(/<script[\s\S]*?<\/script>/g, '');
     localStorage.clear();
     // jsdom has no layout: dialogs only need to record that they were opened and closed.
-    HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', ''); };
-    HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); };
+    HTMLDialogElement.prototype.showModal = function () {
+        this.setAttribute('open', '');
+    };
+    HTMLDialogElement.prototype.close = function () {
+        this.removeAttribute('open');
+    };
     const i18n = require('../js/i18n');
     i18n.setLanguage('en', { silent: true });
     const shell = require('../js/shell');
@@ -42,8 +46,12 @@ describe('page shell', () => {
         const header = document.querySelector('header.app-header');
         expect(header.querySelector('h1').textContent).toBe('elpx-validator');
         expect(header.querySelector('.tagline').textContent).toMatch(/never leave your computer/);
-        expect(Array.from(header.querySelectorAll('button')).map((b) => b.id || b.dataset.open))
-            .toEqual(['cli-panel', 'skill-panel', 'languageToggle', 'themeToggle']);
+        expect(Array.from(header.querySelectorAll('button')).map((b) => b.id || b.dataset.open)).toEqual([
+            'cli-panel',
+            'skill-panel',
+            'languageToggle',
+            'themeToggle'
+        ]);
     });
 
     test('footer: ATE, source, version and licence', () => {
@@ -52,7 +60,9 @@ describe('page shell', () => {
         expect(shell.VERSION).toBe(pkg.version);
         expect(footer.querySelector('#version').textContent).toBe('v' + pkg.version);
         expect(footer.querySelector('.ate img').getAttribute('src')).toBe('img/ate-logo.png');
-        expect(footer.querySelector('a[href="https://github.com/ateeducacion/elpx-validator"]').textContent).toBe('Source code');
+        expect(footer.querySelector('a[href="https://github.com/ateeducacion/elpx-validator"]').textContent).toBe(
+            'Source code'
+        );
         expect(footer.querySelector('.licence').textContent).toContain('AGPL-3.0');
     });
 
@@ -81,9 +91,9 @@ describe('page shell', () => {
     });
 
     test('with nothing stored the theme follows the system', () => {
-        window.matchMedia = () => ({ matches: true });
+        globalThis.matchMedia = () => ({ matches: true });
         load();
-        delete window.matchMedia;
+        delete globalThis.matchMedia;
         expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
         expect(localStorage.getItem('elpx-validator.theme')).toBeNull();
     });
@@ -105,7 +115,10 @@ describe('page shell', () => {
         const commands = Array.from(document.querySelectorAll('#cli-panel code')).map((c) => c.textContent);
         expect(commands[0]).toBe('npx ' + Object.keys(pkg.bin)[0] + ' course.elpx');
         const help = fs.readFileSync(path.join(ROOT, 'js/cli.js'), 'utf8');
-        commands.join(' ').match(/--[a-z-]+/g).forEach((flag) => expect(help).toContain(flag));
+        commands
+            .join(' ')
+            .match(/--[a-z-]+/g)
+            .forEach((flag) => expect(help).toContain(flag));
 
         const writeText = jest.fn().mockResolvedValue();
         Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
@@ -118,7 +131,9 @@ describe('page shell', () => {
 
     test('every translation key the page uses exists in both languages', () => {
         const { i18n } = load();
-        const keys = Array.from(html.matchAll(/data-(?:label-html-|label-)?i18n(?:-[a-z-]+)?="([^"]+)"/g)).map((m) => m[1]);
+        const keys = Array.from(html.matchAll(/data-(?:label-html-|label-)?i18n(?:-[a-z-]+)?="([^"]+)"/g)).map(
+            (m) => m[1]
+        );
         expect(keys.length).toBeGreaterThan(80);
         ['en', 'es'].forEach((lang) => {
             i18n.setLanguage(lang, { silent: true });

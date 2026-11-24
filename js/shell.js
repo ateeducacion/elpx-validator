@@ -34,15 +34,24 @@
         }
 
         theme.init();
-        languageToggle.addEventListener('click', function () { i18n.setLanguage(otherLanguage()); });
-        themeToggle.addEventListener('click', function () { theme.toggleTheme(); sync(); });
+        languageToggle.addEventListener('click', function () {
+            i18n.setLanguage(otherLanguage());
+        });
+        themeToggle.addEventListener('click', function () {
+            theme.toggleTheme();
+            sync();
+        });
         doc.addEventListener(i18n.LANGUAGE_CHANGE_EVENT, sync);
 
         doc.querySelectorAll('[data-open]').forEach(function (button) {
-            button.addEventListener('click', function () { doc.getElementById(button.dataset.open).showModal(); });
+            button.addEventListener('click', function () {
+                doc.getElementById(button.dataset.open).showModal();
+            });
         });
         doc.querySelectorAll('[data-close]').forEach(function (button) {
-            button.addEventListener('click', function () { button.closest('dialog').close(); });
+            button.addEventListener('click', function () {
+                button.closest('dialog').close();
+            });
         });
         doc.querySelectorAll('[data-copy]').forEach(function (button) {
             button.addEventListener('click', function () {

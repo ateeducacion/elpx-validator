@@ -1,335 +1,647 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="app.title">elpx-validator — eXeLearning package validator</title>
-    <meta name="description" content="Validate eXeLearning .elpx and .elp packages: structure, navigation, iDevices and assets. Everything happens in your browser.">
-    <meta name="author" content="Área de Tecnología Educativa (ATE), Gobierno de Canarias">
-    <meta name="referrer" content="no-referrer">
-    <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
-    <script>
-        // Before the first paint: the stored choice, else the system's colour scheme.
-        (function () {
-            var theme = null;
-            try { theme = localStorage.getItem('elpx-validator.theme'); } catch (error) { /* storage blocked */ }
-            if (theme !== 'dark' && theme !== 'light') {
-                theme = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            }
-            document.documentElement.setAttribute('data-theme', theme);
-        })();
-    </script>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <header class="app-header">
-        <div>
-            <h1>elpx-validator</h1>
-            <p class="tagline" data-i18n="app.tagline">Validates eXeLearning packages. The files never leave your computer.</p>
-            <div class="tools">
-                <button type="button" class="pill" data-open="cli-panel" aria-haspopup="dialog">CLI</button>
-                <button type="button" class="pill" data-open="skill-panel" aria-haspopup="dialog">Skill</button>
-                <button type="button" class="link" id="languageToggle"></button>
-                <button type="button" class="icon" id="themeToggle" aria-label="Switch to dark mode">
-                    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/>
-                        <path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <main>
-        <p class="question" data-i18n="app.heading">Is your eXeLearning package valid?</p>
-        <p class="lead" data-i18n-html="app.subtitleHtml">Check the structure, navigation, iDevices and assets of your <code>.elpx</code> or <code>.elp</code> projects.</p>
-        <section id="upload" class="card">
-            <div id="dropzone" class="dropzone" tabindex="0" role="button" data-i18n-aria-label="upload.ariaLabel" aria-label="Upload .elp, .elpx, or .zip file">
-                <div class="dropzone-icon" aria-hidden="true">📁</div>
-                <p class="dropzone-title" data-i18n-html="upload.titleHtml">Drag &amp; drop your <strong>.elp</strong>, <strong>.elpx</strong>, or <strong>.zip</strong> file here</p>
-                <p class="dropzone-subtitle" data-i18n="upload.subtitle">or click to choose a file from your device</p>
-                <input id="fileInput" type="file" accept=".elp,.elpx,.zip" hidden>
-            </div>
-        </section>
-
-        <!-- ============================================================ -->
-        <!-- Results section – redesigned as navigable inspector           -->
-        <!-- ============================================================ -->
-        <section id="results" class="card results" hidden>
-            <h2 id="fileName" class="file-name"></h2>
-
-            <!-- Summary banner ------------------------------------------ -->
-            <div id="summaryBanner" class="summary-banner" hidden>
-                <span class="badge-format" id="badgeFormat"></span>
-                <div class="summary-counts">
-                    <span class="count-error" id="countErrors" data-i18n-title="summary.errorsTitle" title="Errors">❌ <strong>0</strong></span>
-                    <span class="count-warning" id="countWarnings" data-i18n-title="summary.warningsTitle" title="Warnings">⚠️ <strong>0</strong></span>
-                    <span class="count-info" id="countInfos" data-i18n-title="summary.infoTitle" title="Info">ℹ️ <strong>0</strong></span>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title data-i18n="app.title">elpx-validator — eXeLearning package validator</title>
+        <meta
+            name="description"
+            content="Validate eXeLearning .elpx and .elp packages: structure, navigation, iDevices and assets. Everything happens in your browser."
+        />
+        <meta name="author" content="Área de Tecnología Educativa (ATE), Gobierno de Canarias" />
+        <meta name="referrer" content="no-referrer" />
+        <meta name="theme-color" content="#0f6a8c" />
+        <!-- Social networks need absolute URLs: the published site's. The image is drawn from scripts/social-card.html. -->
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://ateeducacion.github.io/elpx-validator/" />
+        <meta property="og:site_name" content="elpx-validator" />
+        <meta property="og:locale" content="es_ES" />
+        <meta property="og:locale:alternate" content="en_GB" />
+        <meta property="og:title" content="elpx-validator — validador de paquetes eXeLearning" />
+        <meta
+            property="og:description"
+            content="Comprueba la estructura, la navegación, los iDevices y los recursos de un paquete .elpx. En tu navegador, sin subir nada."
+        />
+        <meta property="og:image" content="https://ateeducacion.github.io/elpx-validator/img/social-card.png" />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta
+            property="og:image:alt"
+            content="elpx-validator: tres hallazgos de ejemplo, uno correcto, una advertencia por un recurso que falta y un error por un ciclo entre páginas."
+        />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://ateeducacion.github.io/elpx-validator/img/social-card.png" />
+        <link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+        <script>
+            // Before the first paint: the stored choice, else the system's colour scheme.
+            (function () {
+                var theme = null;
+                try {
+                    theme = localStorage.getItem("elpx-validator.theme");
+                } catch (error) {
+                    /* storage blocked */
+                }
+                if (theme !== "dark" && theme !== "light") {
+                    theme = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+                }
+                document.documentElement.setAttribute("data-theme", theme);
+            })();
+        </script>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <header class="app-header">
+            <div>
+                <h1>elpx-validator</h1>
+                <p class="tagline" data-i18n="app.tagline">
+                    Validates eXeLearning packages. The files never leave your computer.
+                </p>
+                <div class="tools">
+                    <button type="button" class="pill" data-open="cli-panel" aria-haspopup="dialog">CLI</button>
+                    <button type="button" class="pill" data-open="skill-panel" aria-haspopup="dialog">Skill</button>
+                    <button type="button" class="link" id="languageToggle"></button>
+                    <button type="button" class="icon" id="themeToggle" aria-label="Switch to dark mode">
+                        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" />
+                        </svg>
+                    </button>
                 </div>
             </div>
+        </header>
 
-            <!-- Navigation tabs ----------------------------------------- -->
-            <nav class="tabs" role="tablist" data-i18n-aria-label="edia.tabAriaLabel" aria-label="Validation sections">
-                <button class="tab active" role="tab" aria-selected="true"  data-tab="tab-overview"  id="btn-tab-overview" data-i18n="tabs.overview">Overview</button>
-                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-findings"  id="btn-tab-findings" data-i18n="tabs.findings">Findings</button>
-                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-pages"     id="btn-tab-pages" data-i18n="tabs.pages">Pages</button>
-                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-idevices"  id="btn-tab-idevices" data-i18n="tabs.idevices">iDevices</button>
-                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-assets"    id="btn-tab-assets" data-i18n="tabs.assets">Assets</button>
-                <button class="tab"        role="tab" aria-selected="false" data-tab="tab-preview"   id="btn-tab-preview" data-i18n="tabs.preview">Preview</button>
-                <button class="tab tab-edia" role="tab" aria-selected="false" data-tab="tab-edia" id="btn-tab-edia" data-i18n="tabs.edia">🎓 EDIA Validation</button>
-            </nav>
+        <main>
+            <p class="question" data-i18n="app.heading">Is your eXeLearning package valid?</p>
+            <p class="lead" data-i18n-html="app.subtitleHtml">
+                Check the structure, navigation, iDevices and assets of your <code>.elpx</code> or
+                <code>.elp</code> projects.
+            </p>
+            <section id="upload" class="card">
+                <div
+                    id="dropzone"
+                    class="dropzone"
+                    tabindex="0"
+                    role="button"
+                    data-i18n-aria-label="upload.ariaLabel"
+                    aria-label="Upload .elp, .elpx, or .zip file"
+                >
+                    <div class="dropzone-icon" aria-hidden="true">
+                        <svg
+                            width="28"
+                            height="28"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.75"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <path d="M12 16V4" />
+                            <path d="m7 9 5-5 5 5" />
+                            <path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
+                        </svg>
+                    </div>
+                    <p class="dropzone-title" data-i18n-html="upload.titleHtml">
+                        Drag &amp; drop your <strong>.elp</strong>, <strong>.elpx</strong>, or
+                        <strong>.zip</strong> file here
+                    </p>
+                    <p class="dropzone-subtitle" data-i18n="upload.subtitle">
+                        or click to choose a file from your device
+                    </p>
+                    <input id="fileInput" type="file" accept=".elp,.elpx,.zip" hidden />
+                </div>
+            </section>
 
-            <!-- Tab panels ---------------------------------------------- -->
+            <!-- ============================================================ -->
+            <!-- Results section – redesigned as navigable inspector           -->
+            <!-- ============================================================ -->
+            <section id="results" class="card results" hidden>
+                <h2 id="fileName" class="file-name"></h2>
 
-            <!-- OVERVIEW ------------------------------------------------ -->
-            <div class="tab-panel active" id="tab-overview" role="tabpanel">
-                <!-- Package metadata -->
-                <div id="packageMetadata" class="metadata" hidden>
-                    <h3 data-i18n="metadata.packageDetails">Package details</h3>
-                    <table class="metadata-table">
-                        <tbody>
-                            <tr><th scope="row" data-i18n="metadata.fileSize">File size</th><td id="meta-filesize">—</td></tr>
-                            <tr><th scope="row" data-i18n="metadata.title">Title</th><td id="meta-title">—</td></tr>
-                            <tr><th scope="row" data-i18n="metadata.author">Author</th><td id="meta-author">—</td></tr>
-                            <tr><th scope="row" data-i18n="metadata.language">Language</th><td id="meta-language">—</td></tr>
-                            <tr><th scope="row" data-i18n="metadata.description">Description</th><td id="meta-description">—</td></tr>
-                            <tr><th scope="row" data-i18n="metadata.license">License</th><td id="meta-license">—</td></tr>
-                            <tr><th scope="row" data-i18n="metadata.version">Version</th><td id="meta-version">—</td></tr>
-                            <tr><th scope="row" data-i18n="metadata.identifier">Identifier</th><td id="meta-identifier">—</td></tr>
-                        </tbody>
-                    </table>
-                    <details id="metadataMore" class="metadata-more" hidden>
-                        <summary data-i18n="metadata.showRawMetadata">Show raw metadata</summary>
-                        <div class="metadata-more-content">
-                            <div class="metadata-more-section" id="meta-properties-section">
-                                <h4 data-i18n="metadata.properties">Properties</h4>
-                                <ul id="meta-properties" class="metadata-list"></ul>
+                <!-- Summary banner ------------------------------------------ -->
+                <div id="summaryBanner" class="summary-banner" hidden>
+                    <span class="badge-format" id="badgeFormat"></span>
+                    <div class="summary-counts">
+                        <span class="count-error" id="countErrors" data-i18n-title="summary.errorsTitle" title="Errors"
+                            ><b aria-hidden="true">✕</b> <strong>0</strong></span
+                        >
+                        <span
+                            class="count-warning"
+                            id="countWarnings"
+                            data-i18n-title="summary.warningsTitle"
+                            title="Warnings"
+                            ><b aria-hidden="true">!</b> <strong>0</strong></span
+                        >
+                        <span class="count-info" id="countInfos" data-i18n-title="summary.infoTitle" title="Info"
+                            ><b aria-hidden="true">i</b> <strong>0</strong></span
+                        >
+                    </div>
+                </div>
+
+                <!-- Navigation tabs ----------------------------------------- -->
+                <nav
+                    class="tabs"
+                    role="tablist"
+                    data-i18n-aria-label="edia.tabAriaLabel"
+                    aria-label="Validation sections"
+                >
+                    <button
+                        class="tab active"
+                        role="tab"
+                        aria-selected="true"
+                        data-tab="tab-overview"
+                        id="btn-tab-overview"
+                        data-i18n="tabs.overview"
+                    >
+                        Overview
+                    </button>
+                    <button
+                        class="tab"
+                        role="tab"
+                        aria-selected="false"
+                        data-tab="tab-findings"
+                        id="btn-tab-findings"
+                        data-i18n="tabs.findings"
+                    >
+                        Findings
+                    </button>
+                    <button
+                        class="tab"
+                        role="tab"
+                        aria-selected="false"
+                        data-tab="tab-pages"
+                        id="btn-tab-pages"
+                        data-i18n="tabs.pages"
+                    >
+                        Pages
+                    </button>
+                    <button
+                        class="tab"
+                        role="tab"
+                        aria-selected="false"
+                        data-tab="tab-idevices"
+                        id="btn-tab-idevices"
+                        data-i18n="tabs.idevices"
+                    >
+                        iDevices
+                    </button>
+                    <button
+                        class="tab"
+                        role="tab"
+                        aria-selected="false"
+                        data-tab="tab-assets"
+                        id="btn-tab-assets"
+                        data-i18n="tabs.assets"
+                    >
+                        Assets
+                    </button>
+                    <button
+                        class="tab"
+                        role="tab"
+                        aria-selected="false"
+                        data-tab="tab-preview"
+                        id="btn-tab-preview"
+                        data-i18n="tabs.preview"
+                    >
+                        Preview
+                    </button>
+                    <button
+                        class="tab tab-edia"
+                        role="tab"
+                        aria-selected="false"
+                        data-tab="tab-edia"
+                        id="btn-tab-edia"
+                        data-i18n="tabs.edia"
+                    >
+                        EDIA
+                    </button>
+                </nav>
+
+                <!-- Tab panels ---------------------------------------------- -->
+
+                <!-- OVERVIEW ------------------------------------------------ -->
+                <div class="tab-panel active" id="tab-overview" role="tabpanel">
+                    <!-- Package metadata -->
+                    <div id="packageMetadata" class="metadata" hidden>
+                        <h3 data-i18n="metadata.packageDetails">Package details</h3>
+                        <table class="metadata-table">
+                            <tbody>
+                                <tr>
+                                    <th scope="row" data-i18n="metadata.fileSize">File size</th>
+                                    <td id="meta-filesize">—</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" data-i18n="metadata.title">Title</th>
+                                    <td id="meta-title">—</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" data-i18n="metadata.author">Author</th>
+                                    <td id="meta-author">—</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" data-i18n="metadata.language">Language</th>
+                                    <td id="meta-language">—</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" data-i18n="metadata.description">Description</th>
+                                    <td id="meta-description">—</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" data-i18n="metadata.license">License</th>
+                                    <td id="meta-license">—</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" data-i18n="metadata.version">Version</th>
+                                    <td id="meta-version">—</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" data-i18n="metadata.identifier">Identifier</th>
+                                    <td id="meta-identifier">—</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <details id="metadataMore" class="metadata-more" hidden>
+                            <summary data-i18n="metadata.showRawMetadata">Show raw metadata</summary>
+                            <div class="metadata-more-content">
+                                <div class="metadata-more-section" id="meta-properties-section">
+                                    <h4 data-i18n="metadata.properties">Properties</h4>
+                                    <ul id="meta-properties" class="metadata-list"></ul>
+                                </div>
+                                <div class="metadata-more-section" id="meta-resources-section">
+                                    <h4 data-i18n="metadata.resources">Resources</h4>
+                                    <ul id="meta-resources" class="metadata-list"></ul>
+                                </div>
                             </div>
-                            <div class="metadata-more-section" id="meta-resources-section">
-                                <h4 data-i18n="metadata.resources">Resources</h4>
-                                <ul id="meta-resources" class="metadata-list"></ul>
+                        </details>
+                    </div>
+
+                    <!-- Legacy checklist (kept for backward compat) -->
+                    <p class="results-intro" data-i18n="summary.validationResults">Validation results:</p>
+                    <ul id="checklist" class="checklist">
+                        <li
+                            id="check-zip"
+                            class="check-item pending"
+                            data-label-i18n="checklist.zip.label"
+                            data-label-html-i18n="checklist.zip.labelHtml"
+                        >
+                            <span class="icon" aria-hidden="true">…</span>
+                            <div>
+                                <span class="label">Verifying ZIP archive integrity...</span>
+                                <p class="details" role="alert"></p>
                             </div>
-                        </div>
-                    </details>
+                        </li>
+                        <li
+                            id="check-content-xml"
+                            class="check-item pending"
+                            data-label-i18n="checklist.contentXml.label"
+                            data-label-html-i18n="checklist.contentXml.labelHtml"
+                        >
+                            <span class="icon" aria-hidden="true">…</span>
+                            <div>
+                                <span class="label"
+                                    >Looking for manifest (<code>content.xml</code> /
+                                    <code>contentv3.xml</code>)...</span
+                                >
+                                <p class="details" role="alert"></p>
+                            </div>
+                        </li>
+                        <li
+                            id="check-folders"
+                            class="check-item pending"
+                            data-label-i18n="checklist.folders.label"
+                            data-label-html-i18n="checklist.folders.labelHtml"
+                        >
+                            <span class="icon" aria-hidden="true">…</span>
+                            <div>
+                                <span class="label">Checking recommended resource folders...</span>
+                                <p class="details" role="alert"></p>
+                            </div>
+                        </li>
+                        <li
+                            id="check-xml-well-formed"
+                            class="check-item pending"
+                            data-label-i18n="checklist.xmlWellFormed.label"
+                            data-label-html-i18n="checklist.xmlWellFormed.labelHtml"
+                        >
+                            <span class="icon" aria-hidden="true">…</span>
+                            <div>
+                                <span class="label">Validating <code>content.xml</code> syntax...</span>
+                                <p class="details" role="alert"></p>
+                            </div>
+                        </li>
+                        <li
+                            id="check-root-element"
+                            class="check-item pending"
+                            data-label-i18n="checklist.rootElement.label"
+                            data-label-html-i18n="checklist.rootElement.labelHtml"
+                        >
+                            <span class="icon" aria-hidden="true">…</span>
+                            <div>
+                                <span class="label">Checking root element...</span>
+                                <p class="details" role="alert"></p>
+                            </div>
+                        </li>
+                        <li
+                            id="check-nav-structures"
+                            class="check-item pending"
+                            data-label-i18n="checklist.navStructures.label"
+                            data-label-html-i18n="checklist.navStructures.labelHtml"
+                        >
+                            <span class="icon" aria-hidden="true">…</span>
+                            <div>
+                                <span class="label">Verifying navigation structures...</span>
+                                <p class="details" role="alert"></p>
+                            </div>
+                        </li>
+                        <li
+                            id="check-pages"
+                            class="check-item pending"
+                            data-label-i18n="checklist.pages.label"
+                            data-label-html-i18n="checklist.pages.labelHtml"
+                        >
+                            <span class="icon" aria-hidden="true">…</span>
+                            <div>
+                                <span class="label">Checking for pages...</span>
+                                <p class="details" role="alert"></p>
+                            </div>
+                        </li>
+                        <li
+                            id="check-structure"
+                            class="check-item pending"
+                            data-label-i18n="checklist.structure.label"
+                            data-label-html-i18n="checklist.structure.labelHtml"
+                        >
+                            <span class="icon" aria-hidden="true">…</span>
+                            <div>
+                                <span class="label">Validating internal structure...</span>
+                                <p class="details" role="alert"></p>
+                            </div>
+                        </li>
+                        <li
+                            id="check-resources"
+                            class="check-item pending"
+                            data-label-i18n="checklist.resources.label"
+                            data-label-html-i18n="checklist.resources.labelHtml"
+                        >
+                            <span class="icon" aria-hidden="true">…</span>
+                            <div>
+                                <span class="label">Checking linked resources...</span>
+                                <p class="details" role="alert"></p>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
 
-                <!-- Legacy checklist (kept for backward compat) -->
-                <p class="results-intro" data-i18n="summary.validationResults">Validation results:</p>
-                <ul id="checklist" class="checklist">
-                    <li id="check-zip" class="check-item pending" data-label-i18n="checklist.zip.label" data-label-html-i18n="checklist.zip.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
-                        <div><span class="label">Verifying ZIP archive integrity...</span><p class="details" role="alert"></p></div>
-                    </li>
-                    <li id="check-content-xml" class="check-item pending" data-label-i18n="checklist.contentXml.label" data-label-html-i18n="checklist.contentXml.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
-                        <div><span class="label">Looking for manifest (<code>content.xml</code> / <code>contentv3.xml</code>)...</span><p class="details" role="alert"></p></div>
-                    </li>
-                    <li id="check-folders" class="check-item pending" data-label-i18n="checklist.folders.label" data-label-html-i18n="checklist.folders.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
-                        <div><span class="label">Checking recommended resource folders...</span><p class="details" role="alert"></p></div>
-                    </li>
-                    <li id="check-xml-well-formed" class="check-item pending" data-label-i18n="checklist.xmlWellFormed.label" data-label-html-i18n="checklist.xmlWellFormed.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
-                        <div><span class="label">Validating <code>content.xml</code> syntax...</span><p class="details" role="alert"></p></div>
-                    </li>
-                    <li id="check-root-element" class="check-item pending" data-label-i18n="checklist.rootElement.label" data-label-html-i18n="checklist.rootElement.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
-                        <div><span class="label">Checking root element...</span><p class="details" role="alert"></p></div>
-                    </li>
-                    <li id="check-nav-structures" class="check-item pending" data-label-i18n="checklist.navStructures.label" data-label-html-i18n="checklist.navStructures.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
-                        <div><span class="label">Verifying navigation structures...</span><p class="details" role="alert"></p></div>
-                    </li>
-                    <li id="check-pages" class="check-item pending" data-label-i18n="checklist.pages.label" data-label-html-i18n="checklist.pages.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
-                        <div><span class="label">Checking for pages...</span><p class="details" role="alert"></p></div>
-                    </li>
-                    <li id="check-structure" class="check-item pending" data-label-i18n="checklist.structure.label" data-label-html-i18n="checklist.structure.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
-                        <div><span class="label">Validating internal structure...</span><p class="details" role="alert"></p></div>
-                    </li>
-                    <li id="check-resources" class="check-item pending" data-label-i18n="checklist.resources.label" data-label-html-i18n="checklist.resources.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
-                        <div><span class="label">Checking linked resources...</span><p class="details" role="alert"></p></div>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- FINDINGS ------------------------------------------------ -->
-            <div class="tab-panel" id="tab-findings" role="tabpanel" hidden>
-                <div class="findings-toolbar">
-                    <label><span data-i18n="filters.filter">Filter:</span>
-                        <select id="findingsFilterSeverity">
-                            <option value="all" data-i18n="filters.allSeverities">All severities</option>
-                            <option value="error" data-i18n="filters.errorsOnly">Errors only</option>
-                            <option value="warning" data-i18n="filters.warningsOnly">Warnings only</option>
-                            <option value="info" data-i18n="filters.infoOnly">Info only</option>
-                        </select>
-                    </label>
-                    <label><span data-i18n="filters.category">Category:</span>
-                        <select id="findingsFilterCategory">
-                            <option value="all" data-i18n="filters.allCategories">All categories</option>
-                            <option value="package" data-i18n="category.package">Package</option>
-                            <option value="xml" data-i18n="category.xml">XML / Schema</option>
-                            <option value="navigation" data-i18n="category.navigation">Navigation</option>
-                            <option value="metadata" data-i18n="category.metadata">Metadata</option>
-                            <option value="idevice" data-i18n="category.idevice">iDevice</option>
-                            <option value="asset" data-i18n="category.asset">Asset</option>
-                            <option value="compatibility" data-i18n="category.compatibility">Compatibility</option>
-                        </select>
-                    </label>
+                <!-- FINDINGS ------------------------------------------------ -->
+                <div class="tab-panel" id="tab-findings" role="tabpanel" hidden>
+                    <div class="findings-toolbar">
+                        <label
+                            ><span data-i18n="filters.filter">Filter:</span>
+                            <select id="findingsFilterSeverity">
+                                <option value="all" data-i18n="filters.allSeverities">All severities</option>
+                                <option value="error" data-i18n="filters.errorsOnly">Errors only</option>
+                                <option value="warning" data-i18n="filters.warningsOnly">Warnings only</option>
+                                <option value="info" data-i18n="filters.infoOnly">Info only</option>
+                            </select>
+                        </label>
+                        <label
+                            ><span data-i18n="filters.category">Category:</span>
+                            <select id="findingsFilterCategory">
+                                <option value="all" data-i18n="filters.allCategories">All categories</option>
+                                <option value="package" data-i18n="category.package">Package</option>
+                                <option value="xml" data-i18n="category.xml">XML / Schema</option>
+                                <option value="navigation" data-i18n="category.navigation">Navigation</option>
+                                <option value="metadata" data-i18n="category.metadata">Metadata</option>
+                                <option value="idevice" data-i18n="category.idevice">iDevice</option>
+                                <option value="asset" data-i18n="category.asset">Asset</option>
+                                <option value="compatibility" data-i18n="category.compatibility">Compatibility</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div id="findingsList" class="findings-list"></div>
                 </div>
-                <div id="findingsList" class="findings-list"></div>
-            </div>
 
-            <!-- PAGES --------------------------------------------------- -->
-            <div class="tab-panel" id="tab-pages" role="tabpanel" hidden>
-                <div id="pagesTree" class="pages-tree"></div>
-            </div>
-
-            <!-- IDEVICES ------------------------------------------------ -->
-            <div class="tab-panel" id="tab-idevices" role="tabpanel" hidden>
-                <div id="ideviceSummaryPanel" class="idevice-summary"></div>
-                <div id="ideviceList" class="idevice-list"></div>
-            </div>
-
-            <!-- ASSETS -------------------------------------------------- -->
-            <div class="tab-panel" id="tab-assets" role="tabpanel" hidden>
-                <div class="assets-toolbar">
-                    <label><span data-i18n="filters.show">Show:</span>
-                        <select id="assetsFilter">
-                            <option value="all" data-i18n="filters.allAssets">All assets</option>
-                            <option value="referenced" data-i18n="filters.referenced">Referenced</option>
-                            <option value="orphaned" data-i18n="filters.orphaned">Orphaned / unreferenced</option>
-                            <option value="missing" data-i18n="filters.missing">Missing (referenced but absent)</option>
-                        </select>
-                    </label>
+                <!-- PAGES --------------------------------------------------- -->
+                <div class="tab-panel" id="tab-pages" role="tabpanel" hidden>
+                    <div id="pagesTree" class="pages-tree"></div>
                 </div>
-                <div id="assetSummaryPanel" class="asset-summary"></div>
-                <div id="assetTableContainer" class="asset-table-container">
-                    <table id="assetTable" class="asset-table">
-                        <thead>
-                            <tr>
-                                <th data-i18n="assets.path">Path</th>
-                                <th data-i18n="assets.type">Type</th>
-                                <th data-i18n="assets.extension">Extension</th>
-                                <th data-i18n="assets.status">Status</th>
-                                <th data-i18n="assets.preview">Preview</th>
-                            </tr>
-                        </thead>
-                        <tbody id="assetTableBody"></tbody>
-                    </table>
+
+                <!-- IDEVICES ------------------------------------------------ -->
+                <div class="tab-panel" id="tab-idevices" role="tabpanel" hidden>
+                    <div id="ideviceSummaryPanel" class="idevice-summary"></div>
+                    <div id="ideviceList" class="idevice-list"></div>
+                </div>
+
+                <!-- ASSETS -------------------------------------------------- -->
+                <div class="tab-panel" id="tab-assets" role="tabpanel" hidden>
+                    <div class="assets-toolbar">
+                        <label
+                            ><span data-i18n="filters.show">Show:</span>
+                            <select id="assetsFilter">
+                                <option value="all" data-i18n="filters.allAssets">All assets</option>
+                                <option value="referenced" data-i18n="filters.referenced">Referenced</option>
+                                <option value="orphaned" data-i18n="filters.orphaned">Orphaned / unreferenced</option>
+                                <option value="missing" data-i18n="filters.missing">
+                                    Missing (referenced but absent)
+                                </option>
+                            </select>
+                        </label>
+                    </div>
+                    <div id="assetSummaryPanel" class="asset-summary"></div>
+                    <div id="assetTableContainer" class="asset-table-container">
+                        <table id="assetTable" class="asset-table">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="assets.path">Path</th>
+                                    <th data-i18n="assets.type">Type</th>
+                                    <th data-i18n="assets.extension">Extension</th>
+                                    <th data-i18n="assets.status">Status</th>
+                                    <th data-i18n="assets.preview">Preview</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assetTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PREVIEW ------------------------------------------------- -->
+                <div class="tab-panel" id="tab-preview" role="tabpanel" hidden>
+                    <div class="preview-toolbar">
+                        <label
+                            ><span data-i18n="filters.page">Page:</span>
+                            <select id="previewPageSelect">
+                                <option value="" data-i18n="preview.placeholder">— select a page —</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div id="previewContainer" class="preview-container">
+                        <iframe
+                            id="previewFrame"
+                            class="preview-frame"
+                            sandbox="allow-scripts"
+                            data-i18n-title="preview.frameTitle"
+                            title="Page preview"
+                        ></iframe>
+                    </div>
+                </div>
+
+                <!-- EDIA VALIDATION ----------------------------------------- -->
+                <div class="tab-panel" id="tab-edia" role="tabpanel" hidden>
+                    <div id="ediaPanel" class="edia-panel"></div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <div>
+                <a
+                    class="ate"
+                    href="https://www3.gobiernodecanarias.org/medusa/ecoescuela/ate/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <img src="img/ate-logo.png" alt="" width="40" height="41" />
+                    <span data-i18n="footer.madeBy"
+                        >Made by the Educational Technology Area of the Government of the Canary Islands</span
+                    >
+                </a>
+                <div class="footer-links">
+                    <a
+                        href="https://github.com/ateeducacion/elpx-validator"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        data-i18n="footer.source"
+                        >Source code</a
+                    >
+                    <a
+                        class="repo"
+                        id="version"
+                        href="https://github.com/ateeducacion/elpx-validator/releases"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    ></a>
+                    <button
+                        type="button"
+                        class="link"
+                        data-open="licenses-panel"
+                        aria-haspopup="dialog"
+                        data-i18n="footer.licenses"
+                    >
+                        Licenses
+                    </button>
+                    <span class="licence" data-i18n="footer.license">Free software (AGPL-3.0)</span>
                 </div>
             </div>
+        </footer>
 
-            <!-- PREVIEW ------------------------------------------------- -->
-            <div class="tab-panel" id="tab-preview" role="tabpanel" hidden>
-                <div class="preview-toolbar">
-                    <label><span data-i18n="filters.page">Page:</span>
-                        <select id="previewPageSelect"><option value="" data-i18n="preview.placeholder">— select a page —</option></select>
-                    </label>
-                </div>
-                <div id="previewContainer" class="preview-container">
-                    <iframe id="previewFrame" class="preview-frame" sandbox="allow-scripts" data-i18n-title="preview.frameTitle" title="Page preview"></iframe>
-                </div>
+        <dialog id="cli-panel" aria-labelledby="cli-title">
+            <h2 id="cli-title" data-i18n="shell.cliTitle">From the terminal</h2>
+            <p data-i18n="shell.cliIntro">
+                The same validation as a command, with Node.js 22 or later. Nothing to install: npx downloads it the
+                first time.
+            </p>
+            <div class="code">
+                <pre><code>npx elpx-validator course.elpx</code></pre>
+                <button type="button" data-copy data-i18n="shell.copy">Copy</button>
             </div>
-
-            <!-- EDIA VALIDATION ----------------------------------------- -->
-            <div class="tab-panel" id="tab-edia" role="tabpanel" hidden>
-                <div id="ediaPanel" class="edia-panel"></div>
+            <h3 data-i18n="shell.cliStrict">Fail on warnings too (for CI)</h3>
+            <div class="code">
+                <pre><code>npx elpx-validator course.elpx --strict</code></pre>
+                <button type="button" data-copy data-i18n="shell.copy">Copy</button>
             </div>
-        </section>
-    </main>
-
-    <footer class="app-footer">
-        <div>
-            <a class="ate" href="https://www3.gobiernodecanarias.org/medusa/ecoescuela/ate/" target="_blank" rel="noopener noreferrer">
-                <img src="img/ate-logo.png" alt="" width="40" height="41">
-                <span data-i18n="footer.madeBy">Made by the Educational Technology Area of the Government of the Canary Islands</span>
-            </a>
-            <div class="footer-links">
-                <a href="https://github.com/ateeducacion/elpx-validator" target="_blank" rel="noopener noreferrer" data-i18n="footer.source">Source code</a>
-                <a class="repo" id="version" href="https://github.com/ateeducacion/elpx-validator/releases" target="_blank" rel="noopener noreferrer"></a>
-                <button type="button" class="link" data-open="licenses-panel" aria-haspopup="dialog" data-i18n="footer.licenses">Licenses</button>
-                <span class="licence" data-i18n="footer.license">Free software (AGPL-3.0)</span>
+            <h3 data-i18n="shell.cliJson">Full report as JSON, with the EDIA criteria</h3>
+            <div class="code">
+                <pre><code>npx elpx-validator course.elpx --json --edia</code></pre>
+                <button type="button" data-copy data-i18n="shell.copy">Copy</button>
             </div>
-        </div>
-    </footer>
+            <div class="dialog-end">
+                <a
+                    href="https://github.com/ateeducacion/elpx-validator#cli"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-i18n="shell.docs"
+                    >Documentation</a
+                >
+                <button type="button" class="primary" data-close data-i18n="shell.close">Close</button>
+            </div>
+        </dialog>
+        <dialog id="skill-panel" aria-labelledby="skill-title">
+            <h2 id="skill-title" data-i18n="shell.skillTitle">Skill for AI assistants</h2>
+            <p data-i18n="shell.skillIntro">
+                An Agent Skill that teaches assistants such as Claude Code or Copilot to validate .elpx packages and
+                explain the findings.
+            </p>
+            <h3 data-i18n="shell.skillNpx">With npx skills</h3>
+            <div class="code">
+                <pre><code>npx skills add ateeducacion/elpx-validator</code></pre>
+                <button type="button" data-copy data-i18n="shell.copy">Copy</button>
+            </div>
+            <h3 data-i18n="shell.skillGh">With the GitHub CLI</h3>
+            <div class="code">
+                <pre><code>gh skill install ateeducacion/elpx-validator elpx-validator</code></pre>
+                <button type="button" data-copy data-i18n="shell.copy">Copy</button>
+            </div>
+            <p data-i18n="shell.skillNote">The skill uses the elpx-validator command line through npx.</p>
+            <div class="dialog-end">
+                <a
+                    href="https://github.com/ateeducacion/elpx-validator/blob/main/skills/elpx-validator/SKILL.md"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >SKILL.md</a
+                >
+                <button type="button" class="primary" data-close data-i18n="shell.close">Close</button>
+            </div>
+        </dialog>
+        <dialog id="licenses-panel" aria-labelledby="licenses-title">
+            <h2 id="licenses-title" data-i18n="shell.licensesTitle">Licenses and credits</h2>
+            <p data-i18n="shell.licensesIntro">
+                elpx-validator is free software: you may use, study, modify and share it under the GNU Affero General
+                Public License, version 3 or later.
+            </p>
+            <p>
+                <a
+                    href="https://github.com/ateeducacion/elpx-validator/blob/main/LICENSE"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-i18n="shell.licensesApp"
+                    >elpx-validator license (AGPL-3.0)</a
+                >
+            </p>
+            <h3 data-i18n="shell.licensesComponents">Bundled components</h3>
+            <ul class="components">
+                <li>
+                    <a href="https://github.com/Stuk/jszip" target="_blank" rel="noopener noreferrer">JSZip</a>
+                    <span>MIT or GPL-3.0</span>
+                </li>
+            </ul>
+            <p data-i18n="shell.licensesAte">
+                The ATE logo belongs to the Educational Technology Area of the Government of the Canary Islands.
+            </p>
+            <div class="dialog-end">
+                <span></span>
+                <button type="button" class="primary" data-close data-i18n="shell.close">Close</button>
+            </div>
+        </dialog>
 
-    <dialog id="cli-panel" aria-labelledby="cli-title">
-        <h2 id="cli-title" data-i18n="shell.cliTitle">From the terminal</h2>
-        <p data-i18n="shell.cliIntro">The same validation as a command, with Node.js 22 or later. Nothing to install: npx downloads it the first time.</p>
-        <div class="code">
-            <pre><code>npx elpx-validator course.elpx</code></pre>
-            <button type="button" data-copy data-i18n="shell.copy">Copy</button>
-        </div>
-        <h3 data-i18n="shell.cliStrict">Fail on warnings too (for CI)</h3>
-        <div class="code">
-            <pre><code>npx elpx-validator course.elpx --strict</code></pre>
-            <button type="button" data-copy data-i18n="shell.copy">Copy</button>
-        </div>
-        <h3 data-i18n="shell.cliJson">Full report as JSON, with the EDIA criteria</h3>
-        <div class="code">
-            <pre><code>npx elpx-validator course.elpx --json --edia</code></pre>
-            <button type="button" data-copy data-i18n="shell.copy">Copy</button>
-        </div>
-        <div class="dialog-end">
-            <a href="https://github.com/ateeducacion/elpx-validator#cli" target="_blank" rel="noopener noreferrer" data-i18n="shell.docs">Documentation</a>
-            <button type="button" class="primary" data-close data-i18n="shell.close">Close</button>
-        </div>
-    </dialog>
-    <dialog id="skill-panel" aria-labelledby="skill-title">
-        <h2 id="skill-title" data-i18n="shell.skillTitle">Skill for AI assistants</h2>
-        <p data-i18n="shell.skillIntro">An Agent Skill that teaches assistants such as Claude Code or Copilot to validate .elpx packages and explain the findings.</p>
-        <h3 data-i18n="shell.skillNpx">With npx skills</h3>
-        <div class="code">
-            <pre><code>npx skills add ateeducacion/elpx-validator</code></pre>
-            <button type="button" data-copy data-i18n="shell.copy">Copy</button>
-        </div>
-        <h3 data-i18n="shell.skillGh">With the GitHub CLI</h3>
-        <div class="code">
-            <pre><code>gh skill install ateeducacion/elpx-validator elpx-validator</code></pre>
-            <button type="button" data-copy data-i18n="shell.copy">Copy</button>
-        </div>
-        <p data-i18n="shell.skillNote">The skill uses the elpx-validator command line through npx.</p>
-        <div class="dialog-end">
-            <a href="https://github.com/ateeducacion/elpx-validator/blob/main/skills/elpx-validator/SKILL.md" target="_blank" rel="noopener noreferrer">SKILL.md</a>
-            <button type="button" class="primary" data-close data-i18n="shell.close">Close</button>
-        </div>
-    </dialog>
-    <dialog id="licenses-panel" aria-labelledby="licenses-title">
-        <h2 id="licenses-title" data-i18n="shell.licensesTitle">Licenses and credits</h2>
-        <p data-i18n="shell.licensesIntro">elpx-validator is free software: you may use, study, modify and share it under the GNU Affero General Public License, version 3 or later.</p>
-        <p><a href="https://github.com/ateeducacion/elpx-validator/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" data-i18n="shell.licensesApp">elpx-validator license (AGPL-3.0)</a></p>
-        <h3 data-i18n="shell.licensesComponents">Bundled components</h3>
-        <ul class="components">
-            <li><a href="https://github.com/Stuk/jszip" target="_blank" rel="noopener noreferrer">JSZip</a> <span>MIT or GPL-3.0</span></li>
-        </ul>
-        <p data-i18n="shell.licensesAte">The ATE logo belongs to the Educational Technology Area of the Government of the Canary Islands.</p>
-        <div class="dialog-end">
-            <span></span>
-            <button type="button" class="primary" data-close data-i18n="shell.close">Close</button>
-        </div>
-    </dialog>
-
-    <script src="vendor/jszip.min.js"></script>
-    <script src="js/i18n/locales/en.js"></script>
-    <script src="js/i18n/locales/es.js"></script>
-    <script src="js/i18n/index.js"></script>
-    <script src="js/core/rules.js"></script>
-    <script src="js/core/model.js"></script>
-    <script src="js/registries/idevice-types.js"></script>
-    <script src="js/validators/package-rules.js"></script>
-    <script src="js/validators/xml-rules.js"></script>
-    <script src="js/validators/nav-rules.js"></script>
-    <script src="js/validators/idevice-rules.js"></script>
-    <script src="js/validators/asset-rules.js"></script>
-    <script src="js/preview/virtual-fs.js"></script>
-    <script src="js/validator.js"></script>
-    <script src="js/edia/edia-criteria.js"></script>
-    <script src="js/edia/edia-view.js"></script>
-    <script src="js/theme.js"></script>
-    <script src="js/shell.js"></script>
-    <script src="js/app.js"></script>
-</body>
+        <script src="vendor/jszip.min.js"></script>
+        <script src="js/i18n/locales/en.js"></script>
+        <script src="js/i18n/locales/es.js"></script>
+        <script src="js/i18n/index.js"></script>
+        <script src="js/core/rules.js"></script>
+        <script src="js/core/model.js"></script>
+        <script src="js/registries/idevice-types.js"></script>
+        <script src="js/validators/package-rules.js"></script>
+        <script src="js/validators/xml-rules.js"></script>
+        <script src="js/validators/nav-rules.js"></script>
+        <script src="js/validators/idevice-rules.js"></script>
+        <script src="js/validators/asset-rules.js"></script>
+        <script src="js/preview/virtual-fs.js"></script>
+        <script src="js/validator.js"></script>
+        <script src="js/edia/edia-criteria.js"></script>
+        <script src="js/edia/edia-view.js"></script>
+        <script src="js/theme.js"></script>
+        <script src="js/shell.js"></script>
+        <script src="js/app.js"></script>
+    </body>
 </html>

@@ -1,22 +1,30 @@
-# eXeLearning Package Validator
+# elpx-validator
+
+[![npm](https://img.shields.io/npm/v/elpx-validator?logo=npm)](https://www.npmjs.com/package/elpx-validator)
+[![CI](https://github.com/ateeducacion/elpx-validator/actions/workflows/ci.yml/badge.svg)](https://github.com/ateeducacion/elpx-validator/actions/workflows/ci.yml)
+[![GitHub Pages](https://img.shields.io/github/deployments/ateeducacion/elpx-validator/github-pages?label=web%20app&logo=github)](https://ateeducacion.github.io/elpx-validator/)
+[![Coverage](https://codecov.io/gh/ateeducacion/elpx-validator/graph/badge.svg)](https://codecov.io/gh/ateeducacion/elpx-validator)
+
+[![elpx-validator](img/social-card.png)](https://ateeducacion.github.io/elpx-validator/)
+
+[Español](README.es.md)
 
 An inspector, validator, asset explorer and preview tool for **eXeLearning** packages (`.elpx` and legacy `.elp`). The same validation runs three ways:
 
-- **Web app** — everything happens in the browser; no file is uploaded and the page loads nothing from other sites.
+- **Web app** — <https://ateeducacion.github.io/elpx-validator/>. Everything happens in the browser; no file is uploaded and the page loads nothing from other sites.
 - **CLI** — `npx elpx-validator course.elpx`, for scripts and CI. See [CLI](#cli).
 - **Agent Skill** — for AI assistants. See [Agent Skill](#agent-skill).
-
-> **Live demo:** [https://ateeducacion.github.io/elpx-validator/](https://ateeducacion.github.io/elpx-validator/)
 
 ---
 
 ## Features
 
 ### Supported Formats
-| Format | Manifest | Description |
-|--------|----------|-------------|
-| **Modern `.elpx`** | `content.xml` (ODE 2.0) | Full validation with deep structural and semantic checks |
-| **Legacy `.elp`** | `contentv3.xml` | Basic metadata extraction with format-appropriate pipeline |
+
+| Format             | Manifest                | Description                                                |
+| ------------------ | ----------------------- | ---------------------------------------------------------- |
+| **Modern `.elpx`** | `content.xml` (ODE 2.0) | Full validation with deep structural and semantic checks   |
+| **Legacy `.elp`**  | `contentv3.xml`         | Basic metadata extraction with format-appropriate pipeline |
 
 The validator auto-detects the format and applies the correct validation pipeline. A badge (`Modern ELPX` / `Legacy ELP`) is shown in the results.
 
@@ -25,6 +33,7 @@ The validator auto-detects the format and applies the correct validation pipelin
 The validator performs **layered validation** organized into categories:
 
 #### 1. Package / ZIP layer (`PKG*`)
+
 - Presence of required files: `content.xml`, `content.dtd`, `index.html`
 - Recommended directories: `html/`, `content/resources/`, `theme/`, `libs/`, `idevices/`
 - Path traversal detection (`../`)
@@ -33,6 +42,7 @@ The validator performs **layered validation** organized into categories:
 - Duplicate normalized paths (casing conflicts)
 
 #### 2. XML / Schema layer (`XML*`)
+
 - XML well-formedness
 - Root element is `<ode>`
 - Namespace validation (`http://www.intef.es/xsd/ode`)
@@ -42,6 +52,7 @@ The validator performs **layered validation** organized into categories:
 - Unknown root child elements
 
 #### 3. Navigation / Structure layer (`NAV*`)
+
 - Page, block, and component ID presence and uniqueness
 - Parent page reference validation (dangling references)
 - Page hierarchy cycle detection
@@ -50,11 +61,13 @@ The validator performs **layered validation** organized into categories:
 - Order field numeric validation
 
 #### 4. Metadata layer (`META*`)
+
 - `odeId` and `odeVersionId` format validation (14-digit timestamp + 6 uppercase alphanumeric)
 - `eXeVersion` presence
 - Project title (`pp_title`) presence
 
 #### 5. iDevice layer (`IDEV*`)
+
 - Type recognition against a registry of **18 known iDevice types** from the ELPX specification
 - `jsonProperties` parseability
 - `htmlView` content check
@@ -64,6 +77,7 @@ The validator performs **layered validation** organized into categories:
   - Download iDevices (`download-source-file`): `isDownload` flag consistency
 
 #### 6. Asset layer (`ASSET*`)
+
 - Complete asset inventory from the ZIP
 - Reference extraction from `htmlView`, `jsonProperties`, and exported HTML
 - `{{context_path}}` template variable normalization
@@ -76,23 +90,24 @@ The validator performs **layered validation** organized into categories:
 
 The registry includes these documented types, classified by validation depth:
 
-| Type | Group | Validation |
-|------|-------|-----------|
-| `text` | Content | Deep |
-| `image-gallery` | Media | Deep |
-| `magnifier` | Media | Deep |
-| `external-website` | Embed | Deep |
-| `download-source-file` | System | Deep |
-| `form`, `matching`, `sort`, `classify`, `guess`, `checklist`, `crossword` | Activity | Shallow |
-| `casestudy`, `rubric` | Content | Shallow |
-| `trueorfalse`, `quick-questions`, `quick-questions-multiple-choice` | Quiz | Shallow |
-| `complete` | Activity | Shallow |
+| Type                                                                      | Group    | Validation |
+| ------------------------------------------------------------------------- | -------- | ---------- |
+| `text`                                                                    | Content  | Deep       |
+| `image-gallery`                                                           | Media    | Deep       |
+| `magnifier`                                                               | Media    | Deep       |
+| `external-website`                                                        | Embed    | Deep       |
+| `download-source-file`                                                    | System   | Deep       |
+| `form`, `matching`, `sort`, `classify`, `guess`, `checklist`, `crossword` | Activity | Shallow    |
+| `casestudy`, `rubric`                                                     | Content  | Shallow    |
+| `trueorfalse`, `quick-questions`, `quick-questions-multiple-choice`       | Quiz     | Shallow    |
+| `complete`                                                                | Activity | Shallow    |
 
 Unknown/custom iDevice types are reported as informational findings, not errors.
 
 ### Asset Explorer
 
 The Assets tab provides:
+
 - Full inventory of all files in the package with MIME type, extension, and preview capability
 - Filtering: All / Referenced / Orphaned / Missing
 - Summary counts: total, referenced, missing, orphaned
@@ -100,6 +115,7 @@ The Assets tab provides:
 ### Preview System
 
 The Preview tab provides:
+
 - Sandboxed `<iframe>` preview of `index.html` and pages under `html/`
 - Asset references rewritten to Blob URLs for offline rendering
 - Page selector dropdown
@@ -108,19 +124,20 @@ The Preview tab provides:
 
 The redesigned UI is organized as a **navigable inspector**:
 
-| Tab | Content |
-|-----|---------|
-| **Overview** | Legacy checklist, package metadata, file size |
-| **Findings** | All validation findings with severity/category filtering |
-| **Pages** | Hierarchical page tree with blocks and components |
-| **iDevices** | Type summary, counts, known/unknown classification |
-| **Assets** | Full asset inventory with filtering |
-| **Preview** | Sandboxed page preview |
+| Tab                 | Content                                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **Overview**        | Legacy checklist, package metadata, file size                                                                 |
+| **Findings**        | All validation findings with severity/category filtering                                                      |
+| **Pages**           | Hierarchical page tree with blocks and components                                                             |
+| **iDevices**        | Type summary, counts, known/unknown classification                                                            |
+| **Assets**          | Full asset inventory with filtering                                                                           |
+| **Preview**         | Sandboxed page preview                                                                                        |
 | **EDIA Validation** | The 48 EDIA quality criteria for open educational resources: 13 automatic, 12 heuristic, 23 for manual review |
 
 The header has the shortcuts to the CLI and the Skill, the language (English / Spanish) and the colour mode, which follows the system until you choose one. The footer shows the version, the source and the licences.
 
 Each finding includes:
+
 - **Rule code** (e.g., `PKG001`, `XML004`, `NAV012`, `IDEV007`, `ASSET015`)
 - **Severity**: error / warning / info
 - **Category**: package / xml / navigation / metadata / idevice / asset / compatibility
@@ -133,15 +150,15 @@ Each finding includes:
 
 ## Validation Rule Catalog
 
-| Code Range | Category | Examples |
-|-----------|----------|----------|
-| `PKG001`–`PKG017` | Package | Missing files, path traversal, suspicious names, missing/invalid `screenshot.png`, legacy v3 UUID-pattern subfolders under `content/resources/` |
-| `XML001`–`XML008` | XML/Schema | Malformed XML, wrong root, namespace, ordering |
-| `NAV001`–`NAV022` | Navigation | Missing IDs, duplicates, cycles, containment |
-| `META001`–`META006` | Metadata | Missing/invalid odeId, odeVersionId, title |
-| `IDEV001`–`IDEV006` | iDevice | Unknown types, parse errors, missing assets/URLs |
-| `ASSET001`–`ASSET005` | Asset | Missing, orphaned, path traversal, casing |
-| `COMPAT001`–`COMPAT002` | Compatibility | Legacy/modern format detection |
+| Code Range              | Category      | Examples                                                                                                                                        |
+| ----------------------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PKG001`–`PKG017`       | Package       | Missing files, path traversal, suspicious names, missing/invalid `screenshot.png`, legacy v3 UUID-pattern subfolders under `content/resources/` |
+| `XML001`–`XML008`       | XML/Schema    | Malformed XML, wrong root, namespace, ordering                                                                                                  |
+| `NAV001`–`NAV022`       | Navigation    | Missing IDs, duplicates, cycles, containment                                                                                                    |
+| `META001`–`META006`     | Metadata      | Missing/invalid odeId, odeVersionId, title                                                                                                      |
+| `IDEV001`–`IDEV006`     | iDevice       | Unknown types, parse errors, missing assets/URLs                                                                                                |
+| `ASSET001`–`ASSET005`   | Asset         | Missing, orphaned, path traversal, casing                                                                                                       |
+| `COMPAT001`–`COMPAT002` | Compatibility | Legacy/modern format detection                                                                                                                  |
 
 ---
 
@@ -164,15 +181,15 @@ npx elpx-validator course.elpx --json --edia   # full report, with the EDIA crit
 npx elpx-validator *.elpx --lang es -o informe.txt
 ```
 
-| Option | Effect |
-|--------|--------|
-| `--json` | The report as one JSON document (an array when several files are given) |
-| `--strict` | Warnings also make the package fail |
-| `--all` | Also list informational findings |
-| `--edia` | Add the EDIA quality criteria evaluation |
-| `-o, --output FILE` | Write to `FILE` instead of standard output |
-| `--lang es\|en` | Language of the text output (default: from `LANG`) |
-| `--no-color` | Plain text without colours |
+| Option              | Effect                                                                  |
+| ------------------- | ----------------------------------------------------------------------- |
+| `--json`            | The report as one JSON document (an array when several files are given) |
+| `--strict`          | Warnings also make the package fail                                     |
+| `--all`             | Also list informational findings                                        |
+| `--edia`            | Add the EDIA quality criteria evaluation                                |
+| `-o, --output FILE` | Write to `FILE` instead of standard output                              |
+| `--lang es\|en`     | Language of the text output (default: from `LANG`)                      |
+| `--no-color`        | Plain text without colours                                              |
 
 **Exit status:** `0` valid (warnings allowed unless `--strict`), `1` invalid, `2` the command could not run (bad option, unreadable file).
 
@@ -229,8 +246,8 @@ js/
 └── app.js                    # UI layer
 bin/elpx-validator.js         # CLI entry point
 skills/elpx-validator/        # Agent Skill
-vendor/jszip.min.js           # JSZip for the web app (copied by `npm run vendor`)
-tests/                        # Jest unit tests
+vendor/jszip.min.js           # JSZip for the web app (copied by `bun run vendor`)
+tests/                        # Unit tests (bun test)
 ```
 
 All validation rules return structured finding objects:
@@ -255,29 +272,34 @@ All validation rules return structured finding objects:
 ### Requirements
 
 - A modern browser (Chrome, Firefox, Safari, Edge)
-- Node.js 22 or later (for the CLI and the tests)
+- Node.js 22 or later (for the CLI)
+- Bun canary (for the tests, the linter and the formatter)
 
 ### Running locally
 
 Open `index.html` in a browser, or start a local HTTP server:
 
 ```bash
-npm run start
+bun start
 ```
 
 By default it listens on `http://localhost:8081`.
 
 ### Running tests
 
+The tool chain is [Bun](https://bun.com) canary (`bun upgrade --canary`): `bun test`, `bun lint` and `bun fmt`.
+
 ```bash
-npm ci
-npm test                # all tests
-npm run test:coverage   # with the coverage thresholds CI enforces
+bun ci
+bun test                # all tests
+bun run test:coverage   # with the per-file coverage thresholds CI enforces
+bun run lint            # bun lint + bun fmt --check
+bun run fix             # apply the lint fixes and the formatting
 ```
 
 The tests cover the rules, the project model, each validation layer, the EDIA criteria, the translations, the page shell (header, footer, panels) and the CLI, including the real `bin` script in plain Node.
 
-After updating the `jszip` dependency run `npm run vendor`; a test fails while the copy in `vendor/` is stale.
+After updating the `jszip` dependency run `bun run vendor`; a test fails while the copy in `vendor/` is stale.
 
 ### Releasing
 
@@ -300,5 +322,6 @@ Change `version` in `package.json` and `VERSION` in `js/shell.js` (a test keeps 
 Built by the [Área de Tecnología Educativa](https://www3.gobiernodecanarias.org/medusa/ecoescuela/ate) – Gobierno de Canarias.
 
 References:
+
 - [eXeLearning](https://github.com/exelearning/exelearning)
 - [ELPX Format Specification](https://github.com/exelearning/exelearning/blob/main/doc/elpx-format.md)

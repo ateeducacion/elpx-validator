@@ -22,39 +22,39 @@
     /* ------------------------------------------------------------------ */
 
     var MIME_MAP = {
-        '.jpg':  'image/jpeg',
+        '.jpg': 'image/jpeg',
         '.jpeg': 'image/jpeg',
-        '.png':  'image/png',
-        '.gif':  'image/gif',
-        '.svg':  'image/svg+xml',
+        '.png': 'image/png',
+        '.gif': 'image/gif',
+        '.svg': 'image/svg+xml',
         '.webp': 'image/webp',
-        '.bmp':  'image/bmp',
-        '.ico':  'image/x-icon',
-        '.mp3':  'audio/mpeg',
-        '.ogg':  'audio/ogg',
-        '.wav':  'audio/wav',
-        '.mp4':  'video/mp4',
+        '.bmp': 'image/bmp',
+        '.ico': 'image/x-icon',
+        '.mp3': 'audio/mpeg',
+        '.ogg': 'audio/ogg',
+        '.wav': 'audio/wav',
+        '.mp4': 'video/mp4',
         '.webm': 'video/webm',
-        '.ogv':  'video/ogg',
-        '.pdf':  'application/pdf',
+        '.ogv': 'video/ogg',
+        '.pdf': 'application/pdf',
         '.json': 'application/json',
-        '.xml':  'application/xml',
+        '.xml': 'application/xml',
         '.html': 'text/html',
-        '.htm':  'text/html',
-        '.css':  'text/css',
-        '.js':   'application/javascript',
-        '.txt':  'text/plain',
+        '.htm': 'text/html',
+        '.css': 'text/css',
+        '.js': 'application/javascript',
+        '.txt': 'text/plain',
         '.woff': 'font/woff',
-        '.woff2':'font/woff2',
-        '.ttf':  'font/ttf',
-        '.eot':  'application/vnd.ms-fontobject',
-        '.zip':  'application/zip'
+        '.woff2': 'font/woff2',
+        '.ttf': 'font/ttf',
+        '.eot': 'application/vnd.ms-fontobject',
+        '.zip': 'application/zip'
     };
 
     var PREVIEWABLE_IMAGE = new Set(['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp', '.bmp', '.ico']);
     var PREVIEWABLE_AUDIO = new Set(['.mp3', '.ogg', '.wav']);
     var PREVIEWABLE_VIDEO = new Set(['.mp4', '.webm', '.ogv']);
-    var PREVIEWABLE_CODE  = new Set(['.html', '.htm', '.css', '.js', '.json', '.xml', '.txt', '.svg']);
+    var PREVIEWABLE_CODE = new Set(['.html', '.htm', '.css', '.js', '.json', '.xml', '.txt', '.svg']);
 
     /**
      * Determine the preview type for a file extension.
@@ -106,7 +106,7 @@
                 extension: ext,
                 mimeType: inferMime(name),
                 previewType: previewType(ext),
-                size: null,   // Will be populated async if needed
+                size: null, // Will be populated async if needed
                 referenced: false,
                 referencedBy: [],
                 isAssetDir: isAssetPath(name)
@@ -136,8 +136,8 @@
             .replace(/^\.\//, '')
             .replace(/^\//, '')
             .replace(/\\/g, '/')
-            .replace(/\?.*$/, '')   // strip query strings
-            .replace(/#.*$/, '');   // strip fragments
+            .replace(/\?.*$/, '') // strip query strings
+            .replace(/#.*$/, ''); // strip fragments
     }
 
     /**
@@ -260,17 +260,38 @@
 
                         // Extract from htmlView (content.xml lives at root)
                         if (comp.htmlView) {
-                            extractPathsFromString(comp.htmlView, 'htmlView', source, references, referencesByPath, null);
+                            extractPathsFromString(
+                                comp.htmlView,
+                                'htmlView',
+                                source,
+                                references,
+                                referencesByPath,
+                                null
+                            );
                         }
 
                         // Extract from jsonProperties
                         if (comp.jsonProperties) {
                             try {
                                 var json = JSON.parse(comp.jsonProperties);
-                                extractPathsFromJson(json, 'jsonProperties', source, references, referencesByPath, null);
-                            } catch (e) {
+                                extractPathsFromJson(
+                                    json,
+                                    'jsonProperties',
+                                    source,
+                                    references,
+                                    referencesByPath,
+                                    null
+                                );
+                            } catch {
                                 // Fallback to regex
-                                extractPathsFromString(comp.jsonProperties, 'jsonProperties', source, references, referencesByPath, null);
+                                extractPathsFromString(
+                                    comp.jsonProperties,
+                                    'jsonProperties',
+                                    source,
+                                    references,
+                                    referencesByPath,
+                                    null
+                                );
                             }
                         }
                     });
@@ -305,22 +326,42 @@
 
     /* Known file extensions for asset path heuristic */
     var KNOWN_ASSET_EXTENSIONS = [
-        'jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp', 'ico',     // images
-        'mp3', 'ogg', 'wav',                                            // audio
-        'mp4', 'webm', 'ogv',                                           // video
-        'pdf', 'json', 'xml', 'html', 'htm', 'css', 'js',              // documents/code
-        'woff', 'woff2', 'ttf', 'eot',                                  // fonts
-        'zip', 'txt', 'map'                                             // other
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'svg',
+        'webp',
+        'bmp',
+        'ico', // images
+        'mp3',
+        'ogg',
+        'wav', // audio
+        'mp4',
+        'webm',
+        'ogv', // video
+        'pdf',
+        'json',
+        'xml',
+        'html',
+        'htm',
+        'css',
+        'js', // documents/code
+        'woff',
+        'woff2',
+        'ttf',
+        'eot', // fonts
+        'zip',
+        'txt',
+        'map' // other
     ];
-    var ASSET_EXTENSION_REGEX = new RegExp(
-        '\\.(' + KNOWN_ASSET_EXTENSIONS.join('|') + ')(\\?[^"\']*)?$', 'i'
-    );
+    var ASSET_EXTENSION_REGEX = new RegExp('\\.(' + KNOWN_ASSET_EXTENSIONS.join('|') + ')(\\?[^"\']*)?$', 'i');
 
     /* File extensions/paths to skip when checking for orphaned assets */
     var ORPHAN_IGNORE_EXTENSIONS = new Set(['.map']);
     var ORPHAN_IGNORE_PATTERNS = [
-        /^theme\/icons\//i,                // Theme icon sets
-        /^idevices\/[^/]+\/[^/]+\.html$/i  // iDevice HTML templates
+        /^theme\/icons\//i, // Theme icon sets
+        /^idevices\/[^/]+\/[^/]+\.html$/i // iDevice HTML templates
     ];
 
     function extractPathsFromString(text, sourceType, source, references, referencesByPath, sourcePath) {
@@ -378,11 +419,15 @@
             return;
         }
         if (Array.isArray(value)) {
-            value.forEach(function (item) { extractPathsFromJson(item, sourceType, source, references, referencesByPath, sourcePath); });
+            value.forEach(function (item) {
+                extractPathsFromJson(item, sourceType, source, references, referencesByPath, sourcePath);
+            });
             return;
         }
         if (typeof value === 'object') {
-            Object.values(value).forEach(function (item) { extractPathsFromJson(item, sourceType, source, references, referencesByPath, sourcePath); });
+            Object.values(value).forEach(function (item) {
+                extractPathsFromJson(item, sourceType, source, references, referencesByPath, sourcePath);
+            });
         }
     }
 
@@ -460,7 +505,7 @@
      * @param {object}   zipFiles       - The zip.files map.
      * @returns {{ findings: object[], assetSummary: object }}
      */
-    function validateAssets(assets, referencesByPath, zipFiles) {
+    function validateAssets(assets, referencesByPath) {
         var findings = [];
         var assetMap = {};
         var assetLowerMap = {};
@@ -489,11 +534,18 @@
                 asset = assetLowerMap[lowerPath];
                 if (asset && asset.path !== refPath) {
                     // Casing mismatch
-                    findings.push(createFinding('ASSET005', {
-                        details: 'Reference "' + refPath + '" matches asset "' + asset.path + '" only with case-insensitive comparison.',
-                        evidence: { reference: refPath, actualPath: asset.path },
-                        suggestion: 'Use consistent casing to avoid issues on case-sensitive file systems.'
-                    }));
+                    findings.push(
+                        createFinding('ASSET005', {
+                            details:
+                                'Reference "' +
+                                refPath +
+                                '" matches asset "' +
+                                asset.path +
+                                '" only with case-insensitive comparison.',
+                            evidence: { reference: refPath, actualPath: asset.path },
+                            suggestion: 'Use consistent casing to avoid issues on case-sensitive file systems.'
+                        })
+                    );
                 }
             }
 
@@ -509,17 +561,29 @@
             if (asset) {
                 foundReferencedCount++;
                 asset.referenced = true;
-                asset.referencedBy = asset.referencedBy.concat(refs.map(function (r) { return r.source; }));
+                asset.referencedBy = asset.referencedBy.concat(
+                    refs.map(function (r) {
+                        return r.source;
+                    })
+                );
             } else {
                 missingCount++;
-                findings.push(createFinding('ASSET001', {
-                    details: 'The referenced asset "' + refPath + '" was not found in the package.',
-                    evidence: {
-                        path: refPath,
-                        referencedFrom: refs.map(function (r) { return r.sourceType + ': ' + (r.source.ideviceId || r.source.htmlFile || r.source.cssFile || 'unknown'); })
-                    },
-                    suggestion: 'Ensure the asset exists in the package or update the reference.'
-                }));
+                findings.push(
+                    createFinding('ASSET001', {
+                        details: 'The referenced asset "' + refPath + '" was not found in the package.',
+                        evidence: {
+                            path: refPath,
+                            referencedFrom: refs.map(function (r) {
+                                return (
+                                    r.sourceType +
+                                    ': ' +
+                                    (r.source.ideviceId || r.source.htmlFile || r.source.cssFile || 'unknown')
+                                );
+                            })
+                        },
+                        suggestion: 'Ensure the asset exists in the package or update the reference.'
+                    })
+                );
             }
 
             // Check for path traversal in references.
@@ -532,20 +596,27 @@
                 }
             });
             if (hasTraversal) {
-                findings.push(createFinding('ASSET004', {
-                    details: 'Path traversal detected in asset reference "' + refPath + '" — the resolved path escapes the package root.',
-                    evidence: { path: refPath },
-                    suggestion: 'Asset references should not escape the package root directory.'
-                }));
+                findings.push(
+                    createFinding('ASSET004', {
+                        details:
+                            'Path traversal detected in asset reference "' +
+                            refPath +
+                            '" — the resolved path escapes the package root.',
+                        evidence: { path: refPath },
+                        suggestion: 'Asset references should not escape the package root directory.'
+                    })
+                );
             }
 
             // Check for references outside allowed paths
             if (refPath && !RESOURCE_MATCH.test(refPath)) {
-                findings.push(createFinding('ASSET003', {
-                    details: 'Reference "' + refPath + '" points outside standard asset directories.',
-                    evidence: { path: refPath },
-                    suggestion: 'Assets should typically be under content/, theme/, libs/, or idevices/.'
-                }));
+                findings.push(
+                    createFinding('ASSET003', {
+                        details: 'Reference "' + refPath + '" points outside standard asset directories.',
+                        evidence: { path: refPath },
+                        suggestion: 'Assets should typically be under content/, theme/, libs/, or idevices/.'
+                    })
+                );
             }
         });
 
@@ -567,12 +638,17 @@
                     if (isIgnoredPattern) return;
 
                     orphanedCount++;
-                    findings.push(createFinding('ASSET002', {
-                        details: 'The asset "' + asset.path + '" exists in the package but is not referenced by any content.',
-                        location: { path: asset.path },
-                        evidence: { path: asset.path, mimeType: asset.mimeType, extension: asset.extension },
-                        suggestion: 'This may be an unused asset that could be removed to reduce package size.'
-                    }));
+                    findings.push(
+                        createFinding('ASSET002', {
+                            details:
+                                'The asset "' +
+                                asset.path +
+                                '" exists in the package but is not referenced by any content.',
+                            location: { path: asset.path },
+                            evidence: { path: asset.path, mimeType: asset.mimeType, extension: asset.extension },
+                            suggestion: 'This may be an unused asset that could be removed to reduce package size.'
+                        })
+                    );
                 }
             }
         });

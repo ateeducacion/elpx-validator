@@ -42,8 +42,13 @@
   "scripts": {
     "start": "http-server -c-1 .",
     "cli": "node bin/elpx-validator.js",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
+    "lint": "bun lint && bun fmt --check",
+    "fix": "bun lint --fix && bun fmt",
+    "format": "bun fmt",
+    "test": "bun test",
+    "test:coverage": "bun test --coverage",
+    "check:lockfile": "bun scripts/check-lockfile.js",
+    "check": "bun run lint && bun run test:coverage",
     "vendor": "cp node_modules/jszip/dist/jszip.min.js vendor/jszip.min.js"
   },
   "dependencies": {
@@ -51,24 +56,7 @@
     "jszip": "^3.10.2"
   },
   "devDependencies": {
-    "http-server": "^14.1.1",
-    "jest": "^30.3.0",
-    "jest-environment-jsdom": "^30.2.0"
+    "http-server": "^14.1.1"
   },
-  "jest": {
-    "testEnvironment": "jsdom",
-    "collectCoverageFrom": [
-      "js/**/*.js",
-      "!js/app.js",
-      "!js/edia/edia-view.js"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "statements": 85,
-        "branches": 72,
-        "functions": 92,
-        "lines": 87
-      }
-    }
-  }
+  "packageManager": "bun@1.4.5"
 }

@@ -89,7 +89,8 @@
         var childNodes = root.childNodes;
         for (var i = 0; i < childNodes.length; i++) {
             var n = childNodes[i];
-            if (n.nodeType === 1) { // Element node
+            if (n.nodeType === 1) {
+                // Element node
                 rootChildren.push(n.localName || n.tagName);
             }
         }

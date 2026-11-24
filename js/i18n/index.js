@@ -1,9 +1,6 @@
 (function (global, factory) {
     if (typeof module === 'object' && module.exports) {
-        module.exports = factory(
-            require('./locales/en'),
-            require('./locales/es')
-        );
+        module.exports = factory(require('./locales/en'), require('./locales/es'));
     } else {
         global.ELPXI18n = factory(global.ELPXI18nEn, global.ELPXI18nEs);
     }
@@ -22,7 +19,7 @@
         try {
             // `window` first: touching localStorage in plain Node (the CLI) prints a warning.
             return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
-        } catch (error) {
+        } catch {
             return false;
         }
     }
@@ -59,7 +56,7 @@
     function createSafeHtmlFragment(html) {
         var fragment = document.createDocumentFragment();
         var stack = [fragment];
-        var tokenRegex = /(<\/?(?:code|em|strong)>)/ig;
+        var tokenRegex = /(<\/?(?:code|em|strong)>)/gi;
         var tagRegex = /^<([a-z]+)>$/i;
         var closeTagRegex = /^<\/([a-z]+)>$/i;
         var lastIndex = 0;
@@ -105,7 +102,9 @@
     }
 
     function normalizeLanguage(lang) {
-        var value = String(lang || '').trim().toLowerCase();
+        var value = String(lang || '')
+            .trim()
+            .toLowerCase();
         if (locales[value]) return value;
         if (value.indexOf('es') === 0) return 'es';
         return 'en';
@@ -141,9 +140,11 @@
 
     function dispatchLanguageChange(language) {
         if (typeof document === 'undefined' || typeof CustomEvent === 'undefined') return;
-        document.dispatchEvent(new CustomEvent(LANGUAGE_CHANGE_EVENT, {
-            detail: { language: language }
-        }));
+        document.dispatchEvent(
+            new CustomEvent(LANGUAGE_CHANGE_EVENT, {
+                detail: { language: language }
+            })
+        );
     }
 
     function setLanguage(lang, options) {
@@ -186,7 +187,7 @@
             finding.evidence
         );
         var translated = t(key, params);
-        return translated !== key && translated != null ? translated : (finding[field] || '');
+        return translated !== key && translated != null ? translated : finding[field] || '';
     }
 
     function translateElement(element) {
@@ -227,7 +228,10 @@
         }
 
         if (typeof scope.querySelectorAll !== 'function') return;
-        scope.querySelectorAll('[data-i18n], [data-i18n-html], [data-i18n-placeholder], [data-i18n-title], [data-i18n-aria-label]')
+        scope
+            .querySelectorAll(
+                '[data-i18n], [data-i18n-html], [data-i18n-placeholder], [data-i18n-title], [data-i18n-aria-label]'
+            )
             .forEach(translateElement);
     }
 

@@ -13,28 +13,29 @@
  */
 (function () {
     var validator = typeof ELPValidator !== 'undefined' ? ELPValidator : {};
-    var preview   = typeof ELPXPreview !== 'undefined' ? ELPXPreview : {};
+    var preview = typeof ELPXPreview !== 'undefined' ? ELPXPreview : {};
     var assetRules = validator.assetRules || (typeof ELPXAssetRules !== 'undefined' ? ELPXAssetRules : {});
-    var ideviceRegistry = validator.ideviceRegistry || (typeof ELPXIdeviceRegistry !== 'undefined' ? ELPXIdeviceRegistry : {});
+    var ideviceRegistry =
+        validator.ideviceRegistry || (typeof ELPXIdeviceRegistry !== 'undefined' ? ELPXIdeviceRegistry : {});
     var ediaCriteria = typeof EdiaCriteria !== 'undefined' ? EdiaCriteria : null;
-    var ediaView     = typeof EdiaView     !== 'undefined' ? EdiaView     : null;
-    var i18n         = typeof ELPXI18n     !== 'undefined' ? ELPXI18n     : null;
+    var ediaView = typeof EdiaView !== 'undefined' ? EdiaView : null;
+    var i18n = typeof ELPXI18n !== 'undefined' ? ELPXI18n : null;
 
     /* ================================================================== */
     /*  DOM references                                                    */
     /* ================================================================== */
 
-    var dropzone          = document.getElementById('dropzone');
-    var fileInput         = document.getElementById('fileInput');
-    var resultsSection    = document.getElementById('results');
-    var fileNameElement   = document.getElementById('fileName');
-    var checklist         = document.getElementById('checklist');
-    var metadataSection   = document.getElementById('packageMetadata');
-    var summaryBanner     = document.getElementById('summaryBanner');
-    var badgeFormat       = document.getElementById('badgeFormat');
-    var countErrors       = document.getElementById('countErrors');
-    var countWarnings     = document.getElementById('countWarnings');
-    var countInfos        = document.getElementById('countInfos');
+    var dropzone = document.getElementById('dropzone');
+    var fileInput = document.getElementById('fileInput');
+    var resultsSection = document.getElementById('results');
+    var fileNameElement = document.getElementById('fileName');
+    var checklist = document.getElementById('checklist');
+    var metadataSection = document.getElementById('packageMetadata');
+    var summaryBanner = document.getElementById('summaryBanner');
+    var badgeFormat = document.getElementById('badgeFormat');
+    var countErrors = document.getElementById('countErrors');
+    var countWarnings = document.getElementById('countWarnings');
+    var countInfos = document.getElementById('countInfos');
 
     var metadataFields = {
         title: document.getElementById('meta-title'),
@@ -46,32 +47,32 @@
         identifier: document.getElementById('meta-identifier'),
         fileSize: document.getElementById('meta-filesize')
     };
-    var metadataMore              = document.getElementById('metadataMore');
-    var metadataPropertiesList    = document.getElementById('meta-properties');
-    var metadataResourcesList     = document.getElementById('meta-resources');
+    var metadataMore = document.getElementById('metadataMore');
+    var metadataPropertiesList = document.getElementById('meta-properties');
+    var metadataResourcesList = document.getElementById('meta-resources');
     var metadataPropertiesSection = document.getElementById('meta-properties-section');
-    var metadataResourcesSection  = document.getElementById('meta-resources-section');
+    var metadataResourcesSection = document.getElementById('meta-resources-section');
 
     // Findings
-    var findingsList              = document.getElementById('findingsList');
-    var findingsFilterSeverity    = document.getElementById('findingsFilterSeverity');
-    var findingsFilterCategory    = document.getElementById('findingsFilterCategory');
+    var findingsList = document.getElementById('findingsList');
+    var findingsFilterSeverity = document.getElementById('findingsFilterSeverity');
+    var findingsFilterCategory = document.getElementById('findingsFilterCategory');
 
     // Pages
     var pagesTree = document.getElementById('pagesTree');
 
     // iDevices
     var ideviceSummaryPanel = document.getElementById('ideviceSummaryPanel');
-    var ideviceList         = document.getElementById('ideviceList');
+    var ideviceList = document.getElementById('ideviceList');
 
     // Assets
-    var assetSummaryPanel    = document.getElementById('assetSummaryPanel');
-    var assetTableBody       = document.getElementById('assetTableBody');
-    var assetsFilter         = document.getElementById('assetsFilter');
+    var assetSummaryPanel = document.getElementById('assetSummaryPanel');
+    var assetTableBody = document.getElementById('assetTableBody');
+    var assetsFilter = document.getElementById('assetsFilter');
 
     // Preview
-    var previewPageSelect   = document.getElementById('previewPageSelect');
-    var previewFrame        = document.getElementById('previewFrame');
+    var previewPageSelect = document.getElementById('previewPageSelect');
+    var previewFrame = document.getElementById('previewFrame');
 
     // EDIA Validation
     var ediaPanel = document.getElementById('ediaPanel');
@@ -86,8 +87,8 @@
     /* ================================================================== */
 
     var currentReport = null;
-    var currentZip    = null;
-    var virtualFS     = null;
+    var currentZip = null;
+    var virtualFS = null;
     var currentFileInfo = null;
 
     /* ================================================================== */
@@ -95,16 +96,16 @@
     /* ================================================================== */
 
     var iconMap = {
-        pending: '⏳',
-        success: '✅',
-        warning: '⚠️',
-        error:   '❌'
+        pending: '…',
+        success: '✓',
+        warning: '!',
+        error: '✕'
     };
 
     var severityIcon = {
-        error:   '❌',
-        warning: '⚠️',
-        info:    'ℹ️'
+        error: '✕',
+        warning: '!',
+        info: 'i'
     };
 
     function formatBytes(bytes) {
@@ -114,8 +115,10 @@
         var units = ['KB', 'MB', 'GB', 'TB'];
         var u = -1;
         var value = bytes;
-        do { value /= thresh; u += 1; }
-        while (Math.abs(value) >= thresh && u < units.length - 1);
+        do {
+            value /= thresh;
+            u += 1;
+        } while (Math.abs(value) >= thresh && u < units.length - 1);
         return (value < 10 ? value.toFixed(2) : value < 100 ? value.toFixed(1) : value.toFixed(0)) + ' ' + units[u];
     }
 
@@ -149,7 +152,10 @@
     }
 
     function getComponentWord(count) {
-        return translate(count === 1 ? 'common.component' : 'common.components', count === 1 ? 'component' : 'components');
+        return translate(
+            count === 1 ? 'common.component' : 'common.components',
+            count === 1 ? 'component' : 'components'
+        );
     }
 
     function getCategoryLabel(category) {
@@ -165,7 +171,7 @@
     }
 
     function getFindingText(finding, field) {
-        return i18n && i18n.findingText ? i18n.findingText(finding, field) : (finding[field] || '');
+        return i18n && i18n.findingText ? i18n.findingText(finding, field) : finding[field] || '';
     }
 
     function getPreviewPlaceholder() {
@@ -190,17 +196,26 @@
     /* ================================================================== */
 
     var tabButtons = document.querySelectorAll('.tab[data-tab]');
-    var tabPanels  = document.querySelectorAll('.tab-panel');
+    var tabPanels = document.querySelectorAll('.tab-panel');
 
     tabButtons.forEach(function (btn) {
         btn.addEventListener('click', function () {
             var targetId = btn.dataset.tab;
-            tabButtons.forEach(function (b) { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
-            tabPanels.forEach(function (p) { p.classList.remove('active'); p.hidden = true; });
+            tabButtons.forEach(function (b) {
+                b.classList.remove('active');
+                b.setAttribute('aria-selected', 'false');
+            });
+            tabPanels.forEach(function (p) {
+                p.classList.remove('active');
+                p.hidden = true;
+            });
             btn.classList.add('active');
             btn.setAttribute('aria-selected', 'true');
             var panel = document.getElementById(targetId);
-            if (panel) { panel.classList.add('active'); panel.hidden = false; }
+            if (panel) {
+                panel.classList.add('active');
+                panel.hidden = false;
+            }
         });
     });
 
@@ -220,7 +235,10 @@
             if (icon) icon.textContent = iconMap.pending;
             var labelElement = item.querySelector('.label');
             if (labelElement) labelElement.innerHTML = labelHtml + '...';
-            if (details) { details.textContent = ''; details.style.display = 'none'; }
+            if (details) {
+                details.textContent = '';
+                details.style.display = 'none';
+            }
         });
         var pagesItem = document.getElementById('check-pages');
         if (pagesItem) {
@@ -238,12 +256,17 @@
         var labelElement = item.querySelector('.label');
         if (icon && iconMap[status]) icon.textContent = iconMap[status];
         if (details) {
-            if (message) { details.textContent = message; details.style.display = 'block'; }
-            else { details.textContent = ''; details.style.display = 'none'; }
+            if (message) {
+                details.textContent = message;
+                details.style.display = 'block';
+            } else {
+                details.textContent = '';
+                details.style.display = 'none';
+            }
         }
         if (labelElement && status !== 'pending') {
             var label = item.dataset.label || getChecklistLabel(item, false) || labelElement.textContent;
-            labelElement.textContent = label + (status === 'success' ? ' ✓' : '');
+            labelElement.textContent = label;
         }
     }
 
@@ -260,7 +283,9 @@
         details.className = 'pages-collapsible';
         details.open = false;
         var summary = document.createElement('summary');
-        summary.textContent = translate('common.showPageTitles', 'Show page titles ({count})', { count: titles.length });
+        summary.textContent = translate('common.showPageTitles', 'Show page titles ({count})', {
+            count: titles.length
+        });
         details.appendChild(summary);
 
         var list = document.createElement('ul');
@@ -280,12 +305,17 @@
 
     function clearMetadata() {
         if (metadataSection) metadataSection.hidden = true;
-        Object.values(metadataFields).forEach(function (field) { if (field) field.textContent = getEmptyValue(); });
-        if (metadataMore) { metadataMore.hidden = true; metadataMore.open = false; }
+        Object.values(metadataFields).forEach(function (field) {
+            if (field) field.textContent = getEmptyValue();
+        });
+        if (metadataMore) {
+            metadataMore.hidden = true;
+            metadataMore.open = false;
+        }
         if (metadataPropertiesList) metadataPropertiesList.innerHTML = '';
-        if (metadataResourcesList)  metadataResourcesList.innerHTML = '';
+        if (metadataResourcesList) metadataResourcesList.innerHTML = '';
         if (metadataPropertiesSection) metadataPropertiesSection.style.display = 'none';
-        if (metadataResourcesSection)  metadataResourcesSection.style.display = 'none';
+        if (metadataResourcesSection) metadataResourcesSection.style.display = 'none';
     }
 
     function populateKeyValueList(container, entries) {
@@ -303,8 +333,11 @@
             if (displayValue === null || displayValue === undefined || displayValue === '') {
                 displayValue = getEmptyValue();
             } else if (typeof displayValue === 'object') {
-                try { displayValue = JSON.stringify(displayValue, null, 2); }
-                catch (e) { displayValue = String(displayValue); }
+                try {
+                    displayValue = JSON.stringify(displayValue, null, 2);
+                } catch {
+                    displayValue = String(displayValue);
+                }
             }
             valueElement.textContent = displayValue;
             item.appendChild(keyElement);
@@ -340,13 +373,28 @@
             if (field) field.textContent = entry[1] || getEmptyValue();
         });
 
-        var primaryPropertyKeys = new Set(['pp_title', 'pp_author', 'pp_lang', 'pp_description', 'license', 'title', 'language', 'version']);
+        var primaryPropertyKeys = new Set([
+            'pp_title',
+            'pp_author',
+            'pp_lang',
+            'pp_description',
+            'license',
+            'title',
+            'language',
+            'version'
+        ]);
         var primaryResourceKeys = new Set(['odeVersionName', 'odeId', 'odeVersionId']);
-        var extraPropertyEntries = Object.entries(properties).filter(function (e) { return !primaryPropertyKeys.has(e[0]); });
-        var extraResourceEntries = Object.entries(resources).filter(function (e) { return !primaryResourceKeys.has(e[0]); });
+        var extraPropertyEntries = Object.entries(properties).filter(function (e) {
+            return !primaryPropertyKeys.has(e[0]);
+        });
+        var extraResourceEntries = Object.entries(resources).filter(function (e) {
+            return !primaryResourceKeys.has(e[0]);
+        });
 
-        if (metadataPropertiesSection) metadataPropertiesSection.style.display = extraPropertyEntries.length > 0 ? '' : 'none';
-        if (metadataResourcesSection)  metadataResourcesSection.style.display = extraResourceEntries.length > 0 ? '' : 'none';
+        if (metadataPropertiesSection)
+            metadataPropertiesSection.style.display = extraPropertyEntries.length > 0 ? '' : 'none';
+        if (metadataResourcesSection)
+            metadataResourcesSection.style.display = extraResourceEntries.length > 0 ? '' : 'none';
         populateKeyValueList(metadataPropertiesList, extraPropertyEntries);
         populateKeyValueList(metadataResourcesList, extraResourceEntries);
         if (metadataMore) {
@@ -379,9 +427,12 @@
             }
         }
 
-        if (countErrors)   countErrors.innerHTML   = '❌ <strong>' + report.counts.errors   + '</strong>';
-        if (countWarnings) countWarnings.innerHTML = '⚠️ <strong>' + report.counts.warnings + '</strong>';
-        if (countInfos)    countInfos.innerHTML    = 'ℹ️ <strong>' + report.counts.infos    + '</strong>';
+        if (countErrors)
+            countErrors.innerHTML = '<b aria-hidden="true">✕</b> <strong>' + report.counts.errors + '</strong>';
+        if (countWarnings)
+            countWarnings.innerHTML = '<b aria-hidden="true">!</b> <strong>' + report.counts.warnings + '</strong>';
+        if (countInfos)
+            countInfos.innerHTML = '<b aria-hidden="true">i</b> <strong>' + report.counts.infos + '</strong>';
     }
 
     /* ================================================================== */
@@ -393,7 +444,10 @@
         findingsList.innerHTML = '';
 
         if (!findings || findings.length === 0) {
-            findingsList.innerHTML = '<p class="findings-empty">' + escapeHtml(translate('findings.empty', 'No findings to display.')) + '</p>';
+            findingsList.innerHTML =
+                '<p class="findings-empty">' +
+                escapeHtml(translate('findings.empty', 'No findings to display.')) +
+                '</p>';
             return;
         }
 
@@ -407,7 +461,10 @@
         });
 
         if (filtered.length === 0) {
-            findingsList.innerHTML = '<p class="findings-empty">' + escapeHtml(translate('findings.filteredEmpty', 'No findings match the current filters.')) + '</p>';
+            findingsList.innerHTML =
+                '<p class="findings-empty">' +
+                escapeHtml(translate('findings.filteredEmpty', 'No findings match the current filters.')) +
+                '</p>';
             return;
         }
 
@@ -420,10 +477,19 @@
 
             var header = document.createElement('div');
             header.className = 'finding-header';
-            header.innerHTML = '<span class="finding-icon">' + (severityIcon[f.severity] || '') + '</span>'
-                + '<code class="finding-code">' + escapeHtml(f.code) + '</code>'
-                + '<span class="finding-category">' + escapeHtml(getCategoryLabel(f.category)) + '</span>'
-                + '<span class="finding-message">' + escapeHtml(message) + '</span>';
+            header.innerHTML =
+                '<span class="finding-icon">' +
+                (severityIcon[f.severity] || '') +
+                '</span>' +
+                '<code class="finding-code">' +
+                escapeHtml(f.code) +
+                '</code>' +
+                '<span class="finding-category">' +
+                escapeHtml(getCategoryLabel(f.category)) +
+                '</span>' +
+                '<span class="finding-message">' +
+                escapeHtml(message) +
+                '</span>';
             card.appendChild(header);
 
             if (details) {
@@ -436,15 +502,21 @@
             if (suggestionText) {
                 var suggestion = document.createElement('p');
                 suggestion.className = 'finding-suggestion';
-                suggestion.textContent = translate('findings.suggestionPrefix', '💡 ') + suggestionText;
+                suggestion.textContent = translate('findings.suggestionPrefix', '→ ') + suggestionText;
                 card.appendChild(suggestion);
             }
 
             if (f.location && Object.keys(f.location).length > 0) {
                 var loc = document.createElement('p');
                 loc.className = 'finding-location';
-                loc.textContent = '📍 ' + translate('findings.location', 'Location') + ': '
-                    + Object.entries(f.location).map(function (e) { return e[0] + ': ' + e[1]; }).join(', ');
+                loc.textContent =
+                    translate('findings.location', 'Location') +
+                    ': ' +
+                    Object.entries(f.location)
+                        .map(function (e) {
+                            return e[0] + ': ' + e[1];
+                        })
+                        .join(', ');
                 card.appendChild(loc);
             }
 
@@ -452,8 +524,14 @@
         });
     }
 
-    if (findingsFilterSeverity) findingsFilterSeverity.addEventListener('change', function () { if (currentReport) renderFindings(currentReport.findings); });
-    if (findingsFilterCategory) findingsFilterCategory.addEventListener('change', function () { if (currentReport) renderFindings(currentReport.findings); });
+    if (findingsFilterSeverity)
+        findingsFilterSeverity.addEventListener('change', function () {
+            if (currentReport) renderFindings(currentReport.findings);
+        });
+    if (findingsFilterCategory)
+        findingsFilterCategory.addEventListener('change', function () {
+            if (currentReport) renderFindings(currentReport.findings);
+        });
 
     /* ================================================================== */
     /*  Pages tree panel                                                  */
@@ -464,13 +542,18 @@
         pagesTree.innerHTML = '';
 
         if (!model || !model.pages || model.pages.length === 0) {
-            pagesTree.innerHTML = '<p class="panel-empty">' + escapeHtml(translate('pages.empty', 'No pages found in this package.')) + '</p>';
+            pagesTree.innerHTML =
+                '<p class="panel-empty">' +
+                escapeHtml(translate('pages.empty', 'No pages found in this package.')) +
+                '</p>';
             return;
         }
 
         // Build page lookup
         var pageMap = {};
-        model.pages.forEach(function (p) { if (p.odePageId) pageMap[p.odePageId] = p; });
+        model.pages.forEach(function (p) {
+            if (p.odePageId) pageMap[p.odePageId] = p;
+        });
 
         // Group by parent
         var children = {};
@@ -482,7 +565,9 @@
 
         // Sort siblings by order
         Object.keys(children).forEach(function (key) {
-            children[key].sort(function (a, b) { return (Number(a.order) || 0) - (Number(b.order) || 0); });
+            children[key].sort(function (a, b) {
+                return (Number(a.order) || 0) - (Number(b.order) || 0);
+            });
         });
 
         function buildTree(parentId) {
@@ -496,11 +581,25 @@
                 var label = document.createElement('span');
                 label.className = 'tree-label';
                 var blockCount = page.blocks.length;
-                var componentCount = page.blocks.reduce(function (sum, b) { return sum + b.components.length; }, 0);
-                label.innerHTML = '<strong>' + escapeHtml(page.pageName || getUntitledLabel()) + '</strong>'
-                    + ' <code>' + escapeHtml(page.odePageId || '?') + '</code>'
-                    + ' <span class="tree-meta">' + blockCount + ' ' + getBlockWord(blockCount) + ', '
-                    + componentCount + ' ' + getComponentWord(componentCount) + '</span>';
+                var componentCount = page.blocks.reduce(function (sum, b) {
+                    return sum + b.components.length;
+                }, 0);
+                label.innerHTML =
+                    '<strong>' +
+                    escapeHtml(page.pageName || getUntitledLabel()) +
+                    '</strong>' +
+                    ' <code>' +
+                    escapeHtml(page.odePageId || '?') +
+                    '</code>' +
+                    ' <span class="tree-meta">' +
+                    blockCount +
+                    ' ' +
+                    getBlockWord(blockCount) +
+                    ', ' +
+                    componentCount +
+                    ' ' +
+                    getComponentWord(componentCount) +
+                    '</span>';
                 li.appendChild(label);
 
                 // Blocks
@@ -510,8 +609,13 @@
                     page.blocks.forEach(function (block) {
                         var bli = document.createElement('li');
                         bli.className = 'tree-block';
-                        bli.innerHTML = '📦 <strong>' + escapeHtml(block.blockName || getUntitledLabel()) + '</strong>'
-                            + ' <code>' + escapeHtml(block.odeBlockId || '?') + '</code>';
+                        bli.innerHTML =
+                            '<strong>' +
+                            escapeHtml(block.blockName || getUntitledLabel()) +
+                            '</strong>' +
+                            ' <code>' +
+                            escapeHtml(block.odeBlockId || '?') +
+                            '</code>';
 
                         if (block.components.length > 0) {
                             var compList = document.createElement('ul');
@@ -519,10 +623,19 @@
                             block.components.forEach(function (comp) {
                                 var cli = document.createElement('li');
                                 cli.className = 'tree-component';
-                                var lookup = ideviceRegistry.lookup ? ideviceRegistry.lookup(comp.odeIdeviceTypeName) : { known: false };
+                                var lookup = ideviceRegistry.lookup
+                                    ? ideviceRegistry.lookup(comp.odeIdeviceTypeName)
+                                    : { known: false };
                                 var typeClass = lookup.known ? 'type-known' : 'type-unknown';
-                                cli.innerHTML = '🧩 <span class="' + typeClass + '">' + escapeHtml(comp.odeIdeviceTypeName || '?') + '</span>'
-                                    + ' <code>' + escapeHtml(comp.odeIdeviceId || '?') + '</code>';
+                                cli.innerHTML =
+                                    '<span class="' +
+                                    typeClass +
+                                    '">' +
+                                    escapeHtml(comp.odeIdeviceTypeName || '?') +
+                                    '</span>' +
+                                    ' <code>' +
+                                    escapeHtml(comp.odeIdeviceId || '?') +
+                                    '</code>';
                                 compList.appendChild(cli);
                             });
                             bli.appendChild(compList);
@@ -544,7 +657,12 @@
         var tree = buildTree('__root__');
         // Also handle orphaned pages (parent not found)
         var orphaned = model.pages.filter(function (p) {
-            return p.odeParentPageId && p.odeParentPageId.trim() !== '' && !pageMap[p.odeParentPageId] && !children['__root__'].includes(p);
+            return (
+                p.odeParentPageId &&
+                p.odeParentPageId.trim() !== '' &&
+                !pageMap[p.odeParentPageId] &&
+                !children['__root__'].includes(p)
+            );
         });
 
         if (tree) pagesTree.appendChild(tree);
@@ -563,38 +681,83 @@
     /*  iDevice panel                                                     */
     /* ================================================================== */
 
-    function renderIdeviceSummary(ideviceSummary, model) {
+    function renderIdeviceSummary(ideviceSummary) {
         if (!ideviceSummaryPanel) return;
         ideviceSummaryPanel.innerHTML = '';
 
         if (!ideviceSummary) {
-            ideviceSummaryPanel.innerHTML = '<p class="panel-empty">' + escapeHtml(translate('idevice.empty', 'No iDevice information available.')) + '</p>';
+            ideviceSummaryPanel.innerHTML =
+                '<p class="panel-empty">' +
+                escapeHtml(translate('idevice.empty', 'No iDevice information available.')) +
+                '</p>';
             return;
         }
 
-        var html = '<div class="idevice-counts">'
-            + '<span>' + escapeHtml(translate('idevice.total', 'Total')) + ': <strong>' + ideviceSummary.total + '</strong></span>'
-            + '<span>' + escapeHtml(translate('idevice.knownDeep', 'Known (deep)')) + ': <strong>' + ideviceSummary.knownDeep + '</strong></span>'
-            + '<span>' + escapeHtml(translate('idevice.knownShallow', 'Known (shallow)')) + ': <strong>' + ideviceSummary.knownShallow + '</strong></span>'
-            + '<span>' + escapeHtml(translate('idevice.unknown', 'Unknown')) + ': <strong>' + ideviceSummary.unknown + '</strong></span>'
-            + (ideviceSummary.parseErrors > 0 ? '<span class="parse-errors">' + escapeHtml(translate('idevice.parseErrors', 'Parse errors')) + ': <strong>' + ideviceSummary.parseErrors + '</strong></span>' : '')
-            + '</div>';
+        var html =
+            '<div class="idevice-counts">' +
+            '<span>' +
+            escapeHtml(translate('idevice.total', 'Total')) +
+            ': <strong>' +
+            ideviceSummary.total +
+            '</strong></span>' +
+            '<span>' +
+            escapeHtml(translate('idevice.knownDeep', 'Known (deep)')) +
+            ': <strong>' +
+            ideviceSummary.knownDeep +
+            '</strong></span>' +
+            '<span>' +
+            escapeHtml(translate('idevice.knownShallow', 'Known (shallow)')) +
+            ': <strong>' +
+            ideviceSummary.knownShallow +
+            '</strong></span>' +
+            '<span>' +
+            escapeHtml(translate('idevice.unknown', 'Unknown')) +
+            ': <strong>' +
+            ideviceSummary.unknown +
+            '</strong></span>' +
+            (ideviceSummary.parseErrors > 0
+                ? '<span class="parse-errors">' +
+                  escapeHtml(translate('idevice.parseErrors', 'Parse errors')) +
+                  ': <strong>' +
+                  ideviceSummary.parseErrors +
+                  '</strong></span>'
+                : '') +
+            '</div>';
 
         // Type breakdown
         if (ideviceSummary.typeCounts && Object.keys(ideviceSummary.typeCounts).length > 0) {
-            html += '<h4>' + escapeHtml(translate('idevice.typesUsed', 'Types used')) + '</h4><table class="idevice-type-table"><thead><tr><th>'
-                + escapeHtml(translate('idevice.type', 'Type')) + '</th><th>'
-                + escapeHtml(translate('idevice.count', 'Count')) + '</th><th>'
-                + escapeHtml(translate('idevice.status', 'Status')) + '</th></tr></thead><tbody>';
-            var sorted = Object.entries(ideviceSummary.typeCounts).sort(function (a, b) { return b[1] - a[1]; });
+            html +=
+                '<h4>' +
+                escapeHtml(translate('idevice.typesUsed', 'Types used')) +
+                '</h4><table class="idevice-type-table"><thead><tr><th>' +
+                escapeHtml(translate('idevice.type', 'Type')) +
+                '</th><th>' +
+                escapeHtml(translate('idevice.count', 'Count')) +
+                '</th><th>' +
+                escapeHtml(translate('idevice.status', 'Status')) +
+                '</th></tr></thead><tbody>';
+            var sorted = Object.entries(ideviceSummary.typeCounts).sort(function (a, b) {
+                return b[1] - a[1];
+            });
             sorted.forEach(function (entry) {
                 var typeName = entry[0];
                 var count = entry[1];
-                var lookup = ideviceRegistry.lookup ? ideviceRegistry.lookup(typeName) : { known: false, status: 'unknown' };
+                var lookup = ideviceRegistry.lookup
+                    ? ideviceRegistry.lookup(typeName)
+                    : { known: false, status: 'unknown' };
                 var statusBadge = lookup.known
-                    ? '<span class="badge badge-success">' + escapeHtml(getIdeviceStatusLabel(lookup.status)) + '</span>'
+                    ? '<span class="badge badge-success">' +
+                      escapeHtml(getIdeviceStatusLabel(lookup.status)) +
+                      '</span>'
                     : '<span class="badge badge-warning">' + escapeHtml(getIdeviceStatusLabel('unknown')) + '</span>';
-                html += '<tr><td><code>' + escapeHtml(typeName) + '</code></td><td>' + count + '</td><td>' + statusBadge + '</td></tr>';
+                html +=
+                    '<tr><td><code>' +
+                    escapeHtml(typeName) +
+                    '</code></td><td>' +
+                    count +
+                    '</td><td>' +
+                    statusBadge +
+                    '</td></tr>';
             });
             html += '</tbody></table>';
         }
@@ -612,12 +775,29 @@
             assetSummaryPanel.innerHTML = '';
             return;
         }
-        assetSummaryPanel.innerHTML = '<div class="asset-counts">'
-            + '<span>' + escapeHtml(translate('assets.totalFiles', 'Total files')) + ': <strong>' + assetSummary.totalAssets + '</strong></span>'
-            + '<span>' + escapeHtml(translate('assets.referenced', 'Referenced')) + ': <strong>' + assetSummary.referencedAssets + '</strong></span>'
-            + '<span>' + escapeHtml(translate('assets.missing', 'Missing')) + ': <strong>' + assetSummary.missingAssets + '</strong></span>'
-            + '<span>' + escapeHtml(translate('assets.orphaned', 'Orphaned')) + ': <strong>' + assetSummary.orphanedAssets + '</strong></span>'
-            + '</div>';
+        assetSummaryPanel.innerHTML =
+            '<div class="asset-counts">' +
+            '<span>' +
+            escapeHtml(translate('assets.totalFiles', 'Total files')) +
+            ': <strong>' +
+            assetSummary.totalAssets +
+            '</strong></span>' +
+            '<span>' +
+            escapeHtml(translate('assets.referenced', 'Referenced')) +
+            ': <strong>' +
+            assetSummary.referencedAssets +
+            '</strong></span>' +
+            '<span>' +
+            escapeHtml(translate('assets.missing', 'Missing')) +
+            ': <strong>' +
+            assetSummary.missingAssets +
+            '</strong></span>' +
+            '<span>' +
+            escapeHtml(translate('assets.orphaned', 'Orphaned')) +
+            ': <strong>' +
+            assetSummary.orphanedAssets +
+            '</strong></span>' +
+            '</div>';
     }
 
     function renderAssetTable(assets, findings, filter) {
@@ -625,7 +805,8 @@
         assetTableBody.innerHTML = '';
 
         if (!assets || assets.length === 0) {
-            assetTableBody.innerHTML = '<tr><td colspan="5">' + escapeHtml(translate('assets.empty', 'No assets found.')) + '</td></tr>';
+            assetTableBody.innerHTML =
+                '<tr><td colspan="5">' + escapeHtml(translate('assets.empty', 'No assets found.')) + '</td></tr>';
             return;
         }
 
@@ -643,20 +824,38 @@
         var filtered = assets;
 
         if (filterValue === 'referenced') {
-            filtered = assets.filter(function (a) { return a.referenced; });
+            filtered = assets.filter(function (a) {
+                return a.referenced;
+            });
         } else if (filterValue === 'orphaned') {
-            filtered = assets.filter(function (a) { return !a.referenced && a.isAssetDir; });
+            filtered = assets.filter(function (a) {
+                return !a.referenced && a.isAssetDir;
+            });
         } else if (filterValue === 'missing') {
             // Show missing references as virtual rows
             assetTableBody.innerHTML = '';
             missingPaths.forEach(function (path) {
                 var tr = document.createElement('tr');
                 tr.className = 'asset-missing';
-                tr.innerHTML = '<td>' + escapeHtml(path) + '</td><td>' + escapeHtml(getEmptyValue()) + '</td><td>' + escapeHtml(getEmptyValue()) + '</td><td><span class="badge badge-error">' + escapeHtml(getAssetStatusLabel('missing')) + '</span></td><td>' + escapeHtml(getEmptyValue()) + '</td>';
+                tr.innerHTML =
+                    '<td>' +
+                    escapeHtml(path) +
+                    '</td><td>' +
+                    escapeHtml(getEmptyValue()) +
+                    '</td><td>' +
+                    escapeHtml(getEmptyValue()) +
+                    '</td><td><span class="badge badge-error">' +
+                    escapeHtml(getAssetStatusLabel('missing')) +
+                    '</span></td><td>' +
+                    escapeHtml(getEmptyValue()) +
+                    '</td>';
                 assetTableBody.appendChild(tr);
             });
             if (missingPaths.size === 0) {
-                assetTableBody.innerHTML = '<tr><td colspan="5">' + escapeHtml(translate('assets.missingEmpty', 'No missing assets detected.')) + '</td></tr>';
+                assetTableBody.innerHTML =
+                    '<tr><td colspan="5">' +
+                    escapeHtml(translate('assets.missingEmpty', 'No missing assets detected.')) +
+                    '</td></tr>';
             }
             return;
         }
@@ -675,35 +874,53 @@
             var tr = document.createElement('tr');
             var status = asset.referenced
                 ? '<span class="badge badge-success">' + escapeHtml(getAssetStatusLabel('referenced')) + '</span>'
-                : (asset.isAssetDir
-                    ? '<span class="badge badge-warning">' + escapeHtml(getAssetStatusLabel('orphaned')) + '</span>'
-                    : '<span class="badge badge-muted">' + escapeHtml(getAssetStatusLabel('structural')) + '</span>');
+                : asset.isAssetDir
+                  ? '<span class="badge badge-warning">' + escapeHtml(getAssetStatusLabel('orphaned')) + '</span>'
+                  : '<span class="badge badge-muted">' + escapeHtml(getAssetStatusLabel('structural')) + '</span>';
             var previewCell = getEmptyValue();
             if (asset.previewType === 'image') {
-                previewCell = '🖼️';
+                previewCell = 'image';
             } else if (asset.previewType === 'audio') {
-                previewCell = '🔊';
+                previewCell = 'audio';
             } else if (asset.previewType === 'video') {
-                previewCell = '🎬';
+                previewCell = 'video';
             } else if (asset.previewType === 'pdf') {
-                previewCell = '📄';
+                previewCell = 'PDF';
             } else if (asset.previewType === 'code') {
-                previewCell = '📝';
+                previewCell = 'text';
             }
-            tr.innerHTML = '<td title="' + escapeHtml(asset.path) + '">' + escapeHtml(asset.path) + '</td>'
-                + '<td>' + escapeHtml(asset.mimeType) + '</td>'
-                + '<td>' + escapeHtml(asset.extension || getEmptyValue()) + '</td>'
-                + '<td>' + status + '</td>'
-                + '<td>' + previewCell + '</td>';
+            tr.innerHTML =
+                '<td title="' +
+                escapeHtml(asset.path) +
+                '">' +
+                escapeHtml(asset.path) +
+                '</td>' +
+                '<td>' +
+                escapeHtml(asset.mimeType) +
+                '</td>' +
+                '<td>' +
+                escapeHtml(asset.extension || getEmptyValue()) +
+                '</td>' +
+                '<td>' +
+                status +
+                '</td>' +
+                '<td>' +
+                previewCell +
+                '</td>';
             assetTableBody.appendChild(tr);
         });
 
         if (filtered.length > limit) {
             var tr = document.createElement('tr');
-            tr.innerHTML = '<td colspan="5"><em>' + escapeHtml(translate('assets.showingLimit', 'Showing {shown} of {total} assets…', {
-                shown: limit,
-                total: filtered.length
-            })) + '</em></td>';
+            tr.innerHTML =
+                '<td colspan="5"><em>' +
+                escapeHtml(
+                    translate('assets.showingLimit', 'Showing {shown} of {total} assets…', {
+                        shown: limit,
+                        total: filtered.length
+                    })
+                ) +
+                '</em></td>';
             assetTableBody.appendChild(tr);
         }
     }
@@ -725,9 +942,15 @@
         previewPageSelect.innerHTML = '<option value="">' + escapeHtml(getPreviewPlaceholder()) + '</option>';
 
         if (!zip) return;
-        var htmlFiles = Object.keys(zip.files).filter(function (name) {
-            return (name === 'index.html' || name.startsWith('html/')) && name.endsWith('.html') && !zip.files[name].dir;
-        }).sort();
+        var htmlFiles = Object.keys(zip.files)
+            .filter(function (name) {
+                return (
+                    (name === 'index.html' || name.startsWith('html/')) &&
+                    name.endsWith('.html') &&
+                    !zip.files[name].dir
+                );
+            })
+            .sort();
 
         htmlFiles.forEach(function (name) {
             var opt = document.createElement('option');
@@ -762,9 +985,14 @@
                 previewFrame.srcdoc = htmlContent;
             } catch (e) {
                 console.error('Preview error:', e);
-                previewFrame.srcdoc = '<p style="padding:1rem;color:red;">' + escapeHtml(translate('preview.errorLoading', 'Error loading preview: {message}', {
-                    message: e.message
-                })) + '</p>';
+                previewFrame.srcdoc =
+                    '<p style="padding:1rem;color:red;">' +
+                    escapeHtml(
+                        translate('preview.errorLoading', 'Error loading preview: {message}', {
+                            message: e.message
+                        })
+                    ) +
+                    '</p>';
             }
         });
     }
@@ -791,7 +1019,8 @@
         resetChecklist();
 
         if (!currentReport) {
-            if (previewPageSelect) previewPageSelect.innerHTML = '<option value="">' + escapeHtml(getPreviewPlaceholder()) + '</option>';
+            if (previewPageSelect)
+                previewPageSelect.innerHTML = '<option value="">' + escapeHtml(getPreviewPlaceholder()) + '</option>';
             renderEdiaPanel(null);
             return;
         }
@@ -802,13 +1031,18 @@
         }
         renderSummary(currentReport);
         renderMetadata(currentReport.metadata);
-        if (metadataFields.fileSize && currentFileInfo) metadataFields.fileSize.textContent = formatBytes(currentFileInfo.size);
+        if (metadataFields.fileSize && currentFileInfo)
+            metadataFields.fileSize.textContent = formatBytes(currentFileInfo.size);
         populateLegacyChecklist(currentReport, currentZip);
         renderFindings(currentReport.findings);
         renderPagesTree(currentReport.model);
         renderIdeviceSummary(currentReport.ideviceSummary, currentReport.model);
         renderAssetSummary(currentReport.assetSummary);
-        renderAssetTable(currentReport.assetInventory, currentReport.findings, assetsFilter ? assetsFilter.value : 'all');
+        renderAssetTable(
+            currentReport.assetInventory,
+            currentReport.findings,
+            assetsFilter ? assetsFilter.value : 'all'
+        );
         renderPreviewOptions(currentZip, selectedPreview);
         renderEdiaPanel(currentReport);
     }
@@ -842,16 +1076,29 @@
         if (ideviceList) ideviceList.innerHTML = '';
         if (assetSummaryPanel) assetSummaryPanel.innerHTML = '';
         if (assetTableBody) assetTableBody.innerHTML = '';
-        if (previewPageSelect) previewPageSelect.innerHTML = '<option value="">' + escapeHtml(getPreviewPlaceholder()) + '</option>';
+        if (previewPageSelect)
+            previewPageSelect.innerHTML = '<option value="">' + escapeHtml(getPreviewPlaceholder()) + '</option>';
         if (previewFrame) previewFrame.srcdoc = '';
 
         // Activate overview tab
-        tabButtons.forEach(function (b) { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
-        tabPanels.forEach(function (p) { p.classList.remove('active'); p.hidden = true; });
+        tabButtons.forEach(function (b) {
+            b.classList.remove('active');
+            b.setAttribute('aria-selected', 'false');
+        });
+        tabPanels.forEach(function (p) {
+            p.classList.remove('active');
+            p.hidden = true;
+        });
         var overviewBtn = document.getElementById('btn-tab-overview');
         var overviewPanel = document.getElementById('tab-overview');
-        if (overviewBtn) { overviewBtn.classList.add('active'); overviewBtn.setAttribute('aria-selected', 'true'); }
-        if (overviewPanel) { overviewPanel.classList.add('active'); overviewPanel.hidden = false; }
+        if (overviewBtn) {
+            overviewBtn.classList.add('active');
+            overviewBtn.setAttribute('aria-selected', 'true');
+        }
+        if (overviewPanel) {
+            overviewPanel.classList.add('active');
+            overviewPanel.hidden = false;
+        }
 
         /* -------------------------------------------------------------- */
         /*  Load ZIP                                                      */
@@ -860,12 +1107,20 @@
         var zip;
         try {
             var arrayBuffer = await file.arrayBuffer();
-            zip = await JSZip.loadAsync(arrayBuffer);
+            zip = await window.JSZip.loadAsync(arrayBuffer);
             currentZip = zip;
-            setChecklistStatus('check-zip', 'success', translate('checklist.zip.success', 'The archive was loaded successfully.'));
+            setChecklistStatus(
+                'check-zip',
+                'success',
+                translate('checklist.zip.success', 'The archive was loaded successfully.')
+            );
         } catch (error) {
             console.error(error);
-            setChecklistStatus('check-zip', 'error', translate('checklist.zip.error', 'The file is not a valid ZIP archive or is corrupted.'));
+            setChecklistStatus(
+                'check-zip',
+                'error',
+                translate('checklist.zip.error', 'The file is not a valid ZIP archive or is corrupted.')
+            );
             return;
         }
 
@@ -879,9 +1134,13 @@
             currentReport = report;
         } catch (err) {
             console.error('Validation error:', err);
-            setChecklistStatus('check-content-xml', 'error', translate('checklist.contentXml.validationFailed', 'Validation failed: {message}', {
-                message: err.message
-            }));
+            setChecklistStatus(
+                'check-content-xml',
+                'error',
+                translate('checklist.contentXml.validationFailed', 'Validation failed: {message}', {
+                    message: err.message
+                })
+            );
             return;
         }
 
@@ -915,12 +1174,26 @@
     function populateLegacyChecklist(report, zip) {
         // Manifest detection
         if (report.format === 'elp') {
-            setChecklistStatus('check-content-xml', 'warning',
-                translate('checklist.contentXml.legacyFound', 'content.xml is missing, but legacy contentv3.xml was found. This package was created with an eXeLearning version earlier than 3.0.'));
+            setChecklistStatus(
+                'check-content-xml',
+                'warning',
+                translate(
+                    'checklist.contentXml.legacyFound',
+                    'content.xml is missing, but legacy contentv3.xml was found. This package was created with an eXeLearning version earlier than 3.0.'
+                )
+            );
         } else if (report.format === 'elpx') {
-            setChecklistStatus('check-content-xml', 'success', translate('checklist.contentXml.found', 'Found content.xml in the package.'));
+            setChecklistStatus(
+                'check-content-xml',
+                'success',
+                translate('checklist.contentXml.found', 'Found content.xml in the package.')
+            );
         } else {
-            setChecklistStatus('check-content-xml', 'error', translate('checklist.contentXml.missing', 'Neither content.xml nor legacy contentv3.xml were found.'));
+            setChecklistStatus(
+                'check-content-xml',
+                'error',
+                translate('checklist.contentXml.missing', 'Neither content.xml nor legacy contentv3.xml were found.')
+            );
             return;
         }
 
@@ -928,102 +1201,206 @@
         var pkgInfo = report.packageInfo;
         if (pkgInfo) {
             var folderMsgs = [];
-            if (pkgInfo.directories['content/resources/']) folderMsgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'content/resources/' }));
-            if (pkgInfo.directories['theme/']) folderMsgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'theme/' }));
-            if (pkgInfo.directories['html/']) folderMsgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'html/' }));
-            if (pkgInfo.directories['libs/']) folderMsgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'libs/' }));
+            if (pkgInfo.directories['content/resources/'])
+                folderMsgs.push(
+                    translate('checklist.folders.detected', '{name} detected', { name: 'content/resources/' })
+                );
+            if (pkgInfo.directories['theme/'])
+                folderMsgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'theme/' }));
+            if (pkgInfo.directories['html/'])
+                folderMsgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'html/' }));
+            if (pkgInfo.directories['libs/'])
+                folderMsgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'libs/' }));
             if (folderMsgs.length > 0) {
                 setChecklistStatus('check-folders', 'success', folderMsgs.join(' • '));
             } else {
-                var hasContentDir = Object.keys(zip.files).some(function (n) { return n.startsWith('content/'); });
-                var hasCustomDir = Object.keys(zip.files).some(function (n) { return n.startsWith('custom/'); });
+                var hasContentDir = Object.keys(zip.files).some(function (n) {
+                    return n.startsWith('content/');
+                });
+                var hasCustomDir = Object.keys(zip.files).some(function (n) {
+                    return n.startsWith('custom/');
+                });
                 if (hasContentDir || hasCustomDir) {
                     var msgs = [];
-                    if (hasContentDir) msgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'content/' }));
-                    if (hasCustomDir) msgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'custom/' }));
+                    if (hasContentDir)
+                        msgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'content/' }));
+                    if (hasCustomDir)
+                        msgs.push(translate('checklist.folders.detected', '{name} detected', { name: 'custom/' }));
                     setChecklistStatus('check-folders', 'success', msgs.join(' • '));
                 } else {
-                    setChecklistStatus('check-folders', 'warning', translate('checklist.folders.recommendedMissing', 'Recommended resource folders were not found.'));
+                    setChecklistStatus(
+                        'check-folders',
+                        'warning',
+                        translate(
+                            'checklist.folders.recommendedMissing',
+                            'Recommended resource folders were not found.'
+                        )
+                    );
                 }
             }
         }
 
         // XML well-formedness
-        var hasXmlError = report.findings.some(function (f) { return f.code === 'XML001'; });
+        var hasXmlError = report.findings.some(function (f) {
+            return f.code === 'XML001';
+        });
         if (hasXmlError) {
-            var xmlErr = report.findings.find(function (f) { return f.code === 'XML001'; });
+            var xmlErr = report.findings.find(function (f) {
+                return f.code === 'XML001';
+            });
             setChecklistStatus('check-xml-well-formed', 'error', xmlErr.details);
             return;
         }
         var manifestLabel = report.format === 'elp' ? 'contentv3.xml' : 'content.xml';
-        setChecklistStatus('check-xml-well-formed', 'success', translate('checklist.xmlWellFormed.wellFormed', '{manifest} is well-formed.', {
-            manifest: manifestLabel
-        }));
+        setChecklistStatus(
+            'check-xml-well-formed',
+            'success',
+            translate('checklist.xmlWellFormed.wellFormed', '{manifest} is well-formed.', {
+                manifest: manifestLabel
+            })
+        );
 
         // For legacy, skip remaining
         if (report.format === 'elp') {
-            var skippedMsg = translate('checklist.navStructures.skipped', 'Skipped: legacy eXeLearning manifests (contentv3.xml) do not expose modern navigation structures.');
-            setChecklistStatus('check-root-element', 'warning', translate('checklist.rootElement.skipped', 'Legacy manifest format detected. Structural checks skipped.'));
+            var skippedMsg = translate(
+                'checklist.navStructures.skipped',
+                'Skipped: legacy eXeLearning manifests (contentv3.xml) do not expose modern navigation structures.'
+            );
+            setChecklistStatus(
+                'check-root-element',
+                'warning',
+                translate(
+                    'checklist.rootElement.skipped',
+                    'Legacy manifest format detected. Structural checks skipped.'
+                )
+            );
             setChecklistStatus('check-nav-structures', 'warning', skippedMsg);
             setChecklistStatus('check-pages', 'warning', skippedMsg);
             renderPageTitles([]);
-            setChecklistStatus('check-structure', 'warning', translate('checklist.structure.skipped', 'Skipped: legacy manifest layout is incompatible with modern structural rules.'));
-            setChecklistStatus('check-resources', 'warning', translate('checklist.resources.skipped', 'Resource validation is unavailable for legacy manifests.'));
+            setChecklistStatus(
+                'check-structure',
+                'warning',
+                translate(
+                    'checklist.structure.skipped',
+                    'Skipped: legacy manifest layout is incompatible with modern structural rules.'
+                )
+            );
+            setChecklistStatus(
+                'check-resources',
+                'warning',
+                translate('checklist.resources.skipped', 'Resource validation is unavailable for legacy manifests.')
+            );
             return;
         }
 
         // Root element
-        var rootErr = report.findings.find(function (f) { return f.code === 'XML002'; });
+        var rootErr = report.findings.find(function (f) {
+            return f.code === 'XML002';
+        });
         if (rootErr) {
             setChecklistStatus('check-root-element', rootErr.severity, rootErr.details);
             return;
         }
-        setChecklistStatus('check-root-element', 'success', translate('checklist.rootElement.success', 'The root element is "ode".'));
+        setChecklistStatus(
+            'check-root-element',
+            'success',
+            translate('checklist.rootElement.success', 'The root element is "ode".')
+        );
 
         // Nav structures
-        var navErr = report.findings.find(function (f) { return f.code === 'XML007'; });
+        var navErr = report.findings.find(function (f) {
+            return f.code === 'XML007';
+        });
         if (navErr) {
             setChecklistStatus('check-nav-structures', 'error', navErr.details);
             return;
         }
-        setChecklistStatus('check-nav-structures', 'success', translate('checklist.navStructures.success', 'Navigation structures found.'));
+        setChecklistStatus(
+            'check-nav-structures',
+            'success',
+            translate('checklist.navStructures.success', 'Navigation structures found.')
+        );
 
         // Pages
         if (report.pageTitles && report.pageTitles.length > 0) {
-            setChecklistStatus('check-pages', 'success', translate('checklist.pages.found', 'Found {count} {pageLabel}.', {
-                count: report.pageTitles.length,
-                pageLabel: getPageWord(report.pageTitles.length)
-            }));
+            setChecklistStatus(
+                'check-pages',
+                'success',
+                translate('checklist.pages.found', 'Found {count} {pageLabel}.', {
+                    count: report.pageTitles.length,
+                    pageLabel: getPageWord(report.pageTitles.length)
+                })
+            );
             renderPageTitles(report.pageTitles);
         } else {
-            setChecklistStatus('check-pages', 'warning', translate('checklist.pages.empty', 'No pages found. The project appears empty.'));
+            setChecklistStatus(
+                'check-pages',
+                'warning',
+                translate('checklist.pages.empty', 'No pages found. The project appears empty.')
+            );
             renderPageTitles([]);
         }
 
         // Structure
-        var navIssues = report.findings.filter(function (f) { return f.category === 'navigation' && f.severity === 'error'; });
+        var navIssues = report.findings.filter(function (f) {
+            return f.category === 'navigation' && f.severity === 'error';
+        });
         if (navIssues.length > 0) {
-            setChecklistStatus('check-structure', 'error', translate('checklist.structure.error', '{count} structural {issueLabel} found. See the Findings tab for details.', {
-                count: navIssues.length,
-                issueLabel: translate(navIssues.length === 1 ? 'checklist.issue' : 'checklist.issues', navIssues.length === 1 ? 'issue' : 'issues')
-            }));
+            setChecklistStatus(
+                'check-structure',
+                'error',
+                translate(
+                    'checklist.structure.error',
+                    '{count} structural {issueLabel} found. See the Findings tab for details.',
+                    {
+                        count: navIssues.length,
+                        issueLabel: translate(
+                            navIssues.length === 1 ? 'checklist.issue' : 'checklist.issues',
+                            navIssues.length === 1 ? 'issue' : 'issues'
+                        )
+                    }
+                )
+            );
         } else {
-            var navWarnings = report.findings.filter(function (f) { return f.category === 'navigation' && f.severity === 'warning'; });
+            var navWarnings = report.findings.filter(function (f) {
+                return f.category === 'navigation' && f.severity === 'warning';
+            });
             if (navWarnings.length > 0) {
-                setChecklistStatus('check-structure', 'warning', translate('checklist.structure.warning', '{count} structural {warningLabel}. See the Findings tab.', {
-                    count: navWarnings.length,
-                    warningLabel: translate(navWarnings.length === 1 ? 'checklist.warningSingle' : 'checklist.warningPlural', navWarnings.length === 1 ? 'warning' : 'warnings')
-                }));
+                setChecklistStatus(
+                    'check-structure',
+                    'warning',
+                    translate(
+                        'checklist.structure.warning',
+                        '{count} structural {warningLabel}. See the Findings tab.',
+                        {
+                            count: navWarnings.length,
+                            warningLabel: translate(
+                                navWarnings.length === 1 ? 'checklist.warningSingle' : 'checklist.warningPlural',
+                                navWarnings.length === 1 ? 'warning' : 'warnings'
+                            )
+                        }
+                    )
+                );
             } else {
-                setChecklistStatus('check-structure', 'success', translate('checklist.structure.success', 'The internal XML structure matches the expected layout.'));
+                setChecklistStatus(
+                    'check-structure',
+                    'success',
+                    translate('checklist.structure.success', 'The internal XML structure matches the expected layout.')
+                );
             }
         }
 
         // Resources
-        var missingAssets = report.findings.filter(function (f) { return f.code === 'ASSET001'; });
+        var missingAssets = report.findings.filter(function (f) {
+            return f.code === 'ASSET001';
+        });
         if (missingAssets.length > 0) {
-            var paths = missingAssets.map(function (f) { return f.evidence.path || 'unknown'; });
-            setChecklistStatus('check-resources', 'warning',
+            var paths = missingAssets.map(function (f) {
+                return f.evidence.path || 'unknown';
+            });
+            setChecklistStatus(
+                'check-resources',
+                'warning',
                 translate('checklist.resources.missing', 'Missing assets: {paths} — see Assets tab.', {
                     paths: paths.slice(0, 5).join(', ') + (paths.length > 5 ? ', …' : '')
                 })
@@ -1031,12 +1408,23 @@
         } else {
             var refCount = report.assetSummary ? report.assetSummary.totalReferences : 0;
             if (refCount > 0) {
-                setChecklistStatus('check-resources', 'success', translate('checklist.resources.allPresent', 'All {count} referenced {assetLabel} are present.', {
-                    count: refCount,
-                    assetLabel: translate(refCount === 1 ? 'checklist.assetSingle' : 'checklist.assetPlural', refCount === 1 ? 'asset' : 'assets')
-                }));
+                setChecklistStatus(
+                    'check-resources',
+                    'success',
+                    translate('checklist.resources.allPresent', 'All {count} referenced {assetLabel} are present.', {
+                        count: refCount,
+                        assetLabel: translate(
+                            refCount === 1 ? 'checklist.assetSingle' : 'checklist.assetPlural',
+                            refCount === 1 ? 'asset' : 'assets'
+                        )
+                    })
+                );
             } else {
-                setChecklistStatus('check-resources', 'success', translate('checklist.resources.noneDetected', 'No linked resources were detected.'));
+                setChecklistStatus(
+                    'check-resources',
+                    'success',
+                    translate('checklist.resources.noneDetected', 'No linked resources were detected.')
+                );
             }
         }
     }
@@ -1050,7 +1438,9 @@
         event.stopPropagation();
     }
 
-    dropzone.addEventListener('click', function () { fileInput.click(); });
+    dropzone.addEventListener('click', function () {
+        fileInput.click();
+    });
     dropzone.addEventListener('keydown', function (event) {
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();

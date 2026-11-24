@@ -18,18 +18,18 @@
 
     /* Required files for modern .elpx */
     var REQUIRED_FILES = [
-        { path: 'content.xml',  rule: 'PKG002', label: 'manifest' },
-        { path: 'content.dtd',  rule: 'PKG003', label: 'DTD schema' },
-        { path: 'index.html',   rule: 'PKG004', label: 'entry page' }
+        { path: 'content.xml', rule: 'PKG002', label: 'manifest' },
+        { path: 'content.dtd', rule: 'PKG003', label: 'DTD schema' },
+        { path: 'index.html', rule: 'PKG004', label: 'entry page' }
     ];
 
     /* Recommended directories */
     var RECOMMENDED_DIRS = [
-        { prefix: 'html/',             rule: 'PKG005', label: 'rendered pages' },
+        { prefix: 'html/', rule: 'PKG005', label: 'rendered pages' },
         { prefix: 'content/resources/', rule: 'PKG006', label: 'project assets' },
-        { prefix: 'theme/',            rule: 'PKG007', label: 'theme files' },
-        { prefix: 'libs/',             rule: 'PKG008', label: 'library files' },
-        { prefix: 'idevices/',         rule: 'PKG009', label: 'iDevice assets' }
+        { prefix: 'theme/', rule: 'PKG007', label: 'theme files' },
+        { prefix: 'libs/', rule: 'PKG008', label: 'library files' },
+        { prefix: 'idevices/', rule: 'PKG009', label: 'iDevice assets' }
     ];
 
     /* Suspicious filename patterns */
@@ -76,11 +76,19 @@
     function isPngEntryMagicValid(entry) {
         if (!entry) return null;
         var bytes = null;
-        if (entry._data && entry._data.compressedContent && entry._data.uncompressedSize === entry._data.compressedContent.length) {
+        if (
+            entry._data &&
+            entry._data.compressedContent &&
+            entry._data.uncompressedSize === entry._data.compressedContent.length
+        ) {
             bytes = entry._data.compressedContent; // STORED (no compression) — bytes are the file
         }
         if (!bytes && typeof entry.asUint8Array === 'function') {
-            try { bytes = entry.asUint8Array(); } catch (_) { /* ignore */ }
+            try {
+                bytes = entry.asUint8Array();
+            } catch (_) {
+                /* ignore */
+            }
         }
         if (!bytes && typeof Uint8Array !== 'undefined' && entry.uint8array instanceof Uint8Array) {
             bytes = entry.uint8array;
@@ -139,10 +147,13 @@
             REQUIRED_FILES.forEach(function (req) {
                 if (req.path === 'content.xml' && packageInfo.hasContentXml) return;
                 if (req.path !== 'content.xml' && !fileNameSet.has(req.path)) {
-                    findings.push(createFinding(req.rule, {
-                        details: 'The file "' + req.path + '" (' + req.label + ') was not found in the package.',
-                        suggestion: 'This file is expected in a standard .elpx package. Re-export from eXeLearning if possible.'
-                    }));
+                    findings.push(
+                        createFinding(req.rule, {
+                            details: 'The file "' + req.path + '" (' + req.label + ') was not found in the package.',
+                            suggestion:
+                                'This file is expected in a standard .elpx package. Re-export from eXeLearning if possible.'
+                        })
+                    );
                 }
             });
         }
@@ -154,10 +165,12 @@
             });
             packageInfo.directories[dir.prefix] = hasDir;
             if (!hasDir && packageInfo.format === 'elpx') {
-                findings.push(createFinding(dir.rule, {
-                    details: 'The directory "' + dir.prefix + '" (' + dir.label + ') was not found.',
-                    suggestion: 'This directory is recommended for a complete .elpx package.'
-                }));
+                findings.push(
+                    createFinding(dir.rule, {
+                        details: 'The directory "' + dir.prefix + '" (' + dir.label + ') was not found.',
+                        suggestion: 'This directory is recommended for a complete .elpx package.'
+                    })
+                );
             }
         });
 
@@ -169,21 +182,28 @@
          * with the eXeLearning repository's `scripts/add-screenshot.ts`.
          */
         if (packageInfo.format === 'elpx' && !packageInfo.hasScreenshotPng) {
-            findings.push(createFinding('PKG015', {
-                details: 'The file "screenshot.png" was not found at the archive root.',
-                suggestion: 'v4 packages should include a 1280×720 PNG thumbnail at the ZIP root. ' +
-                    'Patch existing packages with `bun run scripts/add-screenshot.ts <file>.elpx` ' +
-                    'or set a screenshot in Project Properties before exporting.'
-            }));
+            findings.push(
+                createFinding('PKG015', {
+                    details: 'The file "screenshot.png" was not found at the archive root.',
+                    suggestion:
+                        'v4 packages should include a 1280×720 PNG thumbnail at the ZIP root. ' +
+                        'Patch existing packages with `bun run scripts/add-screenshot.ts <file>.elpx` ' +
+                        'or set a screenshot in Project Properties before exporting.'
+                })
+            );
         } else if (packageInfo.format === 'elpx' && packageInfo.hasScreenshotPng) {
             // Best-effort PNG magic-byte check
             var magic = isPngEntryMagicValid(zipFiles['screenshot.png']);
             if (magic === false) {
-                findings.push(createFinding('PKG016', {
-                    details: 'The file "screenshot.png" exists at the archive root but does not start with the PNG magic bytes (89 50 4E 47 0D 0A 1A 0A).',
-                    location: { path: 'screenshot.png' },
-                    suggestion: 'Ensure the file is a valid PNG. The exporter validates magic bytes before writing it.'
-                }));
+                findings.push(
+                    createFinding('PKG016', {
+                        details:
+                            'The file "screenshot.png" exists at the archive root but does not start with the PNG magic bytes (89 50 4E 47 0D 0A 1A 0A).',
+                        location: { path: 'screenshot.png' },
+                        suggestion:
+                            'Ensure the file is a valid PNG. The exporter validates magic bytes before writing it.'
+                    })
+                );
             }
         }
 
@@ -201,35 +221,45 @@
             legacyFoldersSeen[folder] = true;
         });
         Object.keys(legacyFoldersSeen).forEach(function (folder) {
-            findings.push(createFinding('PKG017', {
-                details: 'Found legacy v3 per-asset UUID subfolder "' + folder + '/". v4 stores assets directly under content/resources/ (optionally inside user-created folders).',
-                location: { path: folder + '/' },
-                evidence: { folder: folder },
-                suggestion: 'Run `bun run scripts/flatten-elpx.ts <file>.elpx` from the eXeLearning repository to normalise this layout. The script preserves user folders and only collapses subfolders matching the ODE-ID pattern (14 digits + 6 uppercase alphanumeric chars).'
-            }));
+            findings.push(
+                createFinding('PKG017', {
+                    details:
+                        'Found legacy v3 per-asset UUID subfolder "' +
+                        folder +
+                        '/". v4 stores assets directly under content/resources/ (optionally inside user-created folders).',
+                    location: { path: folder + '/' },
+                    evidence: { folder: folder },
+                    suggestion:
+                        'Run `bun run scripts/flatten-elpx.ts <file>.elpx` from the eXeLearning repository to normalise this layout. The script preserves user folders and only collapses subfolders matching the ODE-ID pattern (14 digits + 6 uppercase alphanumeric chars).'
+                })
+            );
         });
 
         // Check for path traversal
         fileNames.forEach(function (name) {
             if (/\.\.[\\/]/.test(name) || /[\\/]\.\.[\\/]/.test(name) || /[\\/]\.\.$/.test(name)) {
-                findings.push(createFinding('PKG010', {
-                    details: 'Path traversal sequence found in archive entry.',
-                    location: { path: name },
-                    evidence: { filename: name },
-                    suggestion: 'This may indicate a malicious or corrupted archive. Do not extract to disk.'
-                }));
+                findings.push(
+                    createFinding('PKG010', {
+                        details: 'Path traversal sequence found in archive entry.',
+                        location: { path: name },
+                        evidence: { filename: name },
+                        suggestion: 'This may indicate a malicious or corrupted archive. Do not extract to disk.'
+                    })
+                );
             }
         });
 
         // Check for absolute paths
         fileNames.forEach(function (name) {
             if (/^[A-Za-z]:[\\/]/.test(name) || (name.startsWith('/') && name.length > 1)) {
-                findings.push(createFinding('PKG011', {
-                    details: 'Absolute path found in archive entry.',
-                    location: { path: name },
-                    evidence: { filename: name },
-                    suggestion: 'Archive entries should use relative paths.'
-                }));
+                findings.push(
+                    createFinding('PKG011', {
+                        details: 'Absolute path found in archive entry.',
+                        location: { path: name },
+                        evidence: { filename: name },
+                        suggestion: 'Archive entries should use relative paths.'
+                    })
+                );
             }
         });
 
@@ -238,12 +268,15 @@
             var baseName = name.split('/').pop();
             SUSPICIOUS_PATTERNS.forEach(function (pattern) {
                 if (pattern.test(baseName) || pattern.test(name)) {
-                    findings.push(createFinding('PKG012', {
-                        details: 'Suspicious or unexpected file found in the package.',
-                        location: { path: name },
-                        evidence: { filename: baseName, pattern: pattern.toString() },
-                        suggestion: 'This file is typically not part of an .elpx package and may have been included accidentally.'
-                    }));
+                    findings.push(
+                        createFinding('PKG012', {
+                            details: 'Suspicious or unexpected file found in the package.',
+                            location: { path: name },
+                            evidence: { filename: baseName, pattern: pattern.toString() },
+                            suggestion:
+                                'This file is typically not part of an .elpx package and may have been included accidentally.'
+                        })
+                    );
                 }
             });
         });
@@ -260,11 +293,13 @@
         });
         Object.keys(normalizedMap).forEach(function (key) {
             if (normalizedMap[key].length > 1) {
-                findings.push(createFinding('PKG013', {
-                    details: 'Multiple archive entries resolve to the same normalized path.',
-                    evidence: { normalizedPath: key, entries: normalizedMap[key] },
-                    suggestion: 'This may cause issues on case-insensitive file systems.'
-                }));
+                findings.push(
+                    createFinding('PKG013', {
+                        details: 'Multiple archive entries resolve to the same normalized path.',
+                        evidence: { normalizedPath: key, entries: normalizedMap[key] },
+                        suggestion: 'This may cause issues on case-insensitive file systems.'
+                    })
+                );
             }
         });
 
