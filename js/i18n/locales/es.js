@@ -259,6 +259,8 @@
             IDEV004: { message: 'El iDevice de imagen no referencia imágenes' },
             IDEV005: { message: 'El sitio web externo no tiene URL' },
             IDEV006: { message: 'Inconsistencia en el iDevice de descarga' },
+            IDEV007: { message: 'Faltan en el paquete los archivos del iDevice' },
+            IDEV008: { message: 'Marcador sin resolver en el contenido del iDevice' },
             ASSET001: { message: 'Falta en el paquete un recurso referenciado' },
             ASSET002: { message: 'Recurso huérfano' },
             ASSET003: { message: 'Referencia fuera de las rutas de recursos permitidas' },

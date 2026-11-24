@@ -203,7 +203,7 @@
             /*  8. iDevice validation                                         */
             /* -------------------------------------------------------------- */
 
-            var idevResult = ideviceRules.validateIdevices(model);
+            var idevResult = ideviceRules.validateIdevices(model, zipFiles);
             report.findings = report.findings.concat(idevResult.findings);
             report.ideviceSummary = idevResult.ideviceSummary;
 

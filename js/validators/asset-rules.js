@@ -475,6 +475,8 @@
     }
 
     function addReference(rawPath, sourceType, source, references, referencesByPath, sourcePath) {
+        // A URL (https:, data:, //host…) points outside the package: nothing to look for in the ZIP.
+        if (/^([a-z][a-z0-9+.-]*:|\/\/)/i.test(String(rawPath).trim())) return;
         var normalized = resolveReferencePath(rawPath, sourcePath);
         if (!normalized) return;
 
@@ -505,6 +507,8 @@
      * @param {object}   zipFiles       - The zip.files map.
      * @returns {{ findings: object[], assetSummary: object }}
      */
+    var LEGACY_ASSET_FOLDER = /^content\/resources\/[0-9]{14}[A-Z0-9]{6}\//;
+
     function validateAssets(assets, referencesByPath) {
         var findings = [];
         var assetMap = {};
@@ -558,6 +562,12 @@
                 }
             }
 
+            // A project saved by eXeLearning 3 names assets by their old per-asset folder
+            // (content/resources/<id>/file); in a v4 package the file sits directly in content/resources/.
+            if (!asset) {
+                asset = assetMap[refPath.replace(LEGACY_ASSET_FOLDER, 'content/resources/')];
+            }
+
             if (asset) {
                 foundReferencedCount++;
                 asset.referenced = true;
@@ -566,6 +576,12 @@
                         return r.source;
                     })
                 );
+            } else if (
+                refs.every(function (r) {
+                    return r.sourceType === 'css' && /^(idevices|libs)\//.test(r.source.cssFile || '');
+                })
+            ) {
+                // Named only by a stylesheet eXeLearning bundles: nothing the author can fix.
             } else {
                 missingCount++;
                 findings.push(
@@ -621,8 +637,9 @@
         });
 
         // Find orphaned assets (in asset dirs but never referenced)
+        // Only the author's own files: theme/, libs/ and idevices/ are loaded by scripts, not by references.
         assets.forEach(function (asset) {
-            if (!asset.referenced && asset.isAssetDir) {
+            if (!asset.referenced && asset.isAssetDir && /^content\/resources\//i.test(asset.path)) {
                 // Skip non-content files (DTDs, manifests, HTML pages, etc.)
                 var isContentFile = /^(content\.xml|content\.dtd|contentv3\.xml|index\.html)$/i.test(asset.path);
                 var isHtmlPage = /^html\//i.test(asset.path);

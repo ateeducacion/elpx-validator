@@ -260,6 +260,8 @@
             IDEV004: { message: 'Image iDevice missing image references' },
             IDEV005: { message: 'External website missing URL' },
             IDEV006: { message: 'Download iDevice inconsistency' },
+            IDEV007: { message: 'iDevice files missing from the package' },
+            IDEV008: { message: 'Unresolved placeholder in iDevice content' },
             ASSET001: { message: 'Referenced asset missing from package' },
             ASSET002: { message: 'Orphaned asset' },
             ASSET003: { message: 'Reference outside allowed asset paths' },

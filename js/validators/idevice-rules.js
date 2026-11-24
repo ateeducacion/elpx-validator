@@ -24,7 +24,11 @@
      * @param {object} model  - The normalized project model.
      * @returns {{ findings: object[], ideviceSummary: object }}
      */
-    function validateIdevices(model) {
+    // Left behind when a template or an asset URL was never resolved (see "Content integrity"
+    // in eXeLearning's doc/elpx-format/validation.md).
+    var UNRESOLVED_PLACEHOLDER = /asset:\/\/|__PLACEHOLDER__|UUID-PAGINA|UUID-BLOQUE/;
+
+    function validateIdevices(model, zipFiles) {
         var findings = [];
         var summary = {
             total: 0,
@@ -39,9 +43,59 @@
             return { findings: findings, ideviceSummary: summary };
         }
 
+        // Only a package that ships iDevice folders at all can be missing one.
+        var packagedTypes = null;
+        Object.keys(zipFiles || {}).forEach(function (name) {
+            var match = /^idevices\/([^/]+)\//.exec(name);
+            if (match) (packagedTypes = packagedTypes || {})[match[1].toLowerCase()] = true;
+        });
+        var reportedTypes = {};
+
         model.pages.forEach(function (page) {
             page.blocks.forEach(function (block) {
                 block.components.forEach(function (comp) {
+                    var usedType = (comp.odeIdeviceTypeName || '').toLowerCase().trim();
+                    if (packagedTypes && usedType && !packagedTypes[usedType] && !reportedTypes[usedType]) {
+                        reportedTypes[usedType] = true;
+                        findings.push(
+                            createFinding('IDEV007', {
+                                details:
+                                    'The project uses the iDevice type "' +
+                                    usedType +
+                                    '" but the package has no idevices/' +
+                                    usedType +
+                                    '/ folder.',
+                                location: {
+                                    pageId: page.odePageId,
+                                    blockId: block.odeBlockId,
+                                    ideviceId: comp.odeIdeviceId
+                                },
+                                evidence: { odeIdeviceTypeName: usedType },
+                                suggestion:
+                                    'Export the project again from eXeLearning so the scripts and styles of this iDevice are bundled.'
+                            })
+                        );
+                    }
+                    var placeholder = UNRESOLVED_PLACEHOLDER.exec(comp.htmlView || '');
+                    if (placeholder) {
+                        findings.push(
+                            createFinding('IDEV008', {
+                                details:
+                                    'The htmlView of iDevice "' +
+                                    comp.odeIdeviceId +
+                                    '" still contains "' +
+                                    placeholder[0] +
+                                    '", which eXeLearning should have replaced when saving.',
+                                location: {
+                                    pageId: page.odePageId,
+                                    blockId: block.odeBlockId,
+                                    ideviceId: comp.odeIdeviceId
+                                },
+                                evidence: { placeholder: placeholder[0] },
+                                suggestion: 'Open the project in eXeLearning and save it again.'
+                            })
+                        );
+                    }
                     summary.total++;
                     var result = validateSingleIdevice(comp, page, block, model);
                     findings = findings.concat(result.findings);

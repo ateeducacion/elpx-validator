@@ -68,7 +68,7 @@ La validación se hace **por capas**:
 
 #### 5. iDevices (`IDEV*`)
 
-- Reconocimiento del tipo frente a un registro de **18 tipos de iDevice** de la especificación ELPX
+- Reconocimiento del tipo frente a un registro de los **52 iDevices base** de eXeLearning; se avisa si falta en el paquete la carpeta `idevices/<tipo>/` de un tipo usado o si el contenido conserva un marcador sin resolver (`asset://`, `__PLACEHOLDER__`…)
 - `jsonProperties` interpretable
 - Contenido de `htmlView`
 - Validación propia de cada tipo:
@@ -82,23 +82,20 @@ La validación se hace **por capas**:
 - Extracción de referencias de `htmlView`, `jsonProperties` y el HTML exportado
 - Normalización de la variable `{{context_path}}`
 - Recursos que faltan (referenciados pero ausentes)
-- Recursos huérfanos (presentes pero sin referencias)
+- Recursos huérfanos (presentes en `content/resources/` pero sin referencias)
 - Diferencias de mayúsculas y minúsculas
 - Referencias que salen del paquete
 
 ### Tipos de iDevice conocidos
 
-| Tipo                                                                      | Grupo        | Validación  |
-| ------------------------------------------------------------------------- | ------------ | ----------- |
-| `text`                                                                    | Contenido    | Profunda    |
-| `image-gallery`                                                           | Multimedia   | Profunda    |
-| `magnifier`                                                               | Multimedia   | Profunda    |
-| `external-website`                                                        | Incrustado   | Profunda    |
-| `download-source-file`                                                    | Sistema      | Profunda    |
-| `form`, `matching`, `sort`, `classify`, `guess`, `checklist`, `crossword` | Actividad    | Superficial |
-| `casestudy`, `rubric`                                                     | Contenido    | Superficial |
-| `trueorfalse`, `quick-questions`, `quick-questions-multiple-choice`       | Cuestionario | Superficial |
-| `complete`                                                                | Actividad    | Superficial |
+| Tipo                                                                                                                   | Grupo           | Validación  |
+| ---------------------------------------------------------------------------------------------------------------------- | --------------- | ----------- |
+| `text`                                                                                                                 | Contenido       | Profunda    |
+| `image-gallery`                                                                                                        | Multimedia      | Profunda    |
+| `magnifier`                                                                                                            | Multimedia      | Profunda    |
+| `external-website`                                                                                                     | Incrustado      | Profunda    |
+| `download-source-file`                                                                                                 | Sistema         | Profunda    |
+| Los demás iDevices base de eXeLearning (`puzzle`, `map`, `flipcards`, `word-search`, `interactive-video`… 52 en total) | según categoría | Superficial |
 
 Los tipos desconocidos o personalizados se notifican como hallazgos informativos, no como errores.
 
@@ -128,7 +125,7 @@ Cada hallazgo incluye su **código de regla** (por ejemplo `PKG001`, `NAV012`), 
 | `XML001`–`XML008`       | XML / esquema  | XML mal formado, raíz incorrecta, espacio de nombres, orden                                                                                                        |
 | `NAV001`–`NAV022`       | Navegación     | Identificadores ausentes o duplicados, ciclos, pertenencia                                                                                                         |
 | `META001`–`META006`     | Metadatos      | `odeId`, `odeVersionId` o título ausentes o no válidos                                                                                                             |
-| `IDEV001`–`IDEV006`     | iDevice        | Tipos desconocidos, errores de análisis, recursos o URL ausentes                                                                                                   |
+| `IDEV001`–`IDEV008`     | iDevice        | Tipos desconocidos, errores de análisis, recursos o URL ausentes                                                                                                   |
 | `ASSET001`–`ASSET005`   | Recursos       | Ausentes, huérfanos, rutas que salen del paquete, mayúsculas                                                                                                       |
 | `COMPAT001`–`COMPAT002` | Compatibilidad | Detección de formato antiguo o moderno                                                                                                                             |
 

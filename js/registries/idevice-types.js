@@ -20,6 +20,21 @@
 })(typeof self !== 'undefined' ? self : this, function () {
     'use strict';
 
+    // A type the validator recognises but has no type-specific checks for.
+    function shallow(label, group) {
+        return {
+            label: label,
+            group: group,
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        };
+    }
+
+    // The base iDevices of eXeLearning (public/files/perm/idevices/base in its repository),
+    // plus a few names seen in older packages.
     var KNOWN_TYPES = Object.freeze({
         text: {
             label: 'Text',
@@ -263,7 +278,39 @@
             deep: false,
             requiresHtmlView: true,
             requiresJsonProperties: true
-        }
+        },
+        '3dmol': shallow('3DMol', 'science'),
+        'adaptative-quiz': shallow('Adaptative Quiz', 'quiz'),
+        'az-quiz-game': shallow('A-Z quiz', 'game'),
+        beforeafter: shallow('Before/After', 'activity'),
+        challenge: shallow('Challenge', 'game'),
+        digcompedu: shallow('DigCompEdu', 'content'),
+        discover: shallow('Discover', 'game'),
+        dragdrop: shallow('Drag and drop', 'activity'),
+        'electrical-circuits': shallow('Electrical Circuits', 'science'),
+        example: shallow('Example', 'content'),
+        'file-attachment': shallow('File attachments', 'content'),
+        flipcards: shallow('Memory cards', 'activity'),
+        'geogebra-activity': shallow('GeoGebra activity', 'science'),
+        'hidden-image': shallow('Hidden image', 'game'),
+        identify: shallow('Identify', 'activity'),
+        lomloe: shallow('LOMLOE: Fundamentación Curricular', 'content'),
+        map: shallow('Map', 'content'),
+        'markdown-text': shallow('Markdown text', 'content'),
+        mathematicaloperations: shallow('Math operations', 'science'),
+        mathproblems: shallow('Math problems', 'science'),
+        padlock: shallow('Padlock', 'game'),
+        'periodic-table': shallow('Periodic table', 'science'),
+        'progress-report': shallow('Progress report', 'quiz'),
+        puzzle: shallow('Puzzle', 'game'),
+        'quick-questions-video': shallow('Video test', 'quiz'),
+        relate: shallow('Relate', 'activity'),
+        'select-media-files': shallow('Select media files', 'quiz'),
+        slide: shallow('Slide', 'content'),
+        'three-d-viewer': shallow('3D Viewer', 'media'),
+        'three-sixty-viewer': shallow('360° panorama viewer', 'media'),
+        trivial: shallow('TriviExt', 'game'),
+        'word-search': shallow('Word search', 'game')
     });
 
     var GROUPS = Object.freeze({
@@ -272,6 +319,8 @@
         media: { label: 'Media', description: 'Image / audio / video iDevices' },
         embed: { label: 'Embed', description: 'Embedded external content' },
         quiz: { label: 'Quiz', description: 'Question-based iDevices' },
+        game: { label: 'Games', description: 'Game iDevices' },
+        science: { label: 'Science', description: 'Science and maths iDevices' },
         system: { label: 'System', description: 'System-level iDevices' }
     });
 

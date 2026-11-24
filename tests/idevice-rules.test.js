@@ -263,3 +263,54 @@ describe('iDevice validation', () => {
         });
     });
 });
+
+describe('iDevice files and placeholders', () => {
+    const modelWith = (type, htmlView) => ({
+        pages: [
+            {
+                odePageId: 'p1',
+                pageName: 'Page',
+                blocks: [
+                    {
+                        odeBlockId: 'b1',
+                        components: [
+                            { odeIdeviceId: 'i1', odeIdeviceTypeName: type, htmlView: htmlView, jsonProperties: '{}' },
+                            {
+                                odeIdeviceId: 'i2',
+                                odeIdeviceTypeName: type,
+                                htmlView: '<p>ok</p>',
+                                jsonProperties: '{}'
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    });
+    const codes = (model, zipFiles) => validateIdevices(model, zipFiles).findings.map((f) => f.code);
+
+    test('IDEV007 once per type whose idevices/<type>/ folder is not in the package', () => {
+        const zipFiles = { 'idevices/text/text.js': {}, 'content.xml': {} };
+        expect(codes(modelWith('puzzle', '<p>x</p>'), zipFiles).filter((c) => c === 'IDEV007')).toHaveLength(1);
+        expect(codes(modelWith('text', '<p>x</p>'), zipFiles)).not.toContain('IDEV007');
+    });
+
+    test('no IDEV007 for a package that ships no iDevice folders at all', () => {
+        expect(codes(modelWith('puzzle', '<p>x</p>'), { 'content.xml': {} })).not.toContain('IDEV007');
+        expect(codes(modelWith('puzzle', '<p>x</p>'))).not.toContain('IDEV007');
+    });
+
+    test.each(['asset://abc123/photo.png', '__PLACEHOLDER__', 'UUID-PAGINA', 'UUID-BLOQUE'])(
+        'IDEV008 when htmlView still contains %s',
+        (placeholder) => {
+            const findings = validateIdevices(modelWith('text', '<img src="' + placeholder + '">')).findings;
+            const found = findings.filter((f) => f.code === 'IDEV008');
+            expect(found).toHaveLength(1);
+            expect(found[0].location.ideviceId).toBe('i1');
+        }
+    );
+
+    test('no IDEV008 for resolved content', () => {
+        expect(codes(modelWith('text', '<img src="{{context_path}}/photo.png">'))).not.toContain('IDEV008');
+    });
+});

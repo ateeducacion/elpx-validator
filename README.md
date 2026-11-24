@@ -68,7 +68,7 @@ The validator performs **layered validation** organized into categories:
 
 #### 5. iDevice layer (`IDEV*`)
 
-- Type recognition against a registry of **18 known iDevice types** from the ELPX specification
+- Type recognition against a registry of the **52 base iDevices** of eXeLearning; a type whose `idevices/<type>/` folder is missing from the package, or content with an unresolved placeholder (`asset://`, `__PLACEHOLDER__`…), is reported
 - `jsonProperties` parseability
 - `htmlView` content check
 - Type-specific validation:
@@ -82,7 +82,7 @@ The validator performs **layered validation** organized into categories:
 - Reference extraction from `htmlView`, `jsonProperties`, and exported HTML
 - `{{context_path}}` template variable normalization
 - Missing asset detection (referenced but not present)
-- Orphaned asset detection (present but never referenced)
+- Orphaned asset detection (present in `content/resources/` but never referenced)
 - Casing mismatch detection
 - Path traversal in references
 
@@ -90,17 +90,14 @@ The validator performs **layered validation** organized into categories:
 
 The registry includes these documented types, classified by validation depth:
 
-| Type                                                                      | Group    | Validation |
-| ------------------------------------------------------------------------- | -------- | ---------- |
-| `text`                                                                    | Content  | Deep       |
-| `image-gallery`                                                           | Media    | Deep       |
-| `magnifier`                                                               | Media    | Deep       |
-| `external-website`                                                        | Embed    | Deep       |
-| `download-source-file`                                                    | System   | Deep       |
-| `form`, `matching`, `sort`, `classify`, `guess`, `checklist`, `crossword` | Activity | Shallow    |
-| `casestudy`, `rubric`                                                     | Content  | Shallow    |
-| `trueorfalse`, `quick-questions`, `quick-questions-multiple-choice`       | Quiz     | Shallow    |
-| `complete`                                                                | Activity | Shallow    |
+| Type                                                                                                                    | Group       | Validation |
+| ----------------------------------------------------------------------------------------------------------------------- | ----------- | ---------- |
+| `text`                                                                                                                  | Content     | Deep       |
+| `image-gallery`                                                                                                         | Media       | Deep       |
+| `magnifier`                                                                                                             | Media       | Deep       |
+| `external-website`                                                                                                      | Embed       | Deep       |
+| `download-source-file`                                                                                                  | System      | Deep       |
+| Every other base iDevice of eXeLearning (`puzzle`, `map`, `flipcards`, `word-search`, `interactive-video`… 52 in total) | by category | Shallow    |
 
 Unknown/custom iDevice types are reported as informational findings, not errors.
 
@@ -156,7 +153,7 @@ Each finding includes:
 | `XML001`–`XML008`       | XML/Schema    | Malformed XML, wrong root, namespace, ordering                                                                                                  |
 | `NAV001`–`NAV022`       | Navigation    | Missing IDs, duplicates, cycles, containment                                                                                                    |
 | `META001`–`META006`     | Metadata      | Missing/invalid odeId, odeVersionId, title                                                                                                      |
-| `IDEV001`–`IDEV006`     | iDevice       | Unknown types, parse errors, missing assets/URLs                                                                                                |
+| `IDEV001`–`IDEV008`     | iDevice       | Unknown types, parse errors, missing assets/URLs                                                                                                |
 | `ASSET001`–`ASSET005`   | Asset         | Missing, orphaned, path traversal, casing                                                                                                       |
 | `COMPAT001`–`COMPAT002` | Compatibility | Legacy/modern format detection                                                                                                                  |
 

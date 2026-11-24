@@ -382,6 +382,18 @@
             category: CATEGORY.IDEVICE,
             message: 'Download iDevice inconsistency'
         },
+        IDEV007: {
+            code: 'IDEV007',
+            severity: SEVERITY.WARNING,
+            category: CATEGORY.IDEVICE,
+            message: 'iDevice files missing from the package'
+        },
+        IDEV008: {
+            code: 'IDEV008',
+            severity: SEVERITY.WARNING,
+            category: CATEGORY.IDEVICE,
+            message: 'Unresolved placeholder in iDevice content'
+        },
 
         /* Asset ---------------------------------------------------------- */
         ASSET001: {
