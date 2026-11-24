@@ -29,17 +29,17 @@
 
     function getStatusConfig() {
         return {
-            green:  { cssClass: 'edia-green',  label: translate('edia.statuses.green', 'Compliant'),    icon: '✅' },
-            orange: { cssClass: 'edia-orange', label: translate('edia.statuses.orange', 'Needs review'), icon: '⚠️' },
-            red:    { cssClass: 'edia-red',    label: translate('edia.statuses.red', 'Missing'),         icon: '❌' }
+            green:  { cssClass: 'edia-green',  label: translate('edia.statuses.green', 'Compliant'),    icon: '✓' },
+            orange: { cssClass: 'edia-orange', label: translate('edia.statuses.orange', 'Needs review'), icon: '!' },
+            red:    { cssClass: 'edia-red',    label: translate('edia.statuses.red', 'Missing'),         icon: '✕' }
         };
     }
 
     function getValidationTypeConfig() {
         return {
-            automatic: { cssClass: 'edia-badge-auto',      label: translate('edia.validationTypes.automatic', 'Automatic'),     icon: '🤖' },
-            heuristic: { cssClass: 'edia-badge-heuristic', label: translate('edia.validationTypes.heuristic', 'Heuristic'),     icon: '🔍' },
-            manual:    { cssClass: 'edia-badge-manual',    label: translate('edia.validationTypes.manual', 'Manual review'),   icon: '👁️' }
+            automatic: { cssClass: 'edia-badge-auto',      label: translate('edia.validationTypes.automatic', 'Automatic'),     icon: '' },
+            heuristic: { cssClass: 'edia-badge-heuristic', label: translate('edia.validationTypes.heuristic', 'Heuristic'),     icon: '' },
+            manual:    { cssClass: 'edia-badge-manual',    label: translate('edia.validationTypes.manual', 'Manual review'),   icon: '' }
         };
     }
 
@@ -69,8 +69,8 @@
             '    <h3 class="edia-hero-title" data-i18n="edia.hero.title">EDIA Quality Dashboard</h3>',
             '    <p class="edia-hero-subtitle" data-i18n-html="edia.hero.subtitleHtml">This dashboard evaluates your eXeLearning resource against the <strong>EDIA / CEDEC</strong> open educational resource quality checklist. Some criteria are checked automatically from the package; others require human judgement and are flagged for manual review.</p>',
             '    <div class="edia-hero-links">',
-            '      <a href="https://cedec.intef.es/recursos/criterios-edia/" target="_blank" rel="noopener noreferrer" class="edia-hero-btn edia-hero-btn-primary" data-i18n="edia.hero.checklistLink">🌐 EDIA Checklist (CEDEC)</a>',
-            '      <a href="https://cedec.intef.es/wp-content/uploads/2021/11/EDIA-Rubrica-2021.pdf" target="_blank" rel="noopener noreferrer" class="edia-hero-btn edia-hero-btn-secondary" data-i18n="edia.hero.rubricLink">📄 Download EDIA Rubric (PDF)</a>',
+            '      <a href="https://cedec.intef.es/recursos/criterios-edia/" target="_blank" rel="noopener noreferrer" class="edia-hero-btn edia-hero-btn-primary" data-i18n="edia.hero.checklistLink">EDIA Checklist (CEDEC)</a>',
+            '      <a href="https://cedec.intef.es/wp-content/uploads/2021/11/EDIA-Rubrica-2021.pdf" target="_blank" rel="noopener noreferrer" class="edia-hero-btn edia-hero-btn-secondary" data-i18n="edia.hero.rubricLink">Download EDIA Rubric (PDF)</a>',
             '    </div>',
             '  </div>',
             '</div>'
@@ -89,13 +89,13 @@
         div.setAttribute('aria-label', translate('edia.legend.ariaLabel', 'Status colour legend'));
         div.innerHTML = [
             '<span class="edia-legend-label">' + escHtml(translate('edia.legend.label', 'Status key:')) + '</span>',
-            '<span class="edia-legend-chip edia-green-chip">✅ ' + escHtml(statusConfig.green.label) + '</span>',
-            '<span class="edia-legend-chip edia-orange-chip">⚠️ ' + escHtml(statusConfig.orange.label) + '</span>',
-            '<span class="edia-legend-chip edia-red-chip">❌ ' + escHtml(statusConfig.red.label) + '</span>',
+            '<span class="edia-legend-chip edia-green-chip">✓ ' + escHtml(statusConfig.green.label) + '</span>',
+            '<span class="edia-legend-chip edia-orange-chip">! ' + escHtml(statusConfig.orange.label) + '</span>',
+            '<span class="edia-legend-chip edia-red-chip">✕ ' + escHtml(statusConfig.red.label) + '</span>',
             '<span class="edia-legend-divider" aria-hidden="true">|</span>',
-            '<span class="edia-legend-chip edia-badge-auto">🤖 ' + escHtml(validationTypeConfig.automatic.label) + '</span>',
-            '<span class="edia-legend-chip edia-badge-heuristic">🔍 ' + escHtml(validationTypeConfig.heuristic.label) + '</span>',
-            '<span class="edia-legend-chip edia-badge-manual">👁️ ' + escHtml(validationTypeConfig.manual.label) + '</span>'
+            '<span class="edia-legend-chip edia-badge-auto">' + escHtml(validationTypeConfig.automatic.label) + '</span>',
+            '<span class="edia-legend-chip edia-badge-heuristic">' + escHtml(validationTypeConfig.heuristic.label) + '</span>',
+            '<span class="edia-legend-chip edia-badge-manual">' + escHtml(validationTypeConfig.manual.label) + '</span>'
         ].join('');
         return div;
     }
@@ -115,28 +115,28 @@
                 value: total,
                 label: translate('edia.summary.totalCriteria', 'Total criteria'),
                 cls: 'edia-card-total',
-                icon: '📋',
+                icon: '',
                 desc: translate('edia.summary.totalCriteriaDesc', 'All criteria evaluated')
             },
             {
                 value: greens,
                 label: translate('edia.summary.compliant', 'Compliant'),
                 cls: 'edia-card-green',
-                icon: '✅',
+                icon: '✓',
                 desc: translate('edia.summary.compliantDesc', 'Criteria that are met')
             },
             {
                 value: oranges,
                 label: translate('edia.summary.needsReview', 'Needs review'),
                 cls: 'edia-card-orange',
-                icon: '⚠️',
+                icon: '!',
                 desc: translate('edia.summary.needsReviewDesc', 'Criteria needing attention')
             },
             {
                 value: reds,
                 label: translate('edia.summary.missing', 'Missing / failing'),
                 cls: 'edia-card-red',
-                icon: '❌',
+                icon: '✕',
                 desc: translate('edia.summary.missingDesc', 'Criteria not met')
             }
         ];
@@ -145,7 +145,6 @@
             var c = document.createElement('div');
             c.className = 'edia-summary-card ' + card.cls;
             c.innerHTML = [
-                '<div class="edia-summary-icon" aria-hidden="true">' + card.icon + '</div>',
                 '<div class="edia-summary-value">' + card.value + '</div>',
                 '<div class="edia-summary-label">' + escHtml(card.label) + '</div>',
                 '<div class="edia-summary-desc">' + escHtml(card.desc) + '</div>'
@@ -157,8 +156,7 @@
         scoreCard.className = 'edia-summary-card edia-card-score';
         var barColor = score >= 70 ? 'var(--color-success)' : score >= 40 ? 'var(--color-warning)' : 'var(--color-error)';
         scoreCard.innerHTML = [
-            '<div class="edia-summary-icon" aria-hidden="true">📊</div>',
-            '<div class="edia-summary-value">' + score + '%</div>',
+                        '<div class="edia-summary-value">' + score + '%</div>',
             '<div class="edia-summary-label">' + escHtml(translate('edia.summary.readinessScore', 'Readiness score')) + '</div>',
             '<div class="edia-readiness-bar" role="progressbar" aria-valuenow="' + score + '" aria-valuemin="0" aria-valuemax="100" aria-label="' + escHtml(translate('edia.summary.readinessAria', 'Readiness {score}%', { score: score })) + '">',
             '  <div class="edia-readiness-fill" style="width:' + score + '%;background:' + barColor + '"></div>',
@@ -188,7 +186,7 @@
             '  <span class="edia-criterion-title">' + escHtml(crit.title) + '</span>',
             '</div>',
             '<div class="edia-criterion-badges">',
-            '  <span class="edia-type-badge ' + vt.cssClass + '">' + vt.icon + ' ' + escHtml(vt.label) + '</span>',
+            '  <span class="edia-type-badge ' + vt.cssClass + '">' + escHtml(vt.label) + '</span>',
             '  <span class="edia-status-badge ' + st.cssClass + '">' + st.icon + ' ' + escHtml(crit.statusLabel || st.label) + '</span>',
             '</div>'
         ].join('');
@@ -219,7 +217,7 @@
         if (crit.recommendation) {
             var rec = document.createElement('div');
             rec.className = 'edia-criterion-recommendation';
-            rec.innerHTML = '<span class="edia-rec-icon" aria-hidden="true">' + escHtml(translate('edia.labels.recommendationPrefix', '💡')) + '</span> ' + escHtml(crit.recommendation);
+            rec.innerHTML = '<span class="edia-rec-icon" aria-hidden="true">' + escHtml(translate('edia.labels.recommendationPrefix', '→')) + '</span> ' + escHtml(crit.recommendation);
             body.appendChild(rec);
         }
 
@@ -261,12 +259,11 @@
         var summary = document.createElement('summary');
         summary.className = 'edia-section-summary';
         summary.innerHTML = [
-            '<span class="edia-section-icon" aria-hidden="true">' + (localizedSection.icon || '📋') + '</span>',
-            '<span class="edia-section-name">' + escHtml(localizedSection.label) + '</span>',
+                        '<span class="edia-section-name">' + escHtml(localizedSection.label) + '</span>',
             '<span class="edia-section-counts">',
-            '  <span class="edia-section-count edia-sc-green" title="' + escHtml(statusConfig.green.label) + '">✅ ' + greens + '</span>',
-            '  <span class="edia-section-count edia-sc-orange" title="' + escHtml(statusConfig.orange.label) + '">⚠️ ' + oranges + '</span>',
-            '  <span class="edia-section-count edia-sc-red" title="' + escHtml(statusConfig.red.label) + '">❌ ' + reds + '</span>',
+            '  <span class="edia-section-count edia-sc-green" title="' + escHtml(statusConfig.green.label) + '">✓ ' + greens + '</span>',
+            '  <span class="edia-section-count edia-sc-orange" title="' + escHtml(statusConfig.orange.label) + '">! ' + oranges + '</span>',
+            '  <span class="edia-section-count edia-sc-red" title="' + escHtml(statusConfig.red.label) + '">✕ ' + reds + '</span>',
             '</span>'
         ].join('');
         details.appendChild(summary);
@@ -285,7 +282,6 @@
         var div = document.createElement('div');
         div.className = 'edia-no-file-notice';
         div.innerHTML = [
-            '<div class="edia-no-file-icon" aria-hidden="true">📂</div>',
             '<p class="edia-no-file-text" data-i18n-html="edia.noFile.textHtml">Load an <strong>.elpx</strong> or <strong>.elp</strong> file using the upload area above to see your personalized EDIA quality assessment.</p>',
             '<p class="edia-no-file-subtext" data-i18n="edia.noFile.subtext">The criteria below are shown with placeholder statuses. They will update automatically once a file has been loaded.</p>'
         ].join('');

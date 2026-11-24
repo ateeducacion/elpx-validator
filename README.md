@@ -236,7 +236,7 @@ js/
 └── app.js                    # UI layer
 bin/elpx-validator.js         # CLI entry point
 skills/elpx-validator/        # Agent Skill
-vendor/jszip.min.js           # JSZip for the web app (copied by `npm run vendor`)
+vendor/jszip.min.js           # JSZip for the web app (copied by `bun run vendor`)
 tests/                        # Unit tests (bun test)
 ```
 

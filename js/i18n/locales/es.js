@@ -60,7 +60,7 @@
             idevices: 'iDevices',
             assets: 'Recursos',
             preview: 'Vista previa',
-            edia: '🎓 Validación EDIA'
+            edia: 'EDIA'
         },
         upload: {
             ariaLabel: 'Subir archivo .elp, .elpx o .zip',
@@ -194,7 +194,7 @@
             empty: 'No hay hallazgos para mostrar.',
             filteredEmpty: 'Ningún hallazgo coincide con los filtros actuales.',
             location: 'Ubicación',
-            suggestionPrefix: '💡 ',
+            suggestionPrefix: '→ ',
             PKG001: { message: 'Archivo ZIP no válido' },
             PKG002: { message: 'Falta el manifiesto content.xml' },
             PKG003: { message: 'Falta content.dtd' },
@@ -318,8 +318,8 @@
             hero: {
                 title: 'Panel de calidad EDIA',
                 subtitleHtml: 'Este panel evalúa tu recurso de eXeLearning con la lista de verificación de calidad de recursos educativos abiertos de <strong>EDIA / CEDEC</strong>. Algunos criterios se comprueban automáticamente a partir del paquete; otros requieren juicio humano y se marcan para revisión manual.',
-                checklistLink: '🌐 Lista EDIA (CEDEC)',
-                rubricLink: '📄 Descargar rúbrica EDIA (PDF)'
+                checklistLink: 'Lista EDIA (CEDEC)',
+                rubricLink: 'Descargar rúbrica EDIA (PDF)'
             },
             legend: {
                 ariaLabel: 'Leyenda de colores de estado',
@@ -350,7 +350,7 @@
             },
             labels: {
                 detected: 'Detectado:',
-                recommendationPrefix: '💡'
+                recommendationPrefix: '→'
             },
             noFile: {
                 textHtml: 'Carga un archivo <strong>.elpx</strong> o <strong>.elp</strong> usando la zona de subida superior para ver tu evaluación de calidad EDIA personalizada.',

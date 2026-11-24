@@ -95,16 +95,16 @@
     /* ================================================================== */
 
     var iconMap = {
-        pending: '⏳',
-        success: '✅',
-        warning: '⚠️',
-        error:   '❌'
+        pending: '…',
+        success: '✓',
+        warning: '!',
+        error:   '✕'
     };
 
     var severityIcon = {
-        error:   '❌',
-        warning: '⚠️',
-        info:    'ℹ️'
+        error:   '✕',
+        warning: '!',
+        info:    'i'
     };
 
     function formatBytes(bytes) {
@@ -243,7 +243,7 @@
         }
         if (labelElement && status !== 'pending') {
             var label = item.dataset.label || getChecklistLabel(item, false) || labelElement.textContent;
-            labelElement.textContent = label + (status === 'success' ? ' ✓' : '');
+            labelElement.textContent = label;
         }
     }
 
@@ -379,9 +379,9 @@
             }
         }
 
-        if (countErrors)   countErrors.innerHTML   = '❌ <strong>' + report.counts.errors   + '</strong>';
-        if (countWarnings) countWarnings.innerHTML = '⚠️ <strong>' + report.counts.warnings + '</strong>';
-        if (countInfos)    countInfos.innerHTML    = 'ℹ️ <strong>' + report.counts.infos    + '</strong>';
+        if (countErrors)   countErrors.innerHTML = '<b aria-hidden="true">✕</b> <strong>' + report.counts.errors   + '</strong>';
+        if (countWarnings) countWarnings.innerHTML = '<b aria-hidden="true">!</b> <strong>' + report.counts.warnings + '</strong>';
+        if (countInfos)    countInfos.innerHTML = '<b aria-hidden="true">i</b> <strong>' + report.counts.infos    + '</strong>';
     }
 
     /* ================================================================== */
@@ -436,14 +436,14 @@
             if (suggestionText) {
                 var suggestion = document.createElement('p');
                 suggestion.className = 'finding-suggestion';
-                suggestion.textContent = translate('findings.suggestionPrefix', '💡 ') + suggestionText;
+                suggestion.textContent = translate('findings.suggestionPrefix', '→ ') + suggestionText;
                 card.appendChild(suggestion);
             }
 
             if (f.location && Object.keys(f.location).length > 0) {
                 var loc = document.createElement('p');
                 loc.className = 'finding-location';
-                loc.textContent = '📍 ' + translate('findings.location', 'Location') + ': '
+                loc.textContent = translate('findings.location', 'Location') + ': '
                     + Object.entries(f.location).map(function (e) { return e[0] + ': ' + e[1]; }).join(', ');
                 card.appendChild(loc);
             }
@@ -510,7 +510,7 @@
                     page.blocks.forEach(function (block) {
                         var bli = document.createElement('li');
                         bli.className = 'tree-block';
-                        bli.innerHTML = '📦 <strong>' + escapeHtml(block.blockName || getUntitledLabel()) + '</strong>'
+                        bli.innerHTML = '<strong>' + escapeHtml(block.blockName || getUntitledLabel()) + '</strong>'
                             + ' <code>' + escapeHtml(block.odeBlockId || '?') + '</code>';
 
                         if (block.components.length > 0) {
@@ -521,7 +521,7 @@
                                 cli.className = 'tree-component';
                                 var lookup = ideviceRegistry.lookup ? ideviceRegistry.lookup(comp.odeIdeviceTypeName) : { known: false };
                                 var typeClass = lookup.known ? 'type-known' : 'type-unknown';
-                                cli.innerHTML = '🧩 <span class="' + typeClass + '">' + escapeHtml(comp.odeIdeviceTypeName || '?') + '</span>'
+                                cli.innerHTML = '<span class="' + typeClass + '">' + escapeHtml(comp.odeIdeviceTypeName || '?') + '</span>'
                                     + ' <code>' + escapeHtml(comp.odeIdeviceId || '?') + '</code>';
                                 compList.appendChild(cli);
                             });
@@ -680,15 +680,15 @@
                     : '<span class="badge badge-muted">' + escapeHtml(getAssetStatusLabel('structural')) + '</span>');
             var previewCell = getEmptyValue();
             if (asset.previewType === 'image') {
-                previewCell = '🖼️';
+                previewCell = 'image';
             } else if (asset.previewType === 'audio') {
-                previewCell = '🔊';
+                previewCell = 'audio';
             } else if (asset.previewType === 'video') {
-                previewCell = '🎬';
+                previewCell = 'video';
             } else if (asset.previewType === 'pdf') {
-                previewCell = '📄';
+                previewCell = 'PDF';
             } else if (asset.previewType === 'code') {
-                previewCell = '📝';
+                previewCell = 'text';
             }
             tr.innerHTML = '<td title="' + escapeHtml(asset.path) + '">' + escapeHtml(asset.path) + '</td>'
                 + '<td>' + escapeHtml(asset.mimeType) + '</td>'

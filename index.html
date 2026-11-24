@@ -7,7 +7,7 @@
     <meta name="description" content="Validate eXeLearning .elpx and .elp packages: structure, navigation, iDevices and assets. Everything happens in your browser.">
     <meta name="author" content="Área de Tecnología Educativa (ATE), Gobierno de Canarias">
     <meta name="referrer" content="no-referrer">
-    <meta name="theme-color" content="#0f7ea8">
+    <meta name="theme-color" content="#0f6a8c">
     <!-- Social networks need absolute URLs: the published site's. The image is drawn from scripts/social-card.html. -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://ateeducacion.github.io/elpx-validator/">
@@ -61,7 +61,9 @@
         <p class="lead" data-i18n-html="app.subtitleHtml">Check the structure, navigation, iDevices and assets of your <code>.elpx</code> or <code>.elp</code> projects.</p>
         <section id="upload" class="card">
             <div id="dropzone" class="dropzone" tabindex="0" role="button" data-i18n-aria-label="upload.ariaLabel" aria-label="Upload .elp, .elpx, or .zip file">
-                <div class="dropzone-icon" aria-hidden="true">📁</div>
+                <div class="dropzone-icon" aria-hidden="true">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+                </div>
                 <p class="dropzone-title" data-i18n-html="upload.titleHtml">Drag &amp; drop your <strong>.elp</strong>, <strong>.elpx</strong>, or <strong>.zip</strong> file here</p>
                 <p class="dropzone-subtitle" data-i18n="upload.subtitle">or click to choose a file from your device</p>
                 <input id="fileInput" type="file" accept=".elp,.elpx,.zip" hidden>
@@ -78,9 +80,9 @@
             <div id="summaryBanner" class="summary-banner" hidden>
                 <span class="badge-format" id="badgeFormat"></span>
                 <div class="summary-counts">
-                    <span class="count-error" id="countErrors" data-i18n-title="summary.errorsTitle" title="Errors">❌ <strong>0</strong></span>
-                    <span class="count-warning" id="countWarnings" data-i18n-title="summary.warningsTitle" title="Warnings">⚠️ <strong>0</strong></span>
-                    <span class="count-info" id="countInfos" data-i18n-title="summary.infoTitle" title="Info">ℹ️ <strong>0</strong></span>
+                    <span class="count-error" id="countErrors" data-i18n-title="summary.errorsTitle" title="Errors"><b aria-hidden="true">✕</b> <strong>0</strong></span>
+                    <span class="count-warning" id="countWarnings" data-i18n-title="summary.warningsTitle" title="Warnings"><b aria-hidden="true">!</b> <strong>0</strong></span>
+                    <span class="count-info" id="countInfos" data-i18n-title="summary.infoTitle" title="Info"><b aria-hidden="true">i</b> <strong>0</strong></span>
                 </div>
             </div>
 
@@ -92,7 +94,7 @@
                 <button class="tab"        role="tab" aria-selected="false" data-tab="tab-idevices"  id="btn-tab-idevices" data-i18n="tabs.idevices">iDevices</button>
                 <button class="tab"        role="tab" aria-selected="false" data-tab="tab-assets"    id="btn-tab-assets" data-i18n="tabs.assets">Assets</button>
                 <button class="tab"        role="tab" aria-selected="false" data-tab="tab-preview"   id="btn-tab-preview" data-i18n="tabs.preview">Preview</button>
-                <button class="tab tab-edia" role="tab" aria-selected="false" data-tab="tab-edia" id="btn-tab-edia" data-i18n="tabs.edia">🎓 EDIA Validation</button>
+                <button class="tab tab-edia" role="tab" aria-selected="false" data-tab="tab-edia" id="btn-tab-edia" data-i18n="tabs.edia">EDIA</button>
             </nav>
 
             <!-- Tab panels ---------------------------------------------- -->
@@ -133,39 +135,39 @@
                 <p class="results-intro" data-i18n="summary.validationResults">Validation results:</p>
                 <ul id="checklist" class="checklist">
                     <li id="check-zip" class="check-item pending" data-label-i18n="checklist.zip.label" data-label-html-i18n="checklist.zip.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
+                        <span class="icon" aria-hidden="true">…</span>
                         <div><span class="label">Verifying ZIP archive integrity...</span><p class="details" role="alert"></p></div>
                     </li>
                     <li id="check-content-xml" class="check-item pending" data-label-i18n="checklist.contentXml.label" data-label-html-i18n="checklist.contentXml.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
+                        <span class="icon" aria-hidden="true">…</span>
                         <div><span class="label">Looking for manifest (<code>content.xml</code> / <code>contentv3.xml</code>)...</span><p class="details" role="alert"></p></div>
                     </li>
                     <li id="check-folders" class="check-item pending" data-label-i18n="checklist.folders.label" data-label-html-i18n="checklist.folders.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
+                        <span class="icon" aria-hidden="true">…</span>
                         <div><span class="label">Checking recommended resource folders...</span><p class="details" role="alert"></p></div>
                     </li>
                     <li id="check-xml-well-formed" class="check-item pending" data-label-i18n="checklist.xmlWellFormed.label" data-label-html-i18n="checklist.xmlWellFormed.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
+                        <span class="icon" aria-hidden="true">…</span>
                         <div><span class="label">Validating <code>content.xml</code> syntax...</span><p class="details" role="alert"></p></div>
                     </li>
                     <li id="check-root-element" class="check-item pending" data-label-i18n="checklist.rootElement.label" data-label-html-i18n="checklist.rootElement.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
+                        <span class="icon" aria-hidden="true">…</span>
                         <div><span class="label">Checking root element...</span><p class="details" role="alert"></p></div>
                     </li>
                     <li id="check-nav-structures" class="check-item pending" data-label-i18n="checklist.navStructures.label" data-label-html-i18n="checklist.navStructures.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
+                        <span class="icon" aria-hidden="true">…</span>
                         <div><span class="label">Verifying navigation structures...</span><p class="details" role="alert"></p></div>
                     </li>
                     <li id="check-pages" class="check-item pending" data-label-i18n="checklist.pages.label" data-label-html-i18n="checklist.pages.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
+                        <span class="icon" aria-hidden="true">…</span>
                         <div><span class="label">Checking for pages...</span><p class="details" role="alert"></p></div>
                     </li>
                     <li id="check-structure" class="check-item pending" data-label-i18n="checklist.structure.label" data-label-html-i18n="checklist.structure.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
+                        <span class="icon" aria-hidden="true">…</span>
                         <div><span class="label">Validating internal structure...</span><p class="details" role="alert"></p></div>
                     </li>
                     <li id="check-resources" class="check-item pending" data-label-i18n="checklist.resources.label" data-label-html-i18n="checklist.resources.labelHtml">
-                        <span class="icon" aria-hidden="true">⏳</span>
+                        <span class="icon" aria-hidden="true">…</span>
                         <div><span class="label">Checking linked resources...</span><p class="details" role="alert"></p></div>
                     </li>
                 </ul>

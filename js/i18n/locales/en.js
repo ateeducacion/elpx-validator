@@ -60,7 +60,7 @@
             idevices: 'iDevices',
             assets: 'Assets',
             preview: 'Preview',
-            edia: '🎓 EDIA Validation'
+            edia: 'EDIA'
         },
         upload: {
             ariaLabel: 'Upload .elp, .elpx, or .zip file',
@@ -194,7 +194,7 @@
             empty: 'No findings to display.',
             filteredEmpty: 'No findings match the current filters.',
             location: 'Location',
-            suggestionPrefix: '💡 ',
+            suggestionPrefix: '→ ',
             PKG001: { message: 'Invalid ZIP archive' },
             PKG002: { message: 'Missing content.xml manifest' },
             PKG003: { message: 'Missing content.dtd' },
@@ -318,8 +318,8 @@
             hero: {
                 title: 'EDIA Quality Dashboard',
                 subtitleHtml: 'This dashboard evaluates your eXeLearning resource against the <strong>EDIA / CEDEC</strong> open educational resource quality checklist. Some criteria are checked automatically from the package; others require human judgement and are flagged for manual review.',
-                checklistLink: '🌐 EDIA Checklist (CEDEC)',
-                rubricLink: '📄 Download EDIA Rubric (PDF)'
+                checklistLink: 'EDIA Checklist (CEDEC)',
+                rubricLink: 'Download EDIA Rubric (PDF)'
             },
             legend: {
                 ariaLabel: 'Status colour legend',
@@ -350,7 +350,7 @@
             },
             labels: {
                 detected: 'Detected:',
-                recommendationPrefix: '💡'
+                recommendationPrefix: '→'
             },
             noFile: {
                 textHtml: 'Load an <strong>.elpx</strong> or <strong>.elp</strong> file using the upload area above to see your personalized EDIA quality assessment.',
