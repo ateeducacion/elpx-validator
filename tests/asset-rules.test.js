@@ -567,3 +567,61 @@ describe('Orphaned asset classification', () => {
         expect(findings.some((f) => f.code === 'ASSET002')).toBe(true);
     });
 });
+
+describe('references that are not files of the package', () => {
+    const asset = (path) => ({
+        path: path,
+        normalizedPath: path.toLowerCase(),
+        referenced: false,
+        referencedBy: [],
+        isAssetDir: true
+    });
+    const modelWith = (htmlView) => ({
+        pages: [
+            {
+                odePageId: 'p1',
+                blocks: [
+                    { odeBlockId: 'b1', components: [{ odeIdeviceId: 'i1', htmlView: htmlView, jsonProperties: '' }] }
+                ]
+            }
+        ]
+    });
+
+    test('URLs are not looked for in the ZIP', () => {
+        const html =
+            '<img src="https://example.org/a.jpg"><img src="//cdn.example.org/b.png"><img src="data:image/png;base64,AAAA">';
+        const { referencesByPath } = extractReferences(modelWith(html));
+        expect(Object.keys(referencesByPath)).toEqual([]);
+    });
+
+    test('a reference by the old per-asset folder finds the file in content/resources/', () => {
+        const refs = {
+            'content/resources/20250605150704WPLCGC/cow.svg': [{ source: {}, sourceType: 'htmlView', rawPath: 'x' }]
+        };
+        const assets = [asset('content/resources/cow.svg')];
+        const { findings } = validateAssets(assets, refs);
+        expect(findings.map((f) => f.code)).not.toContain('ASSET001');
+        expect(assets[0].referenced).toBe(true);
+    });
+
+    test('only files under content/resources/ are reported as orphaned', () => {
+        const assets = [
+            asset('idevices/map/map.js'),
+            asset('theme/config.xml'),
+            asset('libs/exe_math/tex.js'),
+            asset('content/resources/unused.png')
+        ];
+        const orphaned = validateAssets(assets, {}).findings.filter((f) => f.code === 'ASSET002');
+        expect(orphaned.map((f) => f.location.path)).toEqual(['content/resources/unused.png']);
+    });
+
+    test("a file named only by a bundled iDevice stylesheet is not the author's missing asset", () => {
+        const ref = (sourceType, source) => [{ source: source, sourceType: sourceType, rawPath: 'x' }];
+        const refs = {
+            'idevices/trivial/video.png': ref('css', { cssFile: 'idevices/trivial/trivial.css' }),
+            'content/resources/photo.png': ref('css', { cssFile: 'content/css/custom.css' })
+        };
+        const missing = validateAssets([], refs).findings.filter((f) => f.code === 'ASSET001');
+        expect(missing.map((f) => f.evidence.path)).toEqual(['content/resources/photo.png']);
+    });
+});

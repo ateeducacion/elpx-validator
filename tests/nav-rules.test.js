@@ -249,28 +249,14 @@ describe('Metadata validation', () => {
 });
 
 describe('META003 eXeVersion aliases', () => {
-    test('accepts exe_version as alias', () => {
+    // exe_version is the key eXeLearning writes today; the alias is not something to report.
+    test.each(['exe_version', 'pp_exelearning_version'])('%s counts as the version key', (key) => {
         const findings = validateIdFormats({
             odeId: '20251125215855LURLBW',
             odeVersionId: '20251125220103ABCXYZ',
-            exe_version: '3.0'
+            [key]: '3.0'
         });
-        // Should not produce a fully missing META003
-        const meta003 = findings.filter((f) => f.code === 'META003');
-        // Should detect the alias and note it
-        expect(meta003.length).toBe(1);
-        expect(meta003[0].details).toContain('exe_version');
-    });
-
-    test('accepts pp_exelearning_version as alias', () => {
-        const findings = validateIdFormats({
-            odeId: '20251125215855LURLBW',
-            odeVersionId: '20251125220103ABCXYZ',
-            pp_exelearning_version: '3.0.1'
-        });
-        const meta003 = findings.filter((f) => f.code === 'META003');
-        expect(meta003.length).toBe(1);
-        expect(meta003[0].details).toContain('pp_exelearning_version');
+        expect(findings.filter((f) => f.code === 'META003')).toEqual([]);
     });
 
     test('no META003 when eXeVersion is present', () => {

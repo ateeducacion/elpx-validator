@@ -42,7 +42,7 @@ describe('iDevice registry', () => {
 
     test('allKnownTypes returns all types', () => {
         const types = allKnownTypes();
-        expect(types.length).toBe(27);
+        expect(types.length).toBe(59);
         expect(types).toContain('text');
         expect(types).toContain('crossword');
         expect(types).toContain('download-source-file');
@@ -95,5 +95,63 @@ describe('iDevice registry', () => {
         const result = lookupOrLocal('text', zipFiles);
         expect(result.known).toBe(true);
         expect(result.status).toBe('deep-validated');
+    });
+
+    // The folder names under public/files/perm/idevices/base in the eXeLearning repository.
+    test.each([
+        '3dmol',
+        'adaptative-quiz',
+        'az-quiz-game',
+        'beforeafter',
+        'casestudy',
+        'challenge',
+        'checklist',
+        'classify',
+        'complete',
+        'crossword',
+        'digcompedu',
+        'discover',
+        'download-source-file',
+        'dragdrop',
+        'electrical-circuits',
+        'example',
+        'external-website',
+        'file-attachment',
+        'flipcards',
+        'form',
+        'geogebra-activity',
+        'guess',
+        'hidden-image',
+        'identify',
+        'image-gallery',
+        'interactive-video',
+        'lomloe',
+        'magnifier',
+        'map',
+        'markdown-text',
+        'mathematicaloperations',
+        'mathproblems',
+        'padlock',
+        'periodic-table',
+        'progress-report',
+        'puzzle',
+        'quick-questions',
+        'quick-questions-multiple-choice',
+        'quick-questions-video',
+        'relate',
+        'rubric',
+        'scrambled-list',
+        'select-media-files',
+        'slide',
+        'sort',
+        'text',
+        'three-d-viewer',
+        'three-sixty-viewer',
+        'trivial',
+        'trueorfalse',
+        'udl-content',
+        'word-search'
+    ])('knows the base iDevice %s', (type) => {
+        expect(lookup(type).known).toBe(true);
     });
 });

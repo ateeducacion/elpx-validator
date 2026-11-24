@@ -538,22 +538,6 @@
                     suggestion: 'This key identifies which eXeLearning version created the package.'
                 })
             );
-        } else if (!resources.eXeVersion) {
-            // Found under an alias name — show the detected value
-            var detectedKey = resources.exe_version ? 'exe_version' : 'pp_exelearning_version';
-            var detectedValue = resources.exe_version || resources.pp_exelearning_version;
-            findings.push(
-                createFinding('META003', {
-                    details:
-                        'eXeVersion key not found, but detected "' +
-                        detectedKey +
-                        '" with value "' +
-                        detectedValue +
-                        '".',
-                    evidence: { detectedKey: detectedKey, detectedValue: detectedValue },
-                    suggestion: 'The package uses an alternative key name for the eXe version. This is acceptable.'
-                })
-            );
         }
 
         return findings;
