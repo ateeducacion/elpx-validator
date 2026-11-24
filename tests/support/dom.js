@@ -9,7 +9,13 @@ const { window } = new JSDOM('<!doctype html><html><head></head><body></body></h
 
 for (const name of Object.getOwnPropertyNames(window)) {
     if (name in globalThis) continue;
-    Object.defineProperty(globalThis, name, { configurable: true, get: () => window[name], set: (v) => { window[name] = v; } });
+    Object.defineProperty(globalThis, name, {
+        configurable: true,
+        get: () => window[name],
+        set: (v) => {
+            window[name] = v;
+        }
+    });
 }
 // Bun and Node have their own of these; the web code must see the page's.
 for (const name of ['navigator', 'localStorage', 'Event', 'CustomEvent', 'Blob', 'File', 'URL']) {

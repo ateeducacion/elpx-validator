@@ -49,8 +49,12 @@ function elpx(files) {
 function run(argv, env) {
     const out = { stdout: '', stderr: '' };
     return main(argv, {
-        stdout: (text) => { out.stdout += text; },
-        stderr: (text) => { out.stderr += text; },
+        stdout: (text) => {
+            out.stdout += text;
+        },
+        stderr: (text) => {
+            out.stderr += text;
+        },
         env: env || {},
         color: false
     }).then((code) => Object.assign(out, { code }));
@@ -122,7 +126,8 @@ describe('elpx-validator CLI', () => {
 
     test('a legacy .elp is recognised: metadata only, with a compatibility note', async () => {
         const legacy = path.join(dir, 'old.elp');
-        const xml = '<instance><dictionary><string value="_title"/><unicode value="Curso antiguo"/></dictionary></instance>';
+        const xml =
+            '<instance><dictionary><string value="_title"/><unicode value="Curso antiguo"/></dictionary></instance>';
         fs.writeFileSync(legacy, await elpx({ 'contentv3.xml': xml }));
         const report = JSON.parse((await run([legacy, '--json'])).stdout);
         expect(report.format).toBe('elp');
@@ -174,7 +179,14 @@ describe('elpx-validator CLI', () => {
 
     test('colours only when the terminal takes them', async () => {
         let stdout = '';
-        const io = { stdout: (text) => { stdout += text; }, stderr: () => {}, env: {}, color: true };
+        const io = {
+            stdout: (text) => {
+                stdout += text;
+            },
+            stderr: () => {},
+            env: {},
+            color: true
+        };
         await main([broken], io);
         expect(stdout).toContain('\x1b[31m');
         stdout = '';
@@ -186,7 +198,10 @@ describe('elpx-validator CLI', () => {
         const bin = path.resolve(__dirname, '../bin/elpx-validator.js');
         const run = (args) => {
             try {
-                return { status: 0, stdout: execFileSync(process.execPath, [bin].concat(args), { encoding: 'utf8', stdio: 'pipe' }) };
+                return {
+                    status: 0,
+                    stdout: execFileSync(process.execPath, [bin].concat(args), { encoding: 'utf8', stdio: 'pipe' })
+                };
             } catch (error) {
                 return { status: error.status, stdout: error.stdout, stderr: error.stderr };
             }

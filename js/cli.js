@@ -87,7 +87,9 @@ async function validateBuffer(data, options) {
     if (options && options.edia) {
         const criteria = require('./edia/edia-criteria').evaluateEdiaCriteria(report);
         result.edia = { green: 0, orange: 0, red: 0, criteria: criteria };
-        criteria.forEach((c) => { result.edia[c.status]++; });
+        criteria.forEach((c) => {
+            result.edia[c.status]++;
+        });
     }
     return result;
 }
@@ -104,21 +106,28 @@ function renderText(file, result, opts) {
     ];
     ['error', 'warning', 'info'].forEach((severity) => {
         if (severity === 'info' && !opts.all) return;
-        result.findings.filter((f) => f.severity === severity).forEach((f) => {
-            lines.push('', `${paint(colors[severity], ui.severities[severity])}  ${f.code}  ${i18n.findingText(f, 'message')}`);
-            ['details', 'suggestion'].forEach((field) => {
-                const text = i18n.findingText(f, field);
-                if (text) lines.push(`       ${field === 'suggestion' ? '→ ' : ''}${text}`);
+        result.findings
+            .filter((f) => f.severity === severity)
+            .forEach((f) => {
+                lines.push(
+                    '',
+                    `${paint(colors[severity], ui.severities[severity])}  ${f.code}  ${i18n.findingText(f, 'message')}`
+                );
+                ['details', 'suggestion'].forEach((field) => {
+                    const text = i18n.findingText(f, field);
+                    if (text) lines.push(`       ${field === 'suggestion' ? '→ ' : ''}${text}`);
+                });
             });
-        });
     });
     if (result.edia) {
         lines.push('', ui.edia(result.edia));
-        result.edia.criteria.filter((c) => c.status !== 'green' && c.validationType !== 'manual').forEach((c) => {
-            const key = `edia.criteria.${c.id}.title`;
-            const title = i18n.t(key);
-            lines.push(`  ${c.status === 'red' ? '✗' : '?'} ${c.id}  ${title === key ? c.title : title}`);
-        });
+        result.edia.criteria
+            .filter((c) => c.status !== 'green' && c.validationType !== 'manual')
+            .forEach((c) => {
+                const key = `edia.criteria.${c.id}.title`;
+                const title = i18n.t(key);
+                lines.push(`  ${c.status === 'red' ? '✗' : '?'} ${c.id}  ${title === key ? c.title : title}`);
+            });
     }
     return lines.join('\n') + '\n';
 }
@@ -158,11 +167,15 @@ async function main(argv, io) {
         }
         const text = values.json
             ? JSON.stringify(results.length === 1 ? results[0] : results, null, 2) + '\n'
-            : results.map((r) => renderText(r.file, r, {
-                lang: lang,
-                all: values.all,
-                color: io.color && !values['no-color'] && !values.output
-            })).join('\n');
+            : results
+                  .map((r) =>
+                      renderText(r.file, r, {
+                          lang: lang,
+                          all: values.all,
+                          color: io.color && !values['no-color'] && !values.output
+                      })
+                  )
+                  .join('\n');
         if (values.output) fs.writeFileSync(values.output, text);
         else io.stdout(text);
 

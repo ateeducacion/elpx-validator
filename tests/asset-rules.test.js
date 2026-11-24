@@ -63,7 +63,7 @@ describe('Asset inventory', () => {
         };
         const assets = buildInventory(zipFiles);
         expect(assets.length).toBe(5); // 5 non-dir files
-        const photo = assets.find(a => a.path === 'content/resources/photo.jpg');
+        const photo = assets.find((a) => a.path === 'content/resources/photo.jpg');
         expect(photo).toBeTruthy();
         expect(photo.mimeType).toBe('image/jpeg');
         expect(photo.previewType).toBe('image');
@@ -74,17 +74,32 @@ describe('Asset inventory', () => {
 describe('Reference extraction', () => {
     test('extracts references from htmlView', () => {
         const model = {
-            pages: [{
-                odePageId: 'p1', pageName: 'Page', odeParentPageId: '', order: '1',
-                blocks: [{
-                    odeBlockId: 'b1', blockName: 'Block', components: [{
-                        odeIdeviceId: 'c1', odeIdeviceTypeName: 'text',
-                        odePageId: 'p1', odeBlockId: 'b1',
-                        htmlView: '<img src="content/resources/photo.jpg"><a href="content/resources/doc.pdf">link</a>',
-                        jsonProperties: '{}', order: '1'
-                    }]
-                }]
-            }]
+            pages: [
+                {
+                    odePageId: 'p1',
+                    pageName: 'Page',
+                    odeParentPageId: '',
+                    order: '1',
+                    blocks: [
+                        {
+                            odeBlockId: 'b1',
+                            blockName: 'Block',
+                            components: [
+                                {
+                                    odeIdeviceId: 'c1',
+                                    odeIdeviceTypeName: 'text',
+                                    odePageId: 'p1',
+                                    odeBlockId: 'b1',
+                                    htmlView:
+                                        '<img src="content/resources/photo.jpg"><a href="content/resources/doc.pdf">link</a>',
+                                    jsonProperties: '{}',
+                                    order: '1'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         };
         const { referencesByPath } = extractReferences(model);
         expect(Object.keys(referencesByPath)).toContain('content/resources/photo.jpg');
@@ -93,18 +108,32 @@ describe('Reference extraction', () => {
 
     test('extracts references from jsonProperties', () => {
         const model = {
-            pages: [{
-                odePageId: 'p1', pageName: 'Page', odeParentPageId: '', order: '1',
-                blocks: [{
-                    odeBlockId: 'b1', blockName: 'Block', components: [{
-                        odeIdeviceId: 'c1', odeIdeviceTypeName: 'text',
-                        odePageId: 'p1', odeBlockId: 'b1',
-                        htmlView: '',
-                        jsonProperties: '{"image":"content/resources/bg.png","nested":{"file":"content/resources/a.mp3"}}',
-                        order: '1'
-                    }]
-                }]
-            }]
+            pages: [
+                {
+                    odePageId: 'p1',
+                    pageName: 'Page',
+                    odeParentPageId: '',
+                    order: '1',
+                    blocks: [
+                        {
+                            odeBlockId: 'b1',
+                            blockName: 'Block',
+                            components: [
+                                {
+                                    odeIdeviceId: 'c1',
+                                    odeIdeviceTypeName: 'text',
+                                    odePageId: 'p1',
+                                    odeBlockId: 'b1',
+                                    htmlView: '',
+                                    jsonProperties:
+                                        '{"image":"content/resources/bg.png","nested":{"file":"content/resources/a.mp3"}}',
+                                    order: '1'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         };
         const { referencesByPath } = extractReferences(model);
         expect(Object.keys(referencesByPath)).toContain('content/resources/bg.png');
@@ -113,17 +142,31 @@ describe('Reference extraction', () => {
 
     test('handles {{context_path}} in references', () => {
         const model = {
-            pages: [{
-                odePageId: 'p1', pageName: 'Page', odeParentPageId: '', order: '1',
-                blocks: [{
-                    odeBlockId: 'b1', blockName: 'Block', components: [{
-                        odeIdeviceId: 'c1', odeIdeviceTypeName: 'text',
-                        odePageId: 'p1', odeBlockId: 'b1',
-                        htmlView: '<img src="{{context_path}}/content/resources/photo.jpg">',
-                        jsonProperties: '{}', order: '1'
-                    }]
-                }]
-            }]
+            pages: [
+                {
+                    odePageId: 'p1',
+                    pageName: 'Page',
+                    odeParentPageId: '',
+                    order: '1',
+                    blocks: [
+                        {
+                            odeBlockId: 'b1',
+                            blockName: 'Block',
+                            components: [
+                                {
+                                    odeIdeviceId: 'c1',
+                                    odeIdeviceTypeName: 'text',
+                                    odePageId: 'p1',
+                                    odeBlockId: 'b1',
+                                    htmlView: '<img src="{{context_path}}/content/resources/photo.jpg">',
+                                    jsonProperties: '{}',
+                                    order: '1'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         };
         const { referencesByPath } = extractReferences(model);
         expect(Object.keys(referencesByPath)).toContain('content/resources/photo.jpg');
@@ -132,26 +175,46 @@ describe('Reference extraction', () => {
 
 describe('Asset validation', () => {
     test('flags missing referenced assets', () => {
-        const assets = [{ path: 'content/resources/a.png', normalizedPath: 'content/resources/a.png', referenced: false, referencedBy: [], isAssetDir: true }];
+        const assets = [
+            {
+                path: 'content/resources/a.png',
+                normalizedPath: 'content/resources/a.png',
+                referenced: false,
+                referencedBy: [],
+                isAssetDir: true
+            }
+        ];
         const refsByPath = { 'content/resources/missing.jpg': [{ sourceType: 'htmlView', source: {} }] };
         const { findings, assetSummary } = validateAssets(assets, refsByPath, {});
-        expect(findings.some(f => f.code === 'ASSET001')).toBe(true);
+        expect(findings.some((f) => f.code === 'ASSET001')).toBe(true);
         expect(assetSummary.missingAssets).toBe(1);
     });
 
     test('flags orphaned assets', () => {
         const assets = [
-            { path: 'content/resources/unused.png', normalizedPath: 'content/resources/unused.png', referenced: false, referencedBy: [], isAssetDir: true }
+            {
+                path: 'content/resources/unused.png',
+                normalizedPath: 'content/resources/unused.png',
+                referenced: false,
+                referencedBy: [],
+                isAssetDir: true
+            }
         ];
         const refsByPath = {};
         const { findings, assetSummary } = validateAssets(assets, refsByPath, {});
-        expect(findings.some(f => f.code === 'ASSET002')).toBe(true);
+        expect(findings.some((f) => f.code === 'ASSET002')).toBe(true);
         expect(assetSummary.orphanedAssets).toBe(1);
     });
 
     test('marks referenced assets correctly', () => {
         const assets = [
-            { path: 'content/resources/used.png', normalizedPath: 'content/resources/used.png', referenced: false, referencedBy: [], isAssetDir: true }
+            {
+                path: 'content/resources/used.png',
+                normalizedPath: 'content/resources/used.png',
+                referenced: false,
+                referencedBy: [],
+                isAssetDir: true
+            }
         ];
         const refsByPath = { 'content/resources/used.png': [{ sourceType: 'htmlView', source: {} }] };
         const { assetSummary } = validateAssets(assets, refsByPath, {});
@@ -161,18 +224,28 @@ describe('Asset validation', () => {
 
     test('detects casing mismatches', () => {
         const assets = [
-            { path: 'content/resources/Photo.JPG', normalizedPath: 'content/resources/photo.jpg', referenced: false, referencedBy: [], isAssetDir: true }
+            {
+                path: 'content/resources/Photo.JPG',
+                normalizedPath: 'content/resources/photo.jpg',
+                referenced: false,
+                referencedBy: [],
+                isAssetDir: true
+            }
         ];
         const refsByPath = { 'content/resources/photo.jpg': [{ sourceType: 'htmlView', source: {} }] };
         const { findings } = validateAssets(assets, refsByPath, {});
-        expect(findings.some(f => f.code === 'ASSET005')).toBe(true);
+        expect(findings.some((f) => f.code === 'ASSET005')).toBe(true);
     });
 
     test('flags path traversal in references', () => {
         const assets = [];
-        const refsByPath = { '../../../etc/passwd': [{ sourceType: 'htmlView', source: {}, rawPath: '../../../etc/passwd', sourcePath: null }] };
+        const refsByPath = {
+            '../../../etc/passwd': [
+                { sourceType: 'htmlView', source: {}, rawPath: '../../../etc/passwd', sourcePath: null }
+            ]
+        };
         const { findings } = validateAssets(assets, refsByPath, {});
-        expect(findings.some(f => f.code === 'ASSET004')).toBe(true);
+        expect(findings.some((f) => f.code === 'ASSET004')).toBe(true);
     });
 });
 
@@ -261,69 +334,135 @@ describe('looksLikeAssetPath', () => {
 describe('Path traversal detection - context-aware', () => {
     test('../libs/common.js from html/foo.html is NOT path traversal', () => {
         const assets = [
-            { path: 'libs/common.js', normalizedPath: 'libs/common.js', referenced: false, referencedBy: [], isAssetDir: true }
+            {
+                path: 'libs/common.js',
+                normalizedPath: 'libs/common.js',
+                referenced: false,
+                referencedBy: [],
+                isAssetDir: true
+            }
         ];
-        const refsByPath = { 'libs/common.js': [{ sourceType: 'exportedHtml', source: { htmlFile: 'html/foo.html' }, rawPath: '../libs/common.js', sourcePath: 'html/foo.html' }] };
+        const refsByPath = {
+            'libs/common.js': [
+                {
+                    sourceType: 'exportedHtml',
+                    source: { htmlFile: 'html/foo.html' },
+                    rawPath: '../libs/common.js',
+                    sourcePath: 'html/foo.html'
+                }
+            ]
+        };
         const { findings } = validateAssets(assets, refsByPath, {});
-        expect(findings.some(f => f.code === 'ASSET004')).toBe(false);
+        expect(findings.some((f) => f.code === 'ASSET004')).toBe(false);
     });
 
     test('../../etc/passwd from html/foo.html IS path traversal', () => {
         const assets = [];
-        const refsByPath = { 'etc/passwd': [{ sourceType: 'exportedHtml', source: { htmlFile: 'html/foo.html' }, rawPath: '../../etc/passwd', sourcePath: 'html/foo.html' }] };
+        const refsByPath = {
+            'etc/passwd': [
+                {
+                    sourceType: 'exportedHtml',
+                    source: { htmlFile: 'html/foo.html' },
+                    rawPath: '../../etc/passwd',
+                    sourcePath: 'html/foo.html'
+                }
+            ]
+        };
         const { findings } = validateAssets(assets, refsByPath, {});
-        expect(findings.some(f => f.code === 'ASSET004')).toBe(true);
+        expect(findings.some((f) => f.code === 'ASSET004')).toBe(true);
     });
 
     test('../content/resources/a.jpg from html/page.html is NOT path traversal', () => {
         const assets = [
-            { path: 'content/resources/a.jpg', normalizedPath: 'content/resources/a.jpg', referenced: false, referencedBy: [], isAssetDir: true }
+            {
+                path: 'content/resources/a.jpg',
+                normalizedPath: 'content/resources/a.jpg',
+                referenced: false,
+                referencedBy: [],
+                isAssetDir: true
+            }
         ];
-        const refsByPath = { 'content/resources/a.jpg': [{ sourceType: 'exportedHtml', source: { htmlFile: 'html/page.html' }, rawPath: '../content/resources/a.jpg', sourcePath: 'html/page.html' }] };
+        const refsByPath = {
+            'content/resources/a.jpg': [
+                {
+                    sourceType: 'exportedHtml',
+                    source: { htmlFile: 'html/page.html' },
+                    rawPath: '../content/resources/a.jpg',
+                    sourcePath: 'html/page.html'
+                }
+            ]
+        };
         const { findings } = validateAssets(assets, refsByPath, {});
-        expect(findings.some(f => f.code === 'ASSET004')).toBe(false);
+        expect(findings.some((f) => f.code === 'ASSET004')).toBe(false);
     });
 });
 
 describe('JSON extraction - HTML embedded strings', () => {
     test('extracts src from HTML embedded in JSON, not the whole string', () => {
         const model = {
-            pages: [{
-                odePageId: 'p1', pageName: 'Page', odeParentPageId: '', order: '1',
-                blocks: [{
-                    odeBlockId: 'b1', blockName: 'Block', components: [{
-                        odeIdeviceId: 'c1', odeIdeviceTypeName: 'text',
-                        odePageId: 'p1', odeBlockId: 'b1',
-                        htmlView: '',
-                        jsonProperties: '{"text":"<h2>Title</h2><img src=\\"content/resources/photo.jpg\\"><p>Description</p>"}',
-                        order: '1'
-                    }]
-                }]
-            }]
+            pages: [
+                {
+                    odePageId: 'p1',
+                    pageName: 'Page',
+                    odeParentPageId: '',
+                    order: '1',
+                    blocks: [
+                        {
+                            odeBlockId: 'b1',
+                            blockName: 'Block',
+                            components: [
+                                {
+                                    odeIdeviceId: 'c1',
+                                    odeIdeviceTypeName: 'text',
+                                    odePageId: 'p1',
+                                    odeBlockId: 'b1',
+                                    htmlView: '',
+                                    jsonProperties:
+                                        '{"text":"<h2>Title</h2><img src=\\"content/resources/photo.jpg\\"><p>Description</p>"}',
+                                    order: '1'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         };
         const { referencesByPath } = extractReferences(model);
         // Should extract the image path, not the whole HTML blob
         expect(Object.keys(referencesByPath)).toContain('content/resources/photo.jpg');
         // Ensure the full HTML string was NOT added as a reference
         const allPaths = Object.keys(referencesByPath);
-        const longPaths = allPaths.filter(p => p.length > 100);
+        const longPaths = allPaths.filter((p) => p.length > 100);
         expect(longPaths.length).toBe(0);
     });
 
     test('ignores plain text mentioning content/ in JSON', () => {
         const model = {
-            pages: [{
-                odePageId: 'p1', pageName: 'Page', odeParentPageId: '', order: '1',
-                blocks: [{
-                    odeBlockId: 'b1', blockName: 'Block', components: [{
-                        odeIdeviceId: 'c1', odeIdeviceTypeName: 'text',
-                        odePageId: 'p1', odeBlockId: 'b1',
-                        htmlView: '',
-                        jsonProperties: '{"description":"The content/resources directory stores images"}',
-                        order: '1'
-                    }]
-                }]
-            }]
+            pages: [
+                {
+                    odePageId: 'p1',
+                    pageName: 'Page',
+                    odeParentPageId: '',
+                    order: '1',
+                    blocks: [
+                        {
+                            odeBlockId: 'b1',
+                            blockName: 'Block',
+                            components: [
+                                {
+                                    odeIdeviceId: 'c1',
+                                    odeIdeviceTypeName: 'text',
+                                    odePageId: 'p1',
+                                    odeBlockId: 'b1',
+                                    htmlView: '',
+                                    jsonProperties: '{"description":"The content/resources directory stores images"}',
+                                    order: '1'
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         };
         const { referencesByPath } = extractReferences(model);
         // The description text should NOT be treated as a path
@@ -335,7 +474,8 @@ describe('CSS reference extraction', () => {
     test('extracts url() references from CSS', () => {
         const model = { pages: [] };
         const cssContents = {
-            'theme/style.css': 'body { background: url(img/icons.png); } .logo { background-image: url("img/licenses.gif"); }'
+            'theme/style.css':
+                'body { background: url(img/icons.png); } .logo { background-image: url("img/licenses.gif"); }'
         };
         const { referencesByPath } = extractReferences(model, {}, cssContents);
         expect(Object.keys(referencesByPath)).toContain('theme/img/icons.png');
@@ -354,7 +494,8 @@ describe('CSS reference extraction', () => {
     test('skips data URIs and absolute URLs in CSS', () => {
         const model = { pages: [] };
         const cssContents = {
-            'theme/style.css': 'body { background: url(data:image/png;base64,abc); } a { background: url(https://example.com/img.png); }'
+            'theme/style.css':
+                'body { background: url(data:image/png;base64,abc); } a { background: url(https://example.com/img.png); }'
         };
         const { referencesByPath } = extractReferences(model, {}, cssContents);
         expect(Object.keys(referencesByPath).length).toBe(0);
@@ -364,33 +505,65 @@ describe('CSS reference extraction', () => {
 describe('Orphaned asset classification', () => {
     test('skips .map files from orphaned check', () => {
         const assets = [
-            { path: 'libs/some.js.map', normalizedPath: 'libs/some.js.map', referenced: false, referencedBy: [], isAssetDir: true, extension: '.map', mimeType: 'application/octet-stream' }
+            {
+                path: 'libs/some.js.map',
+                normalizedPath: 'libs/some.js.map',
+                referenced: false,
+                referencedBy: [],
+                isAssetDir: true,
+                extension: '.map',
+                mimeType: 'application/octet-stream'
+            }
         ];
         const { findings } = validateAssets(assets, {}, {});
-        expect(findings.some(f => f.code === 'ASSET002')).toBe(false);
+        expect(findings.some((f) => f.code === 'ASSET002')).toBe(false);
     });
 
     test('skips theme/icons/ from orphaned check', () => {
         const assets = [
-            { path: 'theme/icons/arrow.png', normalizedPath: 'theme/icons/arrow.png', referenced: false, referencedBy: [], isAssetDir: true, extension: '.png', mimeType: 'image/png' }
+            {
+                path: 'theme/icons/arrow.png',
+                normalizedPath: 'theme/icons/arrow.png',
+                referenced: false,
+                referencedBy: [],
+                isAssetDir: true,
+                extension: '.png',
+                mimeType: 'image/png'
+            }
         ];
         const { findings } = validateAssets(assets, {}, {});
-        expect(findings.some(f => f.code === 'ASSET002')).toBe(false);
+        expect(findings.some((f) => f.code === 'ASSET002')).toBe(false);
     });
 
     test('skips idevice template HTML from orphaned check', () => {
         const assets = [
-            { path: 'idevices/text/text.html', normalizedPath: 'idevices/text/text.html', referenced: false, referencedBy: [], isAssetDir: true, extension: '.html', mimeType: 'text/html' }
+            {
+                path: 'idevices/text/text.html',
+                normalizedPath: 'idevices/text/text.html',
+                referenced: false,
+                referencedBy: [],
+                isAssetDir: true,
+                extension: '.html',
+                mimeType: 'text/html'
+            }
         ];
         const { findings } = validateAssets(assets, {}, {});
-        expect(findings.some(f => f.code === 'ASSET002')).toBe(false);
+        expect(findings.some((f) => f.code === 'ASSET002')).toBe(false);
     });
 
     test('still flags orphaned content/resources files', () => {
         const assets = [
-            { path: 'content/resources/unused.png', normalizedPath: 'content/resources/unused.png', referenced: false, referencedBy: [], isAssetDir: true, extension: '.png', mimeType: 'image/png' }
+            {
+                path: 'content/resources/unused.png',
+                normalizedPath: 'content/resources/unused.png',
+                referenced: false,
+                referencedBy: [],
+                isAssetDir: true,
+                extension: '.png',
+                mimeType: 'image/png'
+            }
         ];
         const { findings } = validateAssets(assets, {}, {});
-        expect(findings.some(f => f.code === 'ASSET002')).toBe(true);
+        expect(findings.some((f) => f.code === 'ASSET002')).toBe(true);
     });
 });

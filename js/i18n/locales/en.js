@@ -12,7 +12,8 @@
             title: 'elpx-validator — eXeLearning package validator',
             tagline: 'Validates eXeLearning packages. The files never leave your computer.',
             heading: 'Is your eXeLearning package valid?',
-            subtitleHtml: 'Check the structure, navigation, iDevices and assets of your <code>.elpx</code> or <code>.elp</code> projects.'
+            subtitleHtml:
+                'Check the structure, navigation, iDevices and assets of your <code>.elpx</code> or <code>.elp</code> projects.'
         },
         common: {
             language: 'Language',
@@ -35,11 +36,13 @@
         },
         shell: {
             cliTitle: 'From the terminal',
-            cliIntro: 'The same validation as a command, with Node.js 22 or later. Nothing to install: npx downloads it the first time.',
+            cliIntro:
+                'The same validation as a command, with Node.js 22 or later. Nothing to install: npx downloads it the first time.',
             cliStrict: 'Fail on warnings too (for CI)',
             cliJson: 'Full report as JSON, with the EDIA criteria',
             skillTitle: 'Skill for AI assistants',
-            skillIntro: 'An Agent Skill that teaches assistants such as Claude Code or Copilot to validate .elpx packages and explain the findings.',
+            skillIntro:
+                'An Agent Skill that teaches assistants such as Claude Code or Copilot to validate .elpx packages and explain the findings.',
             skillNpx: 'With npx skills',
             skillGh: 'With the GitHub CLI',
             skillNote: 'The skill uses the elpx-validator command line through npx.',
@@ -48,10 +51,12 @@
             copied: 'Copied',
             close: 'Close',
             licensesTitle: 'Licenses and credits',
-            licensesIntro: 'elpx-validator is free software: you may use, study, modify and share it under the GNU Affero General Public License, version 3 or later.',
+            licensesIntro:
+                'elpx-validator is free software: you may use, study, modify and share it under the GNU Affero General Public License, version 3 or later.',
             licensesApp: 'elpx-validator license (AGPL-3.0)',
             licensesComponents: 'Bundled components',
-            licensesAte: 'The ATE logo belongs to the Educational Technology Area of the Government of the Canary Islands.'
+            licensesAte:
+                'The ATE logo belongs to the Educational Technology Area of the Government of the Canary Islands.'
         },
         tabs: {
             overview: 'Overview',
@@ -64,7 +69,8 @@
         },
         upload: {
             ariaLabel: 'Upload .elp, .elpx, or .zip file',
-            titleHtml: 'Drag & drop your <strong>.elp</strong>, <strong>.elpx</strong>, or <strong>.zip</strong> file here',
+            titleHtml:
+                'Drag & drop your <strong>.elp</strong>, <strong>.elpx</strong>, or <strong>.zip</strong> file here',
             subtitle: 'or click to choose a file from your device'
         },
         summary: {
@@ -103,7 +109,8 @@
             contentXml: {
                 label: 'Looking for manifest',
                 labelHtml: 'Looking for manifest (<code>content.xml</code> / <code>contentv3.xml</code>)',
-                legacyFound: 'content.xml is missing, but legacy contentv3.xml was found. This package was created with an eXeLearning version earlier than 3.0.',
+                legacyFound:
+                    'content.xml is missing, but legacy contentv3.xml was found. This package was created with an eXeLearning version earlier than 3.0.',
                 found: 'Found content.xml in the package.',
                 missing: 'Neither content.xml nor legacy contentv3.xml were found.',
                 validationFailed: 'Validation failed: {message}'
@@ -129,14 +136,16 @@
                 label: 'Looking for navigation structure',
                 labelHtml: 'Verifying navigation structures',
                 success: 'Navigation structures found.',
-                skipped: 'Skipped: legacy eXeLearning manifests (contentv3.xml) do not expose modern navigation structures.'
+                skipped:
+                    'Skipped: legacy eXeLearning manifests (contentv3.xml) do not expose modern navigation structures.'
             },
             pages: {
                 label: 'Checking for pages',
                 labelHtml: 'Checking for pages',
                 found: 'Found {count} {pageLabel}.',
                 empty: 'No pages found. The project appears empty.',
-                skipped: 'Skipped: legacy eXeLearning manifests (contentv3.xml) do not expose modern navigation structures.'
+                skipped:
+                    'Skipped: legacy eXeLearning manifests (contentv3.xml) do not expose modern navigation structures.'
             },
             structure: {
                 label: 'Validating internal structure',
@@ -317,7 +326,8 @@
             tabAriaLabel: 'Validation sections',
             hero: {
                 title: 'EDIA Quality Dashboard',
-                subtitleHtml: 'This dashboard evaluates your eXeLearning resource against the <strong>EDIA / CEDEC</strong> open educational resource quality checklist. Some criteria are checked automatically from the package; others require human judgement and are flagged for manual review.',
+                subtitleHtml:
+                    'This dashboard evaluates your eXeLearning resource against the <strong>EDIA / CEDEC</strong> open educational resource quality checklist. Some criteria are checked automatically from the package; others require human judgement and are flagged for manual review.',
                 checklistLink: 'EDIA Checklist (CEDEC)',
                 rubricLink: 'Download EDIA Rubric (PDF)'
             },
@@ -353,8 +363,10 @@
                 recommendationPrefix: '→'
             },
             noFile: {
-                textHtml: 'Load an <strong>.elpx</strong> or <strong>.elp</strong> file using the upload area above to see your personalized EDIA quality assessment.',
-                subtext: 'The criteria below are shown with placeholder statuses. They will update automatically once a file has been loaded.'
+                textHtml:
+                    'Load an <strong>.elpx</strong> or <strong>.elp</strong> file using the upload area above to see your personalized EDIA quality assessment.',
+                subtext:
+                    'The criteria below are shown with placeholder statuses. They will update automatically once a file has been loaded.'
             },
             sections: {
                 cover: 'Cover / Identification',

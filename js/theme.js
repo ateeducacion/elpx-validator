@@ -20,7 +20,9 @@
     }
 
     function normalizeTheme(value) {
-        var theme = String(value || '').trim().toLowerCase();
+        var theme = String(value || '')
+            .trim()
+            .toLowerCase();
         return themes[theme] ? theme : 'light';
     }
 

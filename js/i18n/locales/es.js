@@ -12,7 +12,8 @@
             title: 'elpx-validator — validador de paquetes eXeLearning',
             tagline: 'Validador de paquetes eXeLearning. Los archivos no salen de tu equipo.',
             heading: '¿Es válido tu paquete de eXeLearning?',
-            subtitleHtml: 'Comprueba la estructura, la navegación, los iDevices y los recursos de tus proyectos <code>.elpx</code> o <code>.elp</code>.'
+            subtitleHtml:
+                'Comprueba la estructura, la navegación, los iDevices y los recursos de tus proyectos <code>.elpx</code> o <code>.elp</code>.'
         },
         common: {
             language: 'Idioma',
@@ -35,11 +36,13 @@
         },
         shell: {
             cliTitle: 'Desde la terminal',
-            cliIntro: 'La misma validación como orden, con Node.js 22 o posterior. No hay que instalar nada: npx lo descarga la primera vez.',
+            cliIntro:
+                'La misma validación como orden, con Node.js 22 o posterior. No hay que instalar nada: npx lo descarga la primera vez.',
             cliStrict: 'Fallar también con advertencias (para CI)',
             cliJson: 'Informe completo en JSON, con los criterios EDIA',
             skillTitle: 'Skill para asistentes de IA',
-            skillIntro: 'Una Agent Skill que enseña a asistentes como Claude Code o Copilot a validar paquetes .elpx y explicar los hallazgos.',
+            skillIntro:
+                'Una Agent Skill que enseña a asistentes como Claude Code o Copilot a validar paquetes .elpx y explicar los hallazgos.',
             skillNpx: 'Con npx skills',
             skillGh: 'Con GitHub CLI',
             skillNote: 'La skill usa la línea de órdenes de elpx-validator a través de npx.',
@@ -48,7 +51,8 @@
             copied: 'Copiado',
             close: 'Cerrar',
             licensesTitle: 'Licencias y créditos',
-            licensesIntro: 'elpx-validator es software libre: puedes usarlo, estudiarlo, modificarlo y compartirlo según la licencia GNU Affero General Public License, versión 3 o posterior.',
+            licensesIntro:
+                'elpx-validator es software libre: puedes usarlo, estudiarlo, modificarlo y compartirlo según la licencia GNU Affero General Public License, versión 3 o posterior.',
             licensesApp: 'Licencia de elpx-validator (AGPL-3.0)',
             licensesComponents: 'Componentes incluidos',
             licensesAte: 'El logotipo del ATE es propiedad del Área de Tecnología Educativa del Gobierno de Canarias.'
@@ -103,7 +107,8 @@
             contentXml: {
                 label: 'Buscando el manifiesto',
                 labelHtml: 'Buscando el manifiesto (<code>content.xml</code> / <code>contentv3.xml</code>)',
-                legacyFound: 'Falta content.xml, pero se encontró el archivo heredado contentv3.xml. Este paquete fue creado con una versión de eXeLearning anterior a la 3.0.',
+                legacyFound:
+                    'Falta content.xml, pero se encontró el archivo heredado contentv3.xml. Este paquete fue creado con una versión de eXeLearning anterior a la 3.0.',
                 found: 'Se encontró content.xml en el paquete.',
                 missing: 'No se encontraron ni content.xml ni el archivo heredado contentv3.xml.',
                 validationFailed: 'La validación falló: {message}'
@@ -129,14 +134,16 @@
                 label: 'Buscando la estructura de navegación',
                 labelHtml: 'Verificando las estructuras de navegación',
                 success: 'Se encontraron estructuras de navegación.',
-                skipped: 'Omitido: los manifiestos heredados de eXeLearning (contentv3.xml) no exponen estructuras de navegación modernas.'
+                skipped:
+                    'Omitido: los manifiestos heredados de eXeLearning (contentv3.xml) no exponen estructuras de navegación modernas.'
             },
             pages: {
                 label: 'Comprobando si hay páginas',
                 labelHtml: 'Comprobando si hay páginas',
                 found: 'Se encontraron {count} {pageLabel}.',
                 empty: 'No se encontraron páginas. El proyecto parece estar vacío.',
-                skipped: 'Omitido: los manifiestos heredados de eXeLearning (contentv3.xml) no exponen estructuras de navegación modernas.'
+                skipped:
+                    'Omitido: los manifiestos heredados de eXeLearning (contentv3.xml) no exponen estructuras de navegación modernas.'
             },
             structure: {
                 label: 'Validando la estructura interna',
@@ -144,7 +151,8 @@
                 error: 'Se encontraron {count} {issueLabel} estructurales. Consulta la pestaña Hallazgos para más detalles.',
                 warning: '{count} {warningLabel} estructurales. Consulta la pestaña Hallazgos.',
                 success: 'La estructura XML interna coincide con el diseño esperado.',
-                skipped: 'Omitido: el diseño del manifiesto heredado no es compatible con las reglas estructurales modernas.'
+                skipped:
+                    'Omitido: el diseño del manifiesto heredado no es compatible con las reglas estructurales modernas.'
             },
             resources: {
                 label: 'Comprobando los recursos enlazados',
@@ -317,7 +325,8 @@
             tabAriaLabel: 'Secciones de validación',
             hero: {
                 title: 'Panel de calidad EDIA',
-                subtitleHtml: 'Este panel evalúa tu recurso de eXeLearning con la lista de verificación de calidad de recursos educativos abiertos de <strong>EDIA / CEDEC</strong>. Algunos criterios se comprueban automáticamente a partir del paquete; otros requieren juicio humano y se marcan para revisión manual.',
+                subtitleHtml:
+                    'Este panel evalúa tu recurso de eXeLearning con la lista de verificación de calidad de recursos educativos abiertos de <strong>EDIA / CEDEC</strong>. Algunos criterios se comprueban automáticamente a partir del paquete; otros requieren juicio humano y se marcan para revisión manual.',
                 checklistLink: 'Lista EDIA (CEDEC)',
                 rubricLink: 'Descargar rúbrica EDIA (PDF)'
             },
@@ -353,8 +362,10 @@
                 recommendationPrefix: '→'
             },
             noFile: {
-                textHtml: 'Carga un archivo <strong>.elpx</strong> o <strong>.elp</strong> usando la zona de subida superior para ver tu evaluación de calidad EDIA personalizada.',
-                subtext: 'Los criterios siguientes se muestran con estados provisionales. Se actualizarán automáticamente cuando se cargue un archivo.'
+                textHtml:
+                    'Carga un archivo <strong>.elpx</strong> o <strong>.elp</strong> usando la zona de subida superior para ver tu evaluación de calidad EDIA personalizada.',
+                subtext:
+                    'Los criterios siguientes se muestran con estados provisionales. Se actualizarán automáticamente cuando se cargue un archivo.'
             },
             sections: {
                 cover: 'Portada / Identificación',
@@ -372,54 +383,244 @@
                 inclusive: 'Comunicación inclusiva'
             },
             criteria: {
-                'EDIA-COV-01': { title: 'El recurso tiene título', description: 'Todo recurso educativo debe tener un título claro y descriptivo para que alumnado y profesorado identifiquen rápidamente su temática.' },
-                'EDIA-COV-02': { title: 'La autoría está identificada', description: 'El recurso debe acreditar a su autoría para que las personas usuarias sepan quién lo creó y puedan contactar en caso de dudas.' },
-                'EDIA-COV-03': { title: 'Se declara el idioma', description: 'Declarar el idioma ayuda al alumnado y a los sistemas de catalogación a localizar recursos en la lengua adecuada.' },
-                'EDIA-COV-04': { title: 'Hay una descripción o resumen breve', description: 'Un resumen corto ayuda a decidir si el recurso es relevante antes de abrirlo.' },
-                'EDIA-COV-05': { title: 'Se indica la etapa educativa destinataria', description: 'El recurso debe especificar el público objetivo (por ejemplo, primaria, secundaria, universidad) para que pueda utilizarse adecuadamente.' },
-                'EDIA-COV-06': { title: 'Se indica la materia o temática', description: 'Etiquetar la materia o el ámbito temático mejora la localización del recurso en repositorios.' },
-                'EDIA-MET-01': { title: 'Se explicitan los objetivos de aprendizaje', description: 'Los objetivos de aprendizaje claros ayudan al alumnado a comprender qué logrará y permiten al profesorado alinear el recurso con el currículo.' },
-                'EDIA-MET-02': { title: 'El recurso tiene una secuencia didáctica coherente', description: 'El contenido debe organizarse en una progresión lógica que construya el conocimiento paso a paso.' },
-                'EDIA-MET-03': { title: 'El recurso promueve el aprendizaje activo', description: 'Los buenos recursos digitales incluyen actividades que implican activamente al alumnado en lugar de limitarse a leer o mirar.' },
-                'EDIA-MET-04': { title: 'Existen mecanismos de retroalimentación', description: 'El alumnado se beneficia de recibir retroalimentación inmediata sobre sus respuestas o acciones, ya sea automática o mediante orientaciones textuales.' },
-                'EDIA-CON-01': { title: 'El contenido se organiza en páginas o secciones', description: 'Dividir el contenido en páginas o secciones claramente delimitadas facilita la navegación y la comprensión.' },
-                'EDIA-CON-02': { title: 'Se utilizan recursos multimedia', description: 'Las imágenes, el audio y el vídeo hacen el aprendizaje más atractivo y ayudan a distintos estilos de aprendizaje.' },
-                'EDIA-CON-03': { title: 'El contenido es científicamente correcto y está actualizado', description: 'La información presentada debe ser correcta y vigente. Esto solo puede verificarlo una persona experta en la materia.' },
-                'EDIA-CON-04': { title: 'El lenguaje del contenido es adecuado para el público', description: 'El vocabulario y la complejidad del lenguaje deben ajustarse al nivel del alumnado destinatario.' },
-                'EDIA-CON-05': { title: 'Los enlaces externos están claramente identificados', description: 'Si el recurso remite a sitios web externos, esos enlaces deben estar bien etiquetados y abrirse en una pestaña nueva.' },
-                'EDIA-ACT-01': { title: 'Se incluyen actividades interactivas', description: 'El recurso debería incluir al menos un elemento interactivo (cuestionario, ejercicio, arrastrar y soltar, etc.) que implique activamente al alumnado.' },
-                'EDIA-ACT-02': { title: 'Las actividades están alineadas con los objetivos de aprendizaje', description: 'Cada actividad debería vincularse al menos con uno de los objetivos de aprendizaje declarados.' },
-                'EDIA-ACT-03': { title: 'Las actividades incluyen instrucciones claras', description: 'El alumnado debe saber con claridad qué hacer en cada actividad sin necesitar explicaciones adicionales del profesorado.' },
-                'EDIA-ACT-04': { title: 'Existe variedad de tipos de actividad', description: 'Utilizar diferentes tipos de actividades (opción múltiple, respuesta abierta, clasificación, simulación) atiende a la diversidad del alumnado.' },
-                'EDIA-TCH-01': { title: 'Se ofrece orientación docente', description: 'Una guía o notas para el profesorado ayudan a entender cómo utilizar el recurso de forma eficaz en el aula.' },
-                'EDIA-TCH-02': { title: 'Se indica la duración estimada', description: 'Indicar el tiempo aproximado necesario para completar el recurso ayuda al profesorado a planificar sus sesiones.' },
-                'EDIA-TCH-03': { title: 'Se indica la alineación curricular', description: 'Relacionar el recurso con estándares curriculares o competencias específicas aumenta su utilidad en contextos de educación formal.' },
-                'EDIA-LRN-01': { title: 'El recurso favorece el pensamiento de orden superior', description: 'Los mejores recursos piden al alumnado analizar, evaluar o crear, no solo recordar datos.' },
-                'EDIA-LRN-02': { title: 'El recurso fomenta la colaboración o el aprendizaje social', description: 'Las actividades que promueven discusión, revisión entre iguales o trabajo en grupo amplifican el impacto del aprendizaje.' },
-                'EDIA-ADP-01': { title: 'El recurso está empaquetado en un formato abierto y reutilizable', description: 'El formato ELPX / ELP permite importar el recurso en cualquier plataforma compatible con eXeLearning y modificarlo por otras personas.' },
-                'EDIA-ADP-02': { title: 'El contenido puede usarse sin depender de una plataforma concreta', description: 'El recurso debería funcionar sin requerir un sistema propietario o una suscripción específica.' },
-                'EDIA-ADP-03': { title: 'El recurso puede adaptarse o remezclarse', description: 'Una licencia abierta y una estructura modular facilitan que el profesorado adapte el recurso a su propio contexto.' },
-                'EDIA-INT-01': { title: 'Hay iDevices interactivos presentes', description: 'Los iDevices de eXeLearning, como cuestionarios, actividades SCORM o ejercicios interactivos, aumentan la implicación.' },
-                'EDIA-INT-02': { title: 'La interactividad va más allá de una navegación pasiva', description: 'Limitarse a hacer clic en “siguiente página” no es suficiente. El recurso debe pedir al alumnado responder, elegir o crear.' },
-                'EDIA-TEC-01': { title: 'La integridad del paquete es válida', description: 'El archivo debe ser un ZIP válido y sin errores de corrupción para que pueda abrirse de forma fiable.' },
-                'EDIA-TEC-02': { title: 'El manifiesto XML está bien formado', description: 'El archivo content.xml debe ser XML sintácticamente válido para que cualquier herramienta compatible con eXeLearning pueda analizarlo.' },
-                'EDIA-TEC-03': { title: 'Todos los recursos referenciados están presentes', description: 'Las imágenes, el audio y otros archivos referenciados deben incluirse en el paquete. Los recursos ausentes rompen la experiencia de aprendizaje.' },
-                'EDIA-TEC-04': { title: 'El recurso usa el formato moderno ELPX', description: 'Se recomienda el formato moderno ELPX (eXeLearning ≥ 3.0) para lograr la mejor compatibilidad con las plataformas actuales.' },
-                'EDIA-TEC-05': { title: 'No se detectan errores críticos de validación', description: 'El paquete debería superar todas las reglas estructurales sin errores críticos que impidan su carga correcta.' },
-                'EDIA-FMT-01': { title: 'La presentación visual es consistente', description: 'Un estilo visual coherente (tipografías, colores y espaciados) en todas las páginas crea una experiencia de aprendizaje profesional y centrada.' },
-                'EDIA-FMT-02': { title: 'Las imágenes y medios tienen una calidad adecuada', description: 'Las imágenes borrosas o el audio de baja calidad afectan negativamente a la experiencia de aprendizaje.' },
-                'EDIA-FMT-03': { title: 'El texto es legible y está bien formateado', description: 'El contenido debe usar adecuadamente encabezados, listas y espacios en blanco para facilitar la lectura y la comprensión.' },
-                'EDIA-ACC-01': { title: 'Las imágenes cuentan con texto alternativo', description: 'Toda imagen significativa debe tener un texto alternativo descriptivo para que las personas usuarias de lectores de pantalla puedan acceder al contenido.' },
-                'EDIA-ACC-02': { title: 'El contraste de color es suficiente', description: 'El texto debe tener suficiente contraste respecto al fondo para ser legible por personas con baja visión o daltonismo.' },
-                'EDIA-ACC-03': { title: 'El contenido no depende solo del color', description: 'La información transmitida mediante color también debe comunicarse por texto u otra señal visual.' },
-                'EDIA-ACC-04': { title: 'El contenido multimedia dispone de subtítulos o transcripción', description: 'El audio y el vídeo deberían incluir subtítulos o transcripciones para alumnado sordo o con dificultades auditivas.' },
-                'EDIA-ACC-05': { title: 'El recurso no presenta destellos ni parpadeos rápidos', description: 'El contenido parpadeante puede provocar crisis fotosensibles. El recurso debe evitar esos elementos.' },
-                'EDIA-LIC-01': { title: 'La licencia está declarada', description: 'Todo recurso educativo abierto debe indicar claramente su licencia para que las personas usuarias sepan cómo pueden reutilizarlo, compartirlo o adaptarlo.' },
-                'EDIA-LIC-02': { title: 'La licencia permite la reutilización educativa', description: 'Idealmente, la licencia debería permitir el uso libre en contextos educativos. Las licencias Creative Commons son recomendables para los REA.' },
-                'EDIA-LIC-03': { title: 'Se respetan los derechos del contenido de terceros', description: 'Las imágenes, el audio o el vídeo procedentes de fuentes externas deben ser originales o usarse con una licencia que permita su inclusión.' },
-                'EDIA-INC-01': { title: 'El lenguaje es inclusivo o no sexista', description: 'El recurso debe emplear un lenguaje inclusivo que no excluya ni estereotipe al alumnado por razón de género.' },
-                'EDIA-INC-02': { title: 'Las imágenes y los ejemplos reflejan diversidad', description: 'Los materiales visuales y los ejemplos deben representar a personas, contextos y perspectivas diversas.' },
-                'EDIA-INC-03': { title: 'El contenido evita sesgos culturales o sociales', description: 'El recurso debe respetar diferentes culturas, religiones y grupos sociales.' }
+                'EDIA-COV-01': {
+                    title: 'El recurso tiene título',
+                    description:
+                        'Todo recurso educativo debe tener un título claro y descriptivo para que alumnado y profesorado identifiquen rápidamente su temática.'
+                },
+                'EDIA-COV-02': {
+                    title: 'La autoría está identificada',
+                    description:
+                        'El recurso debe acreditar a su autoría para que las personas usuarias sepan quién lo creó y puedan contactar en caso de dudas.'
+                },
+                'EDIA-COV-03': {
+                    title: 'Se declara el idioma',
+                    description:
+                        'Declarar el idioma ayuda al alumnado y a los sistemas de catalogación a localizar recursos en la lengua adecuada.'
+                },
+                'EDIA-COV-04': {
+                    title: 'Hay una descripción o resumen breve',
+                    description: 'Un resumen corto ayuda a decidir si el recurso es relevante antes de abrirlo.'
+                },
+                'EDIA-COV-05': {
+                    title: 'Se indica la etapa educativa destinataria',
+                    description:
+                        'El recurso debe especificar el público objetivo (por ejemplo, primaria, secundaria, universidad) para que pueda utilizarse adecuadamente.'
+                },
+                'EDIA-COV-06': {
+                    title: 'Se indica la materia o temática',
+                    description:
+                        'Etiquetar la materia o el ámbito temático mejora la localización del recurso en repositorios.'
+                },
+                'EDIA-MET-01': {
+                    title: 'Se explicitan los objetivos de aprendizaje',
+                    description:
+                        'Los objetivos de aprendizaje claros ayudan al alumnado a comprender qué logrará y permiten al profesorado alinear el recurso con el currículo.'
+                },
+                'EDIA-MET-02': {
+                    title: 'El recurso tiene una secuencia didáctica coherente',
+                    description:
+                        'El contenido debe organizarse en una progresión lógica que construya el conocimiento paso a paso.'
+                },
+                'EDIA-MET-03': {
+                    title: 'El recurso promueve el aprendizaje activo',
+                    description:
+                        'Los buenos recursos digitales incluyen actividades que implican activamente al alumnado en lugar de limitarse a leer o mirar.'
+                },
+                'EDIA-MET-04': {
+                    title: 'Existen mecanismos de retroalimentación',
+                    description:
+                        'El alumnado se beneficia de recibir retroalimentación inmediata sobre sus respuestas o acciones, ya sea automática o mediante orientaciones textuales.'
+                },
+                'EDIA-CON-01': {
+                    title: 'El contenido se organiza en páginas o secciones',
+                    description:
+                        'Dividir el contenido en páginas o secciones claramente delimitadas facilita la navegación y la comprensión.'
+                },
+                'EDIA-CON-02': {
+                    title: 'Se utilizan recursos multimedia',
+                    description:
+                        'Las imágenes, el audio y el vídeo hacen el aprendizaje más atractivo y ayudan a distintos estilos de aprendizaje.'
+                },
+                'EDIA-CON-03': {
+                    title: 'El contenido es científicamente correcto y está actualizado',
+                    description:
+                        'La información presentada debe ser correcta y vigente. Esto solo puede verificarlo una persona experta en la materia.'
+                },
+                'EDIA-CON-04': {
+                    title: 'El lenguaje del contenido es adecuado para el público',
+                    description:
+                        'El vocabulario y la complejidad del lenguaje deben ajustarse al nivel del alumnado destinatario.'
+                },
+                'EDIA-CON-05': {
+                    title: 'Los enlaces externos están claramente identificados',
+                    description:
+                        'Si el recurso remite a sitios web externos, esos enlaces deben estar bien etiquetados y abrirse en una pestaña nueva.'
+                },
+                'EDIA-ACT-01': {
+                    title: 'Se incluyen actividades interactivas',
+                    description:
+                        'El recurso debería incluir al menos un elemento interactivo (cuestionario, ejercicio, arrastrar y soltar, etc.) que implique activamente al alumnado.'
+                },
+                'EDIA-ACT-02': {
+                    title: 'Las actividades están alineadas con los objetivos de aprendizaje',
+                    description:
+                        'Cada actividad debería vincularse al menos con uno de los objetivos de aprendizaje declarados.'
+                },
+                'EDIA-ACT-03': {
+                    title: 'Las actividades incluyen instrucciones claras',
+                    description:
+                        'El alumnado debe saber con claridad qué hacer en cada actividad sin necesitar explicaciones adicionales del profesorado.'
+                },
+                'EDIA-ACT-04': {
+                    title: 'Existe variedad de tipos de actividad',
+                    description:
+                        'Utilizar diferentes tipos de actividades (opción múltiple, respuesta abierta, clasificación, simulación) atiende a la diversidad del alumnado.'
+                },
+                'EDIA-TCH-01': {
+                    title: 'Se ofrece orientación docente',
+                    description:
+                        'Una guía o notas para el profesorado ayudan a entender cómo utilizar el recurso de forma eficaz en el aula.'
+                },
+                'EDIA-TCH-02': {
+                    title: 'Se indica la duración estimada',
+                    description:
+                        'Indicar el tiempo aproximado necesario para completar el recurso ayuda al profesorado a planificar sus sesiones.'
+                },
+                'EDIA-TCH-03': {
+                    title: 'Se indica la alineación curricular',
+                    description:
+                        'Relacionar el recurso con estándares curriculares o competencias específicas aumenta su utilidad en contextos de educación formal.'
+                },
+                'EDIA-LRN-01': {
+                    title: 'El recurso favorece el pensamiento de orden superior',
+                    description:
+                        'Los mejores recursos piden al alumnado analizar, evaluar o crear, no solo recordar datos.'
+                },
+                'EDIA-LRN-02': {
+                    title: 'El recurso fomenta la colaboración o el aprendizaje social',
+                    description:
+                        'Las actividades que promueven discusión, revisión entre iguales o trabajo en grupo amplifican el impacto del aprendizaje.'
+                },
+                'EDIA-ADP-01': {
+                    title: 'El recurso está empaquetado en un formato abierto y reutilizable',
+                    description:
+                        'El formato ELPX / ELP permite importar el recurso en cualquier plataforma compatible con eXeLearning y modificarlo por otras personas.'
+                },
+                'EDIA-ADP-02': {
+                    title: 'El contenido puede usarse sin depender de una plataforma concreta',
+                    description:
+                        'El recurso debería funcionar sin requerir un sistema propietario o una suscripción específica.'
+                },
+                'EDIA-ADP-03': {
+                    title: 'El recurso puede adaptarse o remezclarse',
+                    description:
+                        'Una licencia abierta y una estructura modular facilitan que el profesorado adapte el recurso a su propio contexto.'
+                },
+                'EDIA-INT-01': {
+                    title: 'Hay iDevices interactivos presentes',
+                    description:
+                        'Los iDevices de eXeLearning, como cuestionarios, actividades SCORM o ejercicios interactivos, aumentan la implicación.'
+                },
+                'EDIA-INT-02': {
+                    title: 'La interactividad va más allá de una navegación pasiva',
+                    description:
+                        'Limitarse a hacer clic en “siguiente página” no es suficiente. El recurso debe pedir al alumnado responder, elegir o crear.'
+                },
+                'EDIA-TEC-01': {
+                    title: 'La integridad del paquete es válida',
+                    description:
+                        'El archivo debe ser un ZIP válido y sin errores de corrupción para que pueda abrirse de forma fiable.'
+                },
+                'EDIA-TEC-02': {
+                    title: 'El manifiesto XML está bien formado',
+                    description:
+                        'El archivo content.xml debe ser XML sintácticamente válido para que cualquier herramienta compatible con eXeLearning pueda analizarlo.'
+                },
+                'EDIA-TEC-03': {
+                    title: 'Todos los recursos referenciados están presentes',
+                    description:
+                        'Las imágenes, el audio y otros archivos referenciados deben incluirse en el paquete. Los recursos ausentes rompen la experiencia de aprendizaje.'
+                },
+                'EDIA-TEC-04': {
+                    title: 'El recurso usa el formato moderno ELPX',
+                    description:
+                        'Se recomienda el formato moderno ELPX (eXeLearning ≥ 3.0) para lograr la mejor compatibilidad con las plataformas actuales.'
+                },
+                'EDIA-TEC-05': {
+                    title: 'No se detectan errores críticos de validación',
+                    description:
+                        'El paquete debería superar todas las reglas estructurales sin errores críticos que impidan su carga correcta.'
+                },
+                'EDIA-FMT-01': {
+                    title: 'La presentación visual es consistente',
+                    description:
+                        'Un estilo visual coherente (tipografías, colores y espaciados) en todas las páginas crea una experiencia de aprendizaje profesional y centrada.'
+                },
+                'EDIA-FMT-02': {
+                    title: 'Las imágenes y medios tienen una calidad adecuada',
+                    description:
+                        'Las imágenes borrosas o el audio de baja calidad afectan negativamente a la experiencia de aprendizaje.'
+                },
+                'EDIA-FMT-03': {
+                    title: 'El texto es legible y está bien formateado',
+                    description:
+                        'El contenido debe usar adecuadamente encabezados, listas y espacios en blanco para facilitar la lectura y la comprensión.'
+                },
+                'EDIA-ACC-01': {
+                    title: 'Las imágenes cuentan con texto alternativo',
+                    description:
+                        'Toda imagen significativa debe tener un texto alternativo descriptivo para que las personas usuarias de lectores de pantalla puedan acceder al contenido.'
+                },
+                'EDIA-ACC-02': {
+                    title: 'El contraste de color es suficiente',
+                    description:
+                        'El texto debe tener suficiente contraste respecto al fondo para ser legible por personas con baja visión o daltonismo.'
+                },
+                'EDIA-ACC-03': {
+                    title: 'El contenido no depende solo del color',
+                    description:
+                        'La información transmitida mediante color también debe comunicarse por texto u otra señal visual.'
+                },
+                'EDIA-ACC-04': {
+                    title: 'El contenido multimedia dispone de subtítulos o transcripción',
+                    description:
+                        'El audio y el vídeo deberían incluir subtítulos o transcripciones para alumnado sordo o con dificultades auditivas.'
+                },
+                'EDIA-ACC-05': {
+                    title: 'El recurso no presenta destellos ni parpadeos rápidos',
+                    description:
+                        'El contenido parpadeante puede provocar crisis fotosensibles. El recurso debe evitar esos elementos.'
+                },
+                'EDIA-LIC-01': {
+                    title: 'La licencia está declarada',
+                    description:
+                        'Todo recurso educativo abierto debe indicar claramente su licencia para que las personas usuarias sepan cómo pueden reutilizarlo, compartirlo o adaptarlo.'
+                },
+                'EDIA-LIC-02': {
+                    title: 'La licencia permite la reutilización educativa',
+                    description:
+                        'Idealmente, la licencia debería permitir el uso libre en contextos educativos. Las licencias Creative Commons son recomendables para los REA.'
+                },
+                'EDIA-LIC-03': {
+                    title: 'Se respetan los derechos del contenido de terceros',
+                    description:
+                        'Las imágenes, el audio o el vídeo procedentes de fuentes externas deben ser originales o usarse con una licencia que permita su inclusión.'
+                },
+                'EDIA-INC-01': {
+                    title: 'El lenguaje es inclusivo o no sexista',
+                    description:
+                        'El recurso debe emplear un lenguaje inclusivo que no excluya ni estereotipe al alumnado por razón de género.'
+                },
+                'EDIA-INC-02': {
+                    title: 'Las imágenes y los ejemplos reflejan diversidad',
+                    description:
+                        'Los materiales visuales y los ejemplos deben representar a personas, contextos y perspectivas diversas.'
+                },
+                'EDIA-INC-03': {
+                    title: 'El contenido evita sesgos culturales o sociales',
+                    description: 'El recurso debe respetar diferentes culturas, religiones y grupos sociales.'
+                }
             }
         }
     };

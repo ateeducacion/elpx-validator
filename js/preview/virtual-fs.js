@@ -64,21 +64,23 @@
     function rewriteHtmlForPreview(html, urlMap, basePath) {
         if (!html || !urlMap) return html;
 
-        return html.replace(/(src|href|poster|content)=(["'])([^"']+)\2/gi, function (match, attr, quote, path) {
-            var resolved = resolvePath(path, basePath);
-            var blobUrl = urlMap[resolved] || urlMap[path] || null;
-            if (blobUrl) {
-                return attr + '=' + quote + blobUrl + quote;
-            }
-            return match;
-        }).replace(/url\(\s*["']?([^"')]+)["']?\s*\)/gi, function (match, path) {
-            var resolved = resolvePath(path, basePath);
-            var blobUrl = urlMap[resolved] || urlMap[path] || null;
-            if (blobUrl) {
-                return 'url("' + blobUrl + '")';
-            }
-            return match;
-        });
+        return html
+            .replace(/(src|href|poster|content)=(["'])([^"']+)\2/gi, function (match, attr, quote, path) {
+                var resolved = resolvePath(path, basePath);
+                var blobUrl = urlMap[resolved] || urlMap[path] || null;
+                if (blobUrl) {
+                    return attr + '=' + quote + blobUrl + quote;
+                }
+                return match;
+            })
+            .replace(/url\(\s*["']?([^"')]+)["']?\s*\)/gi, function (match, path) {
+                var resolved = resolvePath(path, basePath);
+                var blobUrl = urlMap[resolved] || urlMap[path] || null;
+                if (blobUrl) {
+                    return 'url("' + blobUrl + '")';
+                }
+                return match;
+            });
     }
 
     /**

@@ -85,12 +85,14 @@
         // Type lookup
         var lookupResult = registry.lookup(comp.odeIdeviceTypeName);
         if (!lookupResult.known) {
-            findings.push(createFinding('IDEV001', {
-                details: 'The iDevice type "' + comp.odeIdeviceTypeName + '" is not in the known registry.',
-                location: location,
-                evidence: { odeIdeviceTypeName: comp.odeIdeviceTypeName },
-                suggestion: 'This may be a custom iDevice. Verify it is intentional and not a typo.'
-            }));
+            findings.push(
+                createFinding('IDEV001', {
+                    details: 'The iDevice type "' + comp.odeIdeviceTypeName + '" is not in the known registry.',
+                    location: location,
+                    evidence: { odeIdeviceTypeName: comp.odeIdeviceTypeName },
+                    suggestion: 'This may be a custom iDevice. Verify it is intentional and not a typo.'
+                })
+            );
         }
 
         // jsonProperties parseability
@@ -100,24 +102,34 @@
                 parsedJson = JSON.parse(comp.jsonProperties);
             } catch (e) {
                 parseError = true;
-                findings.push(createFinding('IDEV002', {
-                    details: 'The jsonProperties for iDevice "' + (comp.odeIdeviceId || '?') + '" could not be parsed as JSON: ' + e.message,
-                    location: location,
-                    evidence: { error: e.message, preview: comp.jsonProperties.substring(0, 200) },
-                    suggestion: 'Verify the jsonProperties contains valid JSON. Template variables like {{context_path}} may need resolution first.'
-                }));
+                findings.push(
+                    createFinding('IDEV002', {
+                        details:
+                            'The jsonProperties for iDevice "' +
+                            (comp.odeIdeviceId || '?') +
+                            '" could not be parsed as JSON: ' +
+                            e.message,
+                        location: location,
+                        evidence: { error: e.message, preview: comp.jsonProperties.substring(0, 200) },
+                        suggestion:
+                            'Verify the jsonProperties contains valid JSON. Template variables like {{context_path}} may need resolution first.'
+                    })
+                );
             }
         }
 
         // Empty htmlView check — skip for types that don't require htmlView per the registry
         var compTypeLookup = registry.lookup(comp.odeIdeviceTypeName);
-        var typeRequiresHtmlView = !compTypeLookup.known || !compTypeLookup.definition || compTypeLookup.definition.requiresHtmlView !== false;
+        var typeRequiresHtmlView =
+            !compTypeLookup.known || !compTypeLookup.definition || compTypeLookup.definition.requiresHtmlView !== false;
         if (comp.htmlView !== undefined && comp.htmlView.trim() === '' && typeRequiresHtmlView) {
-            findings.push(createFinding('IDEV003', {
-                details: 'The htmlView for iDevice "' + (comp.odeIdeviceId || '?') + '" is empty.',
-                location: location,
-                suggestion: 'Most iDevices should have non-empty htmlView content.'
-            }));
+            findings.push(
+                createFinding('IDEV003', {
+                    details: 'The htmlView for iDevice "' + (comp.odeIdeviceId || '?') + '" is empty.',
+                    location: location,
+                    suggestion: 'Most iDevices should have non-empty htmlView content.'
+                })
+            );
         }
 
         // Type-specific validation
@@ -127,14 +139,21 @@
             // Image-based iDevices should reference images
             if (def.requiresImages && comp.htmlView) {
                 var hasImageRef = /(?:src|data-src)=["'][^"']*\.(jpg|jpeg|png|gif|svg|webp|bmp)/i.test(comp.htmlView);
-                var jsonHasImage = comp.jsonProperties && /\.(jpg|jpeg|png|gif|svg|webp|bmp)/i.test(comp.jsonProperties);
+                var jsonHasImage =
+                    comp.jsonProperties && /\.(jpg|jpeg|png|gif|svg|webp|bmp)/i.test(comp.jsonProperties);
                 if (!hasImageRef && !jsonHasImage) {
-                    findings.push(createFinding('IDEV004', {
-                        details: 'The "' + comp.odeIdeviceTypeName + '" iDevice does not appear to reference any images.',
-                        location: location,
-                        evidence: { odeIdeviceTypeName: comp.odeIdeviceTypeName },
-                        suggestion: 'Image-based iDevices like image-gallery and magnifier typically need image assets.'
-                    }));
+                    findings.push(
+                        createFinding('IDEV004', {
+                            details:
+                                'The "' +
+                                comp.odeIdeviceTypeName +
+                                '" iDevice does not appear to reference any images.',
+                            location: location,
+                            evidence: { odeIdeviceTypeName: comp.odeIdeviceTypeName },
+                            suggestion:
+                                'Image-based iDevices like image-gallery and magnifier typically need image assets.'
+                        })
+                    );
                 }
             }
 
@@ -151,12 +170,14 @@
                     hasUrl = jsonContainsUrl(parsedJson);
                 }
                 if (!hasUrl) {
-                    findings.push(createFinding('IDEV005', {
-                        details: 'The "' + comp.odeIdeviceTypeName + '" iDevice does not appear to contain a URL.',
-                        location: location,
-                        evidence: { odeIdeviceTypeName: comp.odeIdeviceTypeName },
-                        suggestion: 'An external-website iDevice typically needs a valid URL.'
-                    }));
+                    findings.push(
+                        createFinding('IDEV005', {
+                            details: 'The "' + comp.odeIdeviceTypeName + '" iDevice does not appear to contain a URL.',
+                            location: location,
+                            evidence: { odeIdeviceTypeName: comp.odeIdeviceTypeName },
+                            suggestion: 'An external-website iDevice typically needs a valid URL.'
+                        })
+                    );
                 }
             }
 
@@ -164,12 +185,15 @@
             // rather than just the isDownload flag, which may not be set in all exports.
             if (comp.odeIdeviceTypeName === 'download-source-file') {
                 if (model.resources && model.resources.isDownload !== 'true') {
-                    findings.push(createFinding('IDEV006', {
-                        details: 'A download-source-file iDevice is present but odeResources.isDownload is not "true". This may be normal for some eXeLearning exports.',
-                        location: location,
-                        evidence: { isDownload: model.resources ? model.resources.isDownload : 'missing' },
-                        suggestion: 'Verify the download iDevice works correctly in the exported package.'
-                    }));
+                    findings.push(
+                        createFinding('IDEV006', {
+                            details:
+                                'A download-source-file iDevice is present but odeResources.isDownload is not "true". This may be normal for some eXeLearning exports.',
+                            location: location,
+                            evidence: { isDownload: model.resources ? model.resources.isDownload : 'missing' },
+                            suggestion: 'Verify the download iDevice works correctly in the exported package.'
+                        })
+                    );
                 }
             }
         }
@@ -186,10 +210,14 @@
             return /https?:\/\/[^\s"'<>]+/i.test(value);
         }
         if (Array.isArray(value)) {
-            return value.some(function (item) { return jsonContainsUrl(item); });
+            return value.some(function (item) {
+                return jsonContainsUrl(item);
+            });
         }
         if (typeof value === 'object') {
-            return Object.values(value).some(function (item) { return jsonContainsUrl(item); });
+            return Object.values(value).some(function (item) {
+                return jsonContainsUrl(item);
+            });
         }
         return false;
     }

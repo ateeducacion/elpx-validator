@@ -1,8 +1,4 @@
-const {
-    createPreviewUrl,
-    buildVirtualFS,
-    rewriteHtmlForPreview
-} = require('../js/preview/virtual-fs');
+const { createPreviewUrl, buildVirtualFS, rewriteHtmlForPreview } = require('../js/preview/virtual-fs');
 
 function createZipEntry(name, base64Data) {
     return {
@@ -43,9 +39,7 @@ describe('Preview virtual file system', () => {
             }
         };
 
-        const urlMap = await buildVirtualFS(zip, (name) => (
-            name.endsWith('.html') ? 'text/html' : 'image/png'
-        ));
+        const urlMap = await buildVirtualFS(zip, (name) => (name.endsWith('.html') ? 'text/html' : 'image/png'));
 
         expect(urlMap).toEqual({
             'html/page1.html': 'data:text/html;base64,PGgxPkhlbGxvPC9oMT4=',
@@ -59,10 +53,14 @@ describe('Preview virtual file system', () => {
             '<html><head><link rel="stylesheet" href="../content/resources/site.css"></head>',
             '<body><img src="../content/resources/pic.png"></body></html>'
         ].join('');
-        const rewritten = rewriteHtmlForPreview(html, {
-            'content/resources/site.css': 'data:text/css;base64,Ym9keXt9',
-            'content/resources/pic.png': 'data:image/png;base64,cG5n'
-        }, 'html/');
+        const rewritten = rewriteHtmlForPreview(
+            html,
+            {
+                'content/resources/site.css': 'data:text/css;base64,Ym9keXt9',
+                'content/resources/pic.png': 'data:image/png;base64,cG5n'
+            },
+            'html/'
+        );
 
         expect(rewritten).toContain('href="data:text/css;base64,Ym9keXt9"');
         expect(rewritten).toContain('src="data:image/png;base64,cG5n"');

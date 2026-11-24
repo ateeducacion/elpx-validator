@@ -20,10 +20,11 @@ Inspector, validador, explorador de recursos y vista previa de paquetes de **eXe
 ## Qué hace
 
 ### Formatos admitidos
-| Formato | Manifiesto | Descripción |
-|---------|------------|-------------|
+
+| Formato             | Manifiesto              | Descripción                                                        |
+| ------------------- | ----------------------- | ------------------------------------------------------------------ |
 | **`.elpx` moderno** | `content.xml` (ODE 2.0) | Validación completa, con comprobaciones estructurales y semánticas |
-| **`.elp` antiguo** | `contentv3.xml` | Extracción básica de metadatos |
+| **`.elp` antiguo**  | `contentv3.xml`         | Extracción básica de metadatos                                     |
 
 El formato se detecta solo y se aplica la validación que le corresponde. Los resultados lo indican con una etiqueta (`ELPX moderno` / `ELP antiguo`).
 
@@ -32,6 +33,7 @@ El formato se detecta solo y se aplica la validación que le corresponde. Los re
 La validación se hace **por capas**:
 
 #### 1. Paquete / ZIP (`PKG*`)
+
 - Presencia de los archivos necesarios: `content.xml`, `content.dtd`, `index.html`
 - Carpetas recomendadas: `html/`, `content/resources/`, `theme/`, `libs/`, `idevices/`
 - Rutas que salen del paquete (`../`)
@@ -40,6 +42,7 @@ La validación se hace **por capas**:
 - Rutas duplicadas al normalizarlas (conflictos de mayúsculas)
 
 #### 2. XML / esquema (`XML*`)
+
 - XML bien formado
 - El elemento raíz es `<ode>`
 - Espacio de nombres (`http://www.intef.es/xsd/ode`)
@@ -49,6 +52,7 @@ La validación se hace **por capas**:
 - Elementos desconocidos en la raíz
 
 #### 3. Navegación / estructura (`NAV*`)
+
 - Presencia y unicidad de los identificadores de página, bloque y componente
 - Referencias a páginas madre que no existen
 - Ciclos en la jerarquía de páginas
@@ -57,11 +61,13 @@ La validación se hace **por capas**:
 - Campos de orden numéricos
 
 #### 4. Metadatos (`META*`)
+
 - Formato de `odeId` y `odeVersionId` (marca de tiempo de 14 dígitos + 6 caracteres alfanuméricos en mayúsculas)
 - Presencia de `eXeVersion`
 - Presencia del título del proyecto (`pp_title`)
 
 #### 5. iDevices (`IDEV*`)
+
 - Reconocimiento del tipo frente a un registro de **18 tipos de iDevice** de la especificación ELPX
 - `jsonProperties` interpretable
 - Contenido de `htmlView`
@@ -71,6 +77,7 @@ La validación se hace **por capas**:
   - iDevices de descarga (`download-source-file`): coherencia del indicador `isDownload`
 
 #### 6. Recursos (`ASSET*`)
+
 - Inventario completo de los archivos del ZIP
 - Extracción de referencias de `htmlView`, `jsonProperties` y el HTML exportado
 - Normalización de la variable `{{context_path}}`
@@ -81,30 +88,30 @@ La validación se hace **por capas**:
 
 ### Tipos de iDevice conocidos
 
-| Tipo | Grupo | Validación |
-|------|-------|-----------|
-| `text` | Contenido | Profunda |
-| `image-gallery` | Multimedia | Profunda |
-| `magnifier` | Multimedia | Profunda |
-| `external-website` | Incrustado | Profunda |
-| `download-source-file` | Sistema | Profunda |
-| `form`, `matching`, `sort`, `classify`, `guess`, `checklist`, `crossword` | Actividad | Superficial |
-| `casestudy`, `rubric` | Contenido | Superficial |
-| `trueorfalse`, `quick-questions`, `quick-questions-multiple-choice` | Cuestionario | Superficial |
-| `complete` | Actividad | Superficial |
+| Tipo                                                                      | Grupo        | Validación  |
+| ------------------------------------------------------------------------- | ------------ | ----------- |
+| `text`                                                                    | Contenido    | Profunda    |
+| `image-gallery`                                                           | Multimedia   | Profunda    |
+| `magnifier`                                                               | Multimedia   | Profunda    |
+| `external-website`                                                        | Incrustado   | Profunda    |
+| `download-source-file`                                                    | Sistema      | Profunda    |
+| `form`, `matching`, `sort`, `classify`, `guess`, `checklist`, `crossword` | Actividad    | Superficial |
+| `casestudy`, `rubric`                                                     | Contenido    | Superficial |
+| `trueorfalse`, `quick-questions`, `quick-questions-multiple-choice`       | Cuestionario | Superficial |
+| `complete`                                                                | Actividad    | Superficial |
 
 Los tipos desconocidos o personalizados se notifican como hallazgos informativos, no como errores.
 
 ### Interfaz
 
-| Pestaña | Contenido |
-|---------|-----------|
-| **Resumen** | Lista de comprobaciones, metadatos del paquete, tamaño |
-| **Hallazgos** | Todos los hallazgos, con filtros por gravedad y categoría |
-| **Páginas** | Árbol de páginas con sus bloques y componentes |
-| **iDevices** | Resumen por tipo, recuentos, conocidos y desconocidos |
-| **Recursos** | Inventario de archivos con filtros: todos, referenciados, huérfanos, ausentes |
-| **Vista previa** | Vista previa de `index.html` y de las páginas de `html/` en un `<iframe>` aislado |
+| Pestaña             | Contenido                                                                                                                  |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **Resumen**         | Lista de comprobaciones, metadatos del paquete, tamaño                                                                     |
+| **Hallazgos**       | Todos los hallazgos, con filtros por gravedad y categoría                                                                  |
+| **Páginas**         | Árbol de páginas con sus bloques y componentes                                                                             |
+| **iDevices**        | Resumen por tipo, recuentos, conocidos y desconocidos                                                                      |
+| **Recursos**        | Inventario de archivos con filtros: todos, referenciados, huérfanos, ausentes                                              |
+| **Vista previa**    | Vista previa de `index.html` y de las páginas de `html/` en un `<iframe>` aislado                                          |
 | **Validación EDIA** | Los 48 criterios de calidad EDIA para recursos educativos abiertos: 13 automáticos, 12 heurísticos y 23 de revisión manual |
 
 La cabecera tiene los accesos a la CLI y a la Skill, el idioma (inglés / español) y el modo de color, que sigue al del sistema hasta que eliges uno. El pie muestra la versión, el código fuente y las licencias.
@@ -115,15 +122,15 @@ Cada hallazgo incluye su **código de regla** (por ejemplo `PKG001`, `NAV012`), 
 
 ## Catálogo de reglas
 
-| Códigos | Categoría | Ejemplos |
-|---------|-----------|----------|
-| `PKG001`–`PKG017` | Paquete | Archivos que faltan, rutas que salen del paquete, nombres sospechosos, `screenshot.png` ausente o no válido, subcarpetas antiguas con UUID en `content/resources/` |
-| `XML001`–`XML008` | XML / esquema | XML mal formado, raíz incorrecta, espacio de nombres, orden |
-| `NAV001`–`NAV022` | Navegación | Identificadores ausentes o duplicados, ciclos, pertenencia |
-| `META001`–`META006` | Metadatos | `odeId`, `odeVersionId` o título ausentes o no válidos |
-| `IDEV001`–`IDEV006` | iDevice | Tipos desconocidos, errores de análisis, recursos o URL ausentes |
-| `ASSET001`–`ASSET005` | Recursos | Ausentes, huérfanos, rutas que salen del paquete, mayúsculas |
-| `COMPAT001`–`COMPAT002` | Compatibilidad | Detección de formato antiguo o moderno |
+| Códigos                 | Categoría      | Ejemplos                                                                                                                                                           |
+| ----------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `PKG001`–`PKG017`       | Paquete        | Archivos que faltan, rutas que salen del paquete, nombres sospechosos, `screenshot.png` ausente o no válido, subcarpetas antiguas con UUID en `content/resources/` |
+| `XML001`–`XML008`       | XML / esquema  | XML mal formado, raíz incorrecta, espacio de nombres, orden                                                                                                        |
+| `NAV001`–`NAV022`       | Navegación     | Identificadores ausentes o duplicados, ciclos, pertenencia                                                                                                         |
+| `META001`–`META006`     | Metadatos      | `odeId`, `odeVersionId` o título ausentes o no válidos                                                                                                             |
+| `IDEV001`–`IDEV006`     | iDevice        | Tipos desconocidos, errores de análisis, recursos o URL ausentes                                                                                                   |
+| `ASSET001`–`ASSET005`   | Recursos       | Ausentes, huérfanos, rutas que salen del paquete, mayúsculas                                                                                                       |
+| `COMPAT001`–`COMPAT002` | Compatibilidad | Detección de formato antiguo o moderno                                                                                                                             |
 
 ---
 
@@ -146,15 +153,15 @@ npx elpx-validator curso.elpx --json --edia   # informe completo, con los criter
 npx elpx-validator *.elpx --lang es -o informe.txt
 ```
 
-| Opción | Efecto |
-|--------|--------|
-| `--json` | El informe como un documento JSON (una lista si se dan varios archivos) |
-| `--strict` | Las advertencias también hacen fallar el paquete |
-| `--all` | Lista también los hallazgos informativos |
-| `--edia` | Añade la evaluación de los criterios de calidad EDIA |
-| `-o, --output ARCHIVO` | Escribe en `ARCHIVO` en lugar de la salida estándar |
-| `--lang es\|en` | Idioma del texto (por defecto, el de `LANG`) |
-| `--no-color` | Texto sin colores |
+| Opción                 | Efecto                                                                  |
+| ---------------------- | ----------------------------------------------------------------------- |
+| `--json`               | El informe como un documento JSON (una lista si se dan varios archivos) |
+| `--strict`             | Las advertencias también hacen fallar el paquete                        |
+| `--all`                | Lista también los hallazgos informativos                                |
+| `--edia`               | Añade la evaluación de los criterios de calidad EDIA                    |
+| `-o, --output ARCHIVO` | Escribe en `ARCHIVO` en lugar de la salida estándar                     |
+| `--lang es\|en`        | Idioma del texto (por defecto, el de `LANG`)                            |
+| `--no-color`           | Texto sin colores                                                       |
 
 **Estado de salida:** `0` válido (se admiten advertencias salvo con `--strict`), `1` no válido, `2` la orden no pudo ejecutarse (opción incorrecta, archivo ilegible).
 
@@ -219,5 +226,6 @@ Cambia `version` en `package.json` y `VERSION` en `js/shell.js` (un test comprue
 Creado por el [Área de Tecnología Educativa](https://www3.gobiernodecanarias.org/medusa/ecoescuela/ate) – Gobierno de Canarias.
 
 Referencias:
+
 - [eXeLearning](https://github.com/exelearning/exelearning)
 - [Especificación del formato ELPX](https://github.com/exelearning/exelearning/blob/main/doc/elpx-format.md)

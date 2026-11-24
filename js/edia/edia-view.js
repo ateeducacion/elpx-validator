@@ -29,17 +29,29 @@
 
     function getStatusConfig() {
         return {
-            green:  { cssClass: 'edia-green',  label: translate('edia.statuses.green', 'Compliant'),    icon: '✓' },
+            green: { cssClass: 'edia-green', label: translate('edia.statuses.green', 'Compliant'), icon: '✓' },
             orange: { cssClass: 'edia-orange', label: translate('edia.statuses.orange', 'Needs review'), icon: '!' },
-            red:    { cssClass: 'edia-red',    label: translate('edia.statuses.red', 'Missing'),         icon: '✕' }
+            red: { cssClass: 'edia-red', label: translate('edia.statuses.red', 'Missing'), icon: '✕' }
         };
     }
 
     function getValidationTypeConfig() {
         return {
-            automatic: { cssClass: 'edia-badge-auto',      label: translate('edia.validationTypes.automatic', 'Automatic'),     icon: '' },
-            heuristic: { cssClass: 'edia-badge-heuristic', label: translate('edia.validationTypes.heuristic', 'Heuristic'),     icon: '' },
-            manual:    { cssClass: 'edia-badge-manual',    label: translate('edia.validationTypes.manual', 'Manual review'),   icon: '' }
+            automatic: {
+                cssClass: 'edia-badge-auto',
+                label: translate('edia.validationTypes.automatic', 'Automatic'),
+                icon: ''
+            },
+            heuristic: {
+                cssClass: 'edia-badge-heuristic',
+                label: translate('edia.validationTypes.heuristic', 'Heuristic'),
+                icon: ''
+            },
+            manual: {
+                cssClass: 'edia-badge-manual',
+                label: translate('edia.validationTypes.manual', 'Manual review'),
+                icon: ''
+            }
         };
     }
 
@@ -93,8 +105,12 @@
             '<span class="edia-legend-chip edia-orange-chip">! ' + escHtml(statusConfig.orange.label) + '</span>',
             '<span class="edia-legend-chip edia-red-chip">✕ ' + escHtml(statusConfig.red.label) + '</span>',
             '<span class="edia-legend-divider" aria-hidden="true">|</span>',
-            '<span class="edia-legend-chip edia-badge-auto">' + escHtml(validationTypeConfig.automatic.label) + '</span>',
-            '<span class="edia-legend-chip edia-badge-heuristic">' + escHtml(validationTypeConfig.heuristic.label) + '</span>',
+            '<span class="edia-legend-chip edia-badge-auto">' +
+                escHtml(validationTypeConfig.automatic.label) +
+                '</span>',
+            '<span class="edia-legend-chip edia-badge-heuristic">' +
+                escHtml(validationTypeConfig.heuristic.label) +
+                '</span>',
             '<span class="edia-legend-chip edia-badge-manual">' + escHtml(validationTypeConfig.manual.label) + '</span>'
         ].join('');
         return div;
@@ -102,9 +118,15 @@
 
     function buildSummaryCards(criteria) {
         var total = criteria.length;
-        var greens = criteria.filter(function (c) { return c.status === 'green'; }).length;
-        var oranges = criteria.filter(function (c) { return c.status === 'orange'; }).length;
-        var reds = criteria.filter(function (c) { return c.status === 'red'; }).length;
+        var greens = criteria.filter(function (c) {
+            return c.status === 'green';
+        }).length;
+        var oranges = criteria.filter(function (c) {
+            return c.status === 'orange';
+        }).length;
+        var reds = criteria.filter(function (c) {
+            return c.status === 'red';
+        }).length;
         var score = total > 0 ? Math.round((greens / total) * 100) : 0;
 
         var grid = document.createElement('div');
@@ -154,14 +176,23 @@
 
         var scoreCard = document.createElement('div');
         scoreCard.className = 'edia-summary-card edia-card-score';
-        var barColor = score >= 70 ? 'var(--color-success)' : score >= 40 ? 'var(--color-warning)' : 'var(--color-error)';
+        var barColor =
+            score >= 70 ? 'var(--color-success)' : score >= 40 ? 'var(--color-warning)' : 'var(--color-error)';
         scoreCard.innerHTML = [
-                        '<div class="edia-summary-value">' + score + '%</div>',
-            '<div class="edia-summary-label">' + escHtml(translate('edia.summary.readinessScore', 'Readiness score')) + '</div>',
-            '<div class="edia-readiness-bar" role="progressbar" aria-valuenow="' + score + '" aria-valuemin="0" aria-valuemax="100" aria-label="' + escHtml(translate('edia.summary.readinessAria', 'Readiness {score}%', { score: score })) + '">',
+            '<div class="edia-summary-value">' + score + '%</div>',
+            '<div class="edia-summary-label">' +
+                escHtml(translate('edia.summary.readinessScore', 'Readiness score')) +
+                '</div>',
+            '<div class="edia-readiness-bar" role="progressbar" aria-valuenow="' +
+                score +
+                '" aria-valuemin="0" aria-valuemax="100" aria-label="' +
+                escHtml(translate('edia.summary.readinessAria', 'Readiness {score}%', { score: score })) +
+                '">',
             '  <div class="edia-readiness-fill" style="width:' + score + '%;background:' + barColor + '"></div>',
             '</div>',
-            '<div class="edia-summary-desc">' + escHtml(translate('edia.summary.readinessDesc', 'Based on automatically checkable criteria')) + '</div>'
+            '<div class="edia-summary-desc">' +
+                escHtml(translate('edia.summary.readinessDesc', 'Based on automatically checkable criteria')) +
+                '</div>'
         ].join('');
         grid.appendChild(scoreCard);
 
@@ -187,7 +218,13 @@
             '</div>',
             '<div class="edia-criterion-badges">',
             '  <span class="edia-type-badge ' + vt.cssClass + '">' + escHtml(vt.label) + '</span>',
-            '  <span class="edia-status-badge ' + st.cssClass + '">' + st.icon + ' ' + escHtml(crit.statusLabel || st.label) + '</span>',
+            '  <span class="edia-status-badge ' +
+                st.cssClass +
+                '">' +
+                st.icon +
+                ' ' +
+                escHtml(crit.statusLabel || st.label) +
+                '</span>',
             '</div>'
         ].join('');
         card.appendChild(header);
@@ -203,7 +240,11 @@
         if (crit.evidence) {
             var ev = document.createElement('div');
             ev.className = 'edia-criterion-evidence';
-            ev.innerHTML = '<span class="edia-evidence-label">' + escHtml(translate('edia.labels.detected', 'Detected:')) + '</span> ' + escHtml(crit.evidence);
+            ev.innerHTML =
+                '<span class="edia-evidence-label">' +
+                escHtml(translate('edia.labels.detected', 'Detected:')) +
+                '</span> ' +
+                escHtml(crit.evidence);
             body.appendChild(ev);
         }
 
@@ -217,7 +258,11 @@
         if (crit.recommendation) {
             var rec = document.createElement('div');
             rec.className = 'edia-criterion-recommendation';
-            rec.innerHTML = '<span class="edia-rec-icon" aria-hidden="true">' + escHtml(translate('edia.labels.recommendationPrefix', '→')) + '</span> ' + escHtml(crit.recommendation);
+            rec.innerHTML =
+                '<span class="edia-rec-icon" aria-hidden="true">' +
+                escHtml(translate('edia.labels.recommendationPrefix', '→')) +
+                '</span> ' +
+                escHtml(crit.recommendation);
             body.appendChild(rec);
         }
 
@@ -243,14 +288,23 @@
 
     function buildSectionAccordion(section, criteria, sectionIndex) {
         var localizedSection = localizeSection(section);
-        var sectionCriteria = criteria.filter(function (c) { return c.section === section.key; });
+        var sectionCriteria = criteria.filter(function (c) {
+            return c.section === section.key;
+        });
         if (sectionCriteria.length === 0) return null;
 
-        var greens = sectionCriteria.filter(function (c) { return c.status === 'green'; }).length;
-        var oranges = sectionCriteria.filter(function (c) { return c.status === 'orange'; }).length;
-        var reds = sectionCriteria.filter(function (c) { return c.status === 'red'; }).length;
+        var greens = sectionCriteria.filter(function (c) {
+            return c.status === 'green';
+        }).length;
+        var oranges = sectionCriteria.filter(function (c) {
+            return c.status === 'orange';
+        }).length;
+        var reds = sectionCriteria.filter(function (c) {
+            return c.status === 'red';
+        }).length;
         var statusConfig = getStatusConfig();
-        var sectionStatusCls = reds > 0 ? 'edia-section-has-red' : (oranges > 0 ? 'edia-section-has-orange' : 'edia-section-has-green');
+        var sectionStatusCls =
+            reds > 0 ? 'edia-section-has-red' : oranges > 0 ? 'edia-section-has-orange' : 'edia-section-has-green';
 
         var details = document.createElement('details');
         details.className = 'edia-section-accordion ' + sectionStatusCls;
@@ -259,11 +313,23 @@
         var summary = document.createElement('summary');
         summary.className = 'edia-section-summary';
         summary.innerHTML = [
-                        '<span class="edia-section-name">' + escHtml(localizedSection.label) + '</span>',
+            '<span class="edia-section-name">' + escHtml(localizedSection.label) + '</span>',
             '<span class="edia-section-counts">',
-            '  <span class="edia-section-count edia-sc-green" title="' + escHtml(statusConfig.green.label) + '">✓ ' + greens + '</span>',
-            '  <span class="edia-section-count edia-sc-orange" title="' + escHtml(statusConfig.orange.label) + '">! ' + oranges + '</span>',
-            '  <span class="edia-section-count edia-sc-red" title="' + escHtml(statusConfig.red.label) + '">✕ ' + reds + '</span>',
+            '  <span class="edia-section-count edia-sc-green" title="' +
+                escHtml(statusConfig.green.label) +
+                '">✓ ' +
+                greens +
+                '</span>',
+            '  <span class="edia-section-count edia-sc-orange" title="' +
+                escHtml(statusConfig.orange.label) +
+                '">! ' +
+                oranges +
+                '</span>',
+            '  <span class="edia-section-count edia-sc-red" title="' +
+                escHtml(statusConfig.red.label) +
+                '">✕ ' +
+                reds +
+                '</span>',
             '</span>'
         ].join('');
         details.appendChild(summary);
@@ -295,9 +361,8 @@
         if (!container) return;
         container.innerHTML = '';
 
-        var sections = (typeof EdiaCriteria !== 'undefined' && EdiaCriteria.getSections)
-            ? EdiaCriteria.getSections()
-            : [];
+        var sections =
+            typeof EdiaCriteria !== 'undefined' && EdiaCriteria.getSections ? EdiaCriteria.getSections() : [];
 
         container.appendChild(buildHero());
 
@@ -328,4 +393,4 @@
     } else {
         window.EdiaView = EdiaView;
     }
-}());
+})();

@@ -21,42 +21,258 @@
     'use strict';
 
     var KNOWN_TYPES = Object.freeze({
-        'text':                            { label: 'Text',                           group: 'content',  requiresImages: false, requiresUrl: false, deep: true,  requiresHtmlView: true,  requiresJsonProperties: true  },
-        'form':                            { label: 'Form',                           group: 'content',  requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: false, requiresJsonProperties: true  },
-        'matching':                        { label: 'Matching',                       group: 'activity', requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'sort':                            { label: 'Sort',                           group: 'activity', requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'classify':                        { label: 'Classify',                       group: 'activity', requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'guess':                           { label: 'Guess',                          group: 'activity', requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'checklist':                       { label: 'Checklist',                      group: 'activity', requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'crossword':                       { label: 'Crossword',                      group: 'activity', requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'image-gallery':                   { label: 'Image Gallery',                  group: 'media',    requiresImages: true,  requiresUrl: false, deep: true,  requiresHtmlView: true,  requiresJsonProperties: true  },
-        'magnifier':                       { label: 'Magnifier',                      group: 'media',    requiresImages: true,  requiresUrl: false, deep: true,  requiresHtmlView: true,  requiresJsonProperties: true  },
-        'casestudy':                       { label: 'Case Study',                     group: 'content',  requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'external-website':                { label: 'External Website',               group: 'embed',    requiresImages: false, requiresUrl: true,  deep: true,  requiresHtmlView: true,  requiresJsonProperties: true  },
-        'rubric':                          { label: 'Rubric',                         group: 'content',  requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: false },
-        'trueorfalse':                     { label: 'True or False',                  group: 'quiz',     requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'quick-questions':                 { label: 'Quick Questions',                group: 'quiz',     requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'quick-questions-multiple-choice': { label: 'Quick Questions (Multiple Choice)',  group: 'quiz',     requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'complete':                        { label: 'Complete (Fill in the Blanks)',   group: 'activity', requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'download-source-file':            { label: 'Download Source File',            group: 'system',   requiresImages: false, requiresUrl: false, deep: true,  requiresHtmlView: true,  requiresJsonProperties: false },
-        'udl-content':                     { label: 'UDL Content',                    group: 'content',  requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'scrambled-list':                  { label: 'Scrambled List',                 group: 'activity', requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'interactive-video':               { label: 'Interactive Video',              group: 'media',    requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'dialogue':                        { label: 'Dialogue',                       group: 'content',  requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'accordion':                       { label: 'Accordion',                      group: 'content',  requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'tabs':                            { label: 'Tabs',                           group: 'content',  requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'timeline':                        { label: 'Timeline',                       group: 'content',  requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'carousel':                        { label: 'Carousel',                       group: 'media',    requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  },
-        'quiz-score-report':               { label: 'Quiz Score Report',              group: 'quiz',     requiresImages: false, requiresUrl: false, deep: false, requiresHtmlView: true,  requiresJsonProperties: true  }
+        text: {
+            label: 'Text',
+            group: 'content',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: true,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        form: {
+            label: 'Form',
+            group: 'content',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: false,
+            requiresJsonProperties: true
+        },
+        matching: {
+            label: 'Matching',
+            group: 'activity',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        sort: {
+            label: 'Sort',
+            group: 'activity',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        classify: {
+            label: 'Classify',
+            group: 'activity',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        guess: {
+            label: 'Guess',
+            group: 'activity',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        checklist: {
+            label: 'Checklist',
+            group: 'activity',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        crossword: {
+            label: 'Crossword',
+            group: 'activity',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        'image-gallery': {
+            label: 'Image Gallery',
+            group: 'media',
+            requiresImages: true,
+            requiresUrl: false,
+            deep: true,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        magnifier: {
+            label: 'Magnifier',
+            group: 'media',
+            requiresImages: true,
+            requiresUrl: false,
+            deep: true,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        casestudy: {
+            label: 'Case Study',
+            group: 'content',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        'external-website': {
+            label: 'External Website',
+            group: 'embed',
+            requiresImages: false,
+            requiresUrl: true,
+            deep: true,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        rubric: {
+            label: 'Rubric',
+            group: 'content',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: false
+        },
+        trueorfalse: {
+            label: 'True or False',
+            group: 'quiz',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        'quick-questions': {
+            label: 'Quick Questions',
+            group: 'quiz',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        'quick-questions-multiple-choice': {
+            label: 'Quick Questions (Multiple Choice)',
+            group: 'quiz',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        complete: {
+            label: 'Complete (Fill in the Blanks)',
+            group: 'activity',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        'download-source-file': {
+            label: 'Download Source File',
+            group: 'system',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: true,
+            requiresHtmlView: true,
+            requiresJsonProperties: false
+        },
+        'udl-content': {
+            label: 'UDL Content',
+            group: 'content',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        'scrambled-list': {
+            label: 'Scrambled List',
+            group: 'activity',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        'interactive-video': {
+            label: 'Interactive Video',
+            group: 'media',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        dialogue: {
+            label: 'Dialogue',
+            group: 'content',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        accordion: {
+            label: 'Accordion',
+            group: 'content',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        tabs: {
+            label: 'Tabs',
+            group: 'content',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        timeline: {
+            label: 'Timeline',
+            group: 'content',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        carousel: {
+            label: 'Carousel',
+            group: 'media',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        },
+        'quiz-score-report': {
+            label: 'Quiz Score Report',
+            group: 'quiz',
+            requiresImages: false,
+            requiresUrl: false,
+            deep: false,
+            requiresHtmlView: true,
+            requiresJsonProperties: true
+        }
     });
 
     var GROUPS = Object.freeze({
-        content:  { label: 'Content',    description: 'Rich content iDevices' },
+        content: { label: 'Content', description: 'Rich content iDevices' },
         activity: { label: 'Activities', description: 'Interactive learning activities' },
-        media:    { label: 'Media',      description: 'Image / audio / video iDevices' },
-        embed:    { label: 'Embed',      description: 'Embedded external content' },
-        quiz:     { label: 'Quiz',       description: 'Question-based iDevices' },
-        system:   { label: 'System',     description: 'System-level iDevices' }
+        media: { label: 'Media', description: 'Image / audio / video iDevices' },
+        embed: { label: 'Embed', description: 'Embedded external content' },
+        quiz: { label: 'Quiz', description: 'Question-based iDevices' },
+        system: { label: 'System', description: 'System-level iDevices' }
     });
 
     /**
