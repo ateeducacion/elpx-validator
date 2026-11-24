@@ -19,7 +19,6 @@
     var ediaCriteria = typeof EdiaCriteria !== 'undefined' ? EdiaCriteria : null;
     var ediaView     = typeof EdiaView     !== 'undefined' ? EdiaView     : null;
     var i18n         = typeof ELPXI18n     !== 'undefined' ? ELPXI18n     : null;
-    var themeManager = typeof ELPXTheme   !== 'undefined' ? ELPXTheme   : null;
 
     /* ================================================================== */
     /*  DOM references                                                    */
@@ -73,8 +72,6 @@
     // Preview
     var previewPageSelect   = document.getElementById('previewPageSelect');
     var previewFrame        = document.getElementById('previewFrame');
-    var languageSelect      = document.getElementById('languageSelect');
-    var themeToggle         = document.getElementById('themeToggle');
 
     // EDIA Validation
     var ediaPanel = document.getElementById('ediaPanel');
@@ -167,59 +164,18 @@
         return translate('assets.statuses.' + status, status);
     }
 
-    function getFindingTranslationParams(finding) {
-        var params = {
-            code: finding.code,
-            severity: finding.severity,
-            category: finding.category
-        };
-        if (finding.location) {
-            Object.keys(finding.location).forEach(function (key) {
-                params[key] = finding.location[key];
-            });
-        }
-        if (finding.evidence) {
-            Object.keys(finding.evidence).forEach(function (key) {
-                params[key] = finding.evidence[key];
-            });
-        }
-        return params;
-    }
-
     function getFindingText(finding, field) {
-        var key = 'findings.' + finding.code + '.' + field;
-        var translated = translate(key, null, getFindingTranslationParams(finding));
-        if (translated !== key && translated != null) return translated;
-        return finding[field] || '';
+        return i18n && i18n.findingText ? i18n.findingText(finding, field) : (finding[field] || '');
     }
 
     function getPreviewPlaceholder() {
         return translate('preview.placeholder', '— select a page —');
     }
 
-    function syncLanguageSelector() {
-        if (languageSelect && i18n && typeof i18n.getLanguage === 'function') {
-            languageSelect.value = i18n.getLanguage();
-        }
-    }
-
     function applyStaticTranslations() {
         if (i18n && typeof i18n.translateDom === 'function') {
             i18n.translateDom(document);
         }
-        syncLanguageSelector();
-        syncThemeToggle();
-    }
-
-    function syncThemeToggle() {
-        if (!themeToggle || !themeManager || typeof themeManager.getTheme !== 'function') return;
-        var currentTheme = themeManager.getTheme();
-        var isDark = currentTheme === 'dark';
-        var icon = themeToggle.querySelector('.theme-toggle-icon');
-        var text = themeToggle.querySelector('.theme-toggle-text');
-        themeToggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
-        if (icon) icon.textContent = isDark ? '☾' : '☀';
-        if (text) text.textContent = translate(isDark ? 'theme.dark' : 'theme.light', isDark ? 'Dark' : 'Light');
     }
 
     function getChecklistLabel(item, asHtml) {
@@ -1131,28 +1087,8 @@
         }
     });
 
-    if (languageSelect && i18n && typeof i18n.setLanguage === 'function') {
-        syncLanguageSelector();
-        languageSelect.addEventListener('change', function () {
-            i18n.setLanguage(languageSelect.value);
-        });
-    }
-
-    if (themeManager && typeof themeManager.init === 'function') {
-        themeManager.init();
-        syncThemeToggle();
-    }
-
-    if (themeToggle && themeManager && typeof themeManager.toggleTheme === 'function') {
-        themeToggle.addEventListener('click', function () {
-            themeManager.toggleTheme();
-            syncThemeToggle();
-        });
-    }
-
     if (i18n && i18n.LANGUAGE_CHANGE_EVENT) {
         document.addEventListener(i18n.LANGUAGE_CHANGE_EVENT, function () {
-            syncThemeToggle();
             rerenderCurrentState();
         });
     }

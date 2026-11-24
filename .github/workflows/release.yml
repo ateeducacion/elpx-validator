@@ -1,0 +1,43 @@
+name: Release
+
+# On every published GitHub release the package (CLI + library) goes to npm,
+# when the repository variable NPM_PUBLISH is "true" (see "Releasing" in the
+# README). The web app is served by GitHub Pages from main.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  npm:
+    name: npm package
+    if: vars.NPM_PUBLISH == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write # npm trusted publishing (OIDC) and provenance, no token stored
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm run test:coverage
+      # Trusted publishing (OIDC) needs npm 11.5.1 or newer.
+      - run: npm install -g npm@11
+      - name: The package version is the release tag
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: test "v$(node -p "require('./package.json').version")" = "$TAG"
+      - run: npm publish --provenance --access public --ignore-scripts

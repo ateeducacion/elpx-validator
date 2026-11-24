@@ -20,7 +20,8 @@
 
     function canUseLocalStorage() {
         try {
-            return typeof localStorage !== 'undefined';
+            // `window` first: touching localStorage in plain Node (the CLI) prints a warning.
+            return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
         } catch (error) {
             return false;
         }
@@ -173,6 +174,21 @@
         return interpolate(value, options);
     }
 
+    /**
+     * Localised text of a finding field ('message', 'details', 'suggestion'),
+     * falling back to the English text the rule produced.
+     */
+    function findingText(finding, field) {
+        var key = 'findings.' + finding.code + '.' + field;
+        var params = Object.assign(
+            { code: finding.code, severity: finding.severity, category: finding.category },
+            finding.location,
+            finding.evidence
+        );
+        var translated = t(key, params);
+        return translated !== key && translated != null ? translated : (finding[field] || '');
+    }
+
     function translateElement(element) {
         if (!element || element.nodeType !== 1) return;
 
@@ -225,6 +241,7 @@
         getLanguage: getLanguage,
         setLanguage: setLanguage,
         t: t,
+        findingText: findingText,
         translateDom: translateDom,
         locales: locales
     };

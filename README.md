@@ -1,8 +1,10 @@
 # eXeLearning Package Validator
 
-A client-side inspector, validator, asset explorer, and preview tool for **eXeLearning** packages (`.elpx` and legacy `.elp`).
+An inspector, validator, asset explorer and preview tool for **eXeLearning** packages (`.elpx` and legacy `.elp`). The same validation runs three ways:
 
-All processing happens entirely in the browser — no files are uploaded to any server.
+- **Web app** — everything happens in the browser; no file is uploaded and the page loads nothing from other sites.
+- **CLI** — `npx elpx-validator course.elpx`, for scripts and CI. See [CLI](#cli).
+- **Agent Skill** — for AI assistants. See [Agent Skill](#agent-skill).
 
 > **Live demo:** [https://ateeducacion.github.io/elpx-validator/](https://ateeducacion.github.io/elpx-validator/)
 
@@ -114,6 +116,9 @@ The redesigned UI is organized as a **navigable inspector**:
 | **iDevices** | Type summary, counts, known/unknown classification |
 | **Assets** | Full asset inventory with filtering |
 | **Preview** | Sandboxed page preview |
+| **EDIA Validation** | The 48 EDIA quality criteria for open educational resources: 13 automatic, 12 heuristic, 23 for manual review |
+
+The header has the shortcuts to the CLI and the Skill, the language (English / Spanish) and the colour mode, which follows the system until you choose one. The footer shows the version, the source and the licences.
 
 Each finding includes:
 - **Rule code** (e.g., `PKG001`, `XML004`, `NAV012`, `IDEV007`, `ASSET015`)
@@ -148,6 +153,52 @@ Each finding includes:
 
 ---
 
+## CLI
+
+Needs Node.js 22 or later. Nothing to install: `npx` downloads the package the first time.
+
+```bash
+npx elpx-validator course.elpx                 # findings as text
+npx elpx-validator course.elpx --strict        # warnings also fail (for CI)
+npx elpx-validator course.elpx --json --edia   # full report, with the EDIA criteria
+npx elpx-validator *.elpx --lang es -o informe.txt
+```
+
+| Option | Effect |
+|--------|--------|
+| `--json` | The report as one JSON document (an array when several files are given) |
+| `--strict` | Warnings also make the package fail |
+| `--all` | Also list informational findings |
+| `--edia` | Add the EDIA quality criteria evaluation |
+| `-o, --output FILE` | Write to `FILE` instead of standard output |
+| `--lang es\|en` | Language of the text output (default: from `LANG`) |
+| `--no-color` | Plain text without colours |
+
+**Exit status:** `0` valid (warnings allowed unless `--strict`), `1` invalid, `2` the command could not run (bad option, unreadable file).
+
+The JSON report has `file`, `format` (`elpx`, `elp` or `unknown`), `verdict` (`valid`, `valid-with-warnings` or `invalid`), `counts`, `findings[]`, `metadata`, `pages[]`, `ideviceSummary`, `assetSummary` and, with `--edia`, `edia`.
+
+### As a library
+
+```js
+const { validateBuffer } = require('elpx-validator/cli');
+const report = await validateBuffer(fs.readFileSync('course.elpx'), { edia: true });
+```
+
+`require('elpx-validator')` is the validator itself (`runFullValidation(zip)` takes a JSZip instance and needs a global `DOMParser`); `validateBuffer` sets both up in Node.
+
+## Agent Skill
+
+[`skills/elpx-validator/SKILL.md`](skills/elpx-validator/SKILL.md) teaches AI assistants (Claude Code, Copilot and others that read Agent Skills) to validate packages with the CLI and explain the findings.
+
+```bash
+npx skills add ateeducacion/elpx-validator
+# or
+gh skill install ateeducacion/elpx-validator elpx-validator
+```
+
+---
+
 ## Architecture
 
 The codebase follows a modular architecture:
@@ -169,8 +220,16 @@ js/
 │   └── asset-rules.js        # Asset inventory and validation
 ├── preview/
 │   └── virtual-fs.js         # Blob URL virtual filesystem
+├── edia/                     # EDIA criteria (evaluation and view)
+├── i18n/                     # English and Spanish texts
 ├── validator.js              # Main orchestrator (new + legacy API)
+├── cli.js                    # Command line (Node only)
+├── shell.js                  # Header and footer: language, colour mode, panels, version
+├── theme.js                  # Colour mode
 └── app.js                    # UI layer
+bin/elpx-validator.js         # CLI entry point
+skills/elpx-validator/        # Agent Skill
+vendor/jszip.min.js           # JSZip for the web app (copied by `npm run vendor`)
 tests/                        # Jest unit tests
 ```
 
@@ -196,7 +255,7 @@ All validation rules return structured finding objects:
 ### Requirements
 
 - A modern browser (Chrome, Firefox, Safari, Edge)
-- Node.js (for running tests)
+- Node.js 22 or later (for the CLI and the tests)
 
 ### Running locally
 
@@ -211,20 +270,18 @@ By default it listens on `http://localhost:8081`.
 ### Running tests
 
 ```bash
-npm install
-npm test
+npm ci
+npm test                # all tests
+npm run test:coverage   # with the coverage thresholds CI enforces
 ```
 
-The test suite includes **102 tests** covering:
-- Rule catalog and finding factory
-- Project model builder
-- iDevice type registry
-- Package-level validation (path traversal, suspicious files, duplicates)
-- XML/schema validation (namespace, version, DOCTYPE, ordering)
-- Navigation validation (ID uniqueness, cycles, cross-references, ordering)
-- iDevice validation (type recognition, JSON parsing, type-specific checks)
-- Asset validation (inventory, references, orphans, missing, casing)
-- Legacy API backward compatibility
+The tests cover the rules, the project model, each validation layer, the EDIA criteria, the translations, the page shell (header, footer, panels) and the CLI, including the real `bin` script in plain Node.
+
+After updating the `jszip` dependency run `npm run vendor`; a test fails while the copy in `vendor/` is stale.
+
+### Releasing
+
+Change `version` in `package.json` and `VERSION` in `js/shell.js` (a test keeps them equal), then publish a GitHub release tagged `v<version>`. The release workflow publishes the package to npm when the repository variable `NPM_PUBLISH` is `true`; it uses npm trusted publishing (OIDC), so the package needs this repository configured as a trusted publisher on npmjs.com. The web app is the repository itself, served by GitHub Pages from `main`.
 
 ---
 

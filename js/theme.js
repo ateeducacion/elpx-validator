@@ -29,7 +29,9 @@
             var stored = localStorage.getItem(STORAGE_KEY);
             if (stored) return normalizeTheme(stored);
         }
-        return normalizeTheme(fallback || 'light');
+        if (fallback) return normalizeTheme(fallback);
+        var prefersDark = typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches;
+        return prefersDark ? 'dark' : 'light';
     }
 
     function applyTheme(theme) {
