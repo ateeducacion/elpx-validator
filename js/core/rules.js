@@ -142,6 +142,36 @@
             category: CATEGORY.PACKAGE,
             message: 'Legacy v3 UUID-pattern subfolder under content/resources/'
         },
+        PKG018: {
+            code: 'PKG018',
+            severity: SEVERITY.WARNING,
+            category: CATEGORY.PACKAGE,
+            message: 'Incomplete theme/ folder'
+        },
+        PKG019: {
+            code: 'PKG019',
+            severity: SEVERITY.WARNING,
+            category: CATEGORY.PACKAGE,
+            message: 'Base libraries missing from libs/'
+        },
+        PKG020: {
+            code: 'PKG020',
+            severity: SEVERITY.WARNING,
+            category: CATEGORY.PACKAGE,
+            message: 'Invalid libs/elpx-manifest.js'
+        },
+        PKG021: {
+            code: 'PKG021',
+            severity: SEVERITY.ERROR,
+            category: CATEGORY.PACKAGE,
+            message: 'Several packages nested in the ZIP'
+        },
+        PKG022: {
+            code: 'PKG022',
+            severity: SEVERITY.INFO,
+            category: CATEGORY.PACKAGE,
+            message: 'Package nested inside the ZIP'
+        },
 
         /* XML / schema --------------------------------------------------- */
         XML001: { code: 'XML001', severity: SEVERITY.ERROR, category: CATEGORY.XML, message: 'XML is not well-formed' },

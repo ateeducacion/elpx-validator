@@ -144,6 +144,13 @@ describe('elpx-validator CLI', () => {
         expect(JSON.parse(result.stdout).findings.map((f) => f.code)).toContain('PKG002');
     });
 
+    test('a broken libs/elpx-manifest.js is read from the package and reported', async () => {
+        const file = path.join(dir, 'manifest.elpx');
+        fs.writeFileSync(file, await elpx({ 'content.xml': CONTENT_XML, 'libs/elpx-manifest.js': 'oops' }));
+        const report = JSON.parse((await run([file, '--json'])).stdout);
+        expect(report.findings.map((f) => f.code)).toContain('PKG020');
+    });
+
     test('--json prints one report, or an array for several files', async () => {
         const one = JSON.parse((await run([good, '--json'])).stdout);
         expect(one).toMatchObject({ file: 'good.elpx', format: 'elpx', pages: ['Inicio'] });

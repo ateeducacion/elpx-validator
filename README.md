@@ -40,6 +40,10 @@ The validator performs **layered validation** organized into categories:
 - Absolute path detection
 - Suspicious files (`.DS_Store`, `Thumbs.db`, executables)
 - Duplicate normalized paths (casing conflicts)
+- `screenshot.png` at the root, with a PNG signature; legacy per-asset folders under `content/resources/`
+- `theme/` has its `config.xml` and a stylesheet; `libs/` has the base libraries every export loads
+- `libs/elpx-manifest.js`, when present, assigns a manifest with a `files` list and a `projectTitle`
+- A ZIP that only wraps one package, or several (which eXeLearning refuses)
 
 #### 2. XML / Schema layer (`XML*`)
 
@@ -149,7 +153,7 @@ Each finding includes:
 
 | Code Range              | Category      | Examples                                                                                                                                        |
 | ----------------------- | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PKG001`–`PKG017`       | Package       | Missing files, path traversal, suspicious names, missing/invalid `screenshot.png`, legacy v3 UUID-pattern subfolders under `content/resources/` |
+| `PKG001`–`PKG022`       | Package       | Missing files, path traversal, suspicious names, missing/invalid `screenshot.png`, legacy v3 UUID-pattern subfolders under `content/resources/` |
 | `XML001`–`XML008`       | XML/Schema    | Malformed XML, wrong root, namespace, ordering                                                                                                  |
 | `NAV001`–`NAV022`       | Navigation    | Missing IDs, duplicates, cycles, containment                                                                                                    |
 | `META001`–`META006`     | Metadata      | Missing/invalid odeId, odeVersionId, title                                                                                                      |
