@@ -40,6 +40,10 @@ La validación se hace **por capas**:
 - Rutas absolutas
 - Archivos sospechosos (`.DS_Store`, `Thumbs.db`, ejecutables)
 - Rutas duplicadas al normalizarlas (conflictos de mayúsculas)
+- `screenshot.png` en la raíz, con firma PNG; carpetas antiguas por recurso en `content/resources/`
+- `theme/` tiene su `config.xml` y una hoja de estilos; `libs/` tiene las librerías base que carga toda exportación
+- `libs/elpx-manifest.js`, si existe, asigna un manifiesto con la lista `files` y un `projectTitle`
+- Un ZIP que solo envuelve un paquete, o varios (que eXeLearning rechaza)
 
 #### 2. XML / esquema (`XML*`)
 
@@ -121,7 +125,7 @@ Cada hallazgo incluye su **código de regla** (por ejemplo `PKG001`, `NAV012`), 
 
 | Códigos                 | Categoría      | Ejemplos                                                                                                                                                           |
 | ----------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `PKG001`–`PKG017`       | Paquete        | Archivos que faltan, rutas que salen del paquete, nombres sospechosos, `screenshot.png` ausente o no válido, subcarpetas antiguas con UUID en `content/resources/` |
+| `PKG001`–`PKG022`       | Paquete        | Archivos que faltan, rutas que salen del paquete, nombres sospechosos, `screenshot.png` ausente o no válido, subcarpetas antiguas con UUID en `content/resources/` |
 | `XML001`–`XML008`       | XML / esquema  | XML mal formado, raíz incorrecta, espacio de nombres, orden                                                                                                        |
 | `NAV001`–`NAV022`       | Navegación     | Identificadores ausentes o duplicados, ciclos, pertenencia                                                                                                         |
 | `META001`–`META006`     | Metadatos      | `odeId`, `odeVersionId` o título ausentes o no válidos                                                                                                             |

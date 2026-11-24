@@ -1,7 +1,7 @@
 /**
  * Tests for package-level validation (js/validators/package-rules.js).
  */
-const { validatePackage } = require('../js/validators/package-rules');
+const { validatePackage, validateElpxManifest, BASE_LIBRARIES } = require('../js/validators/package-rules');
 
 function makeZipFiles(paths) {
     const files = {};
@@ -157,5 +157,73 @@ describe('Package validation', () => {
         const files = makeZipFiles(['content.xml', 'a.txt', 'b/', 'b/c.txt']);
         const { packageInfo } = validatePackage(files, 'elpx');
         expect(packageInfo.totalFiles).toBe(4);
+    });
+});
+
+describe('theme, libraries and nested packages', () => {
+    const codes = (paths, format) => validatePackage(makeZipFiles(paths), format || 'elpx').findings.map((f) => f.code);
+    const libs = BASE_LIBRARIES.map((lib) => 'libs/' + lib);
+
+    test('a default theme and a custom theme with other file names are both complete', () => {
+        expect(codes(['content.xml', 'theme/config.xml', 'theme/style.css', 'theme/style.js'])).not.toContain('PKG018');
+        expect(codes(['content.xml', 'theme/config.xml', 'theme/content.css', 'theme/default.js'])).not.toContain(
+            'PKG018'
+        );
+    });
+
+    test('PKG018 names what the theme lacks', () => {
+        const { findings } = validatePackage(makeZipFiles(['content.xml', 'theme/icons/info.png']), 'elpx');
+        const finding = findings.find((f) => f.code === 'PKG018');
+        expect(finding.evidence.missing).toEqual(['theme/config.xml', 'theme/*.css']);
+        expect(codes(['content.xml', 'theme/config.xml', 'theme/img/x.css'])).toContain('PKG018');
+    });
+
+    test('no PKG018 or PKG019 for a package without those folders (PKG007 and PKG008 cover that)', () => {
+        const found = codes(['content.xml']);
+        expect(found).not.toContain('PKG018');
+        expect(found).not.toContain('PKG019');
+    });
+
+    test('PKG019 lists the base libraries that are missing', () => {
+        expect(codes(['content.xml'].concat(libs))).not.toContain('PKG019');
+        const { findings } = validatePackage(makeZipFiles(['content.xml'].concat(libs.slice(1))), 'elpx');
+        expect(findings.find((f) => f.code === 'PKG019').evidence.missing).toEqual([BASE_LIBRARIES[0]]);
+    });
+
+    test('PKG021 for several packages at the root, PKG022 for exactly one', () => {
+        expect(codes(['a.elpx', 'b.elp'], 'unknown')).toContain('PKG021');
+        const one = codes(['curso.elpx', 'leeme.txt'], 'unknown');
+        expect(one).toContain('PKG022');
+        expect(one).not.toContain('PKG021');
+    });
+
+    test('nested packages are only a finding when the ZIP has no manifest, and only at the root', () => {
+        const withManifest = codes(['content.xml', 'a.elpx', 'b.elpx']);
+        expect(withManifest).not.toContain('PKG021');
+        expect(withManifest).not.toContain('PKG022');
+        expect(codes(['content/resources/a.elpx', 'content/resources/b.elpx'], 'unknown')).not.toContain('PKG021');
+    });
+});
+
+describe('libs/elpx-manifest.js', () => {
+    const js = (body) => '/**\n * ELPX Manifest\n */\nwindow.__ELPX_MANIFEST__=' + body + ';\n';
+
+    test('the file eXeLearning writes is valid', () => {
+        const manifest = { version: 1, files: ['index.html', 'content.xml'], projectTitle: 'Curso' };
+        expect(validateElpxManifest(js(JSON.stringify(manifest, null, 2)))).toEqual([]);
+    });
+
+    test.each([
+        ['no assignment', 'var x = 1;', /__ELPX_MANIFEST__/],
+        ['broken JSON', js('{"files": ['), /__ELPX_MANIFEST__|JSON/],
+        ['not JSON', js('{files: []}'), /JSON/],
+        ['files is not a list', js('{"files": "all", "projectTitle": "x"}'), /"files"/],
+        ['no projectTitle', js('{"files": []}'), /"projectTitle"/]
+    ])('PKG020: %s', (_name, text, reason) => {
+        const findings = validateElpxManifest(text);
+        expect(findings).toHaveLength(1);
+        expect(findings[0].code).toBe('PKG020');
+        expect(findings[0].details).toMatch(reason);
+        expect(findings[0].location.path).toBe('libs/elpx-manifest.js');
     });
 });

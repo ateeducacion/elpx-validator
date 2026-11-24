@@ -89,6 +89,14 @@
             report.findings = report.findings.concat(pkgResult.findings);
             report.packageInfo = pkgResult.packageInfo;
 
+            var elpxManifest = zip.file('libs/elpx-manifest.js');
+            if (elpxManifest) {
+                var manifestText = await elpxManifest.async('string').catch(function () {
+                    return '';
+                });
+                report.findings = report.findings.concat(packageRules.validateElpxManifest(manifestText));
+            }
+
             /* -------------------------------------------------------------- */
             /*  2. Read and parse manifest XML                                */
             /* -------------------------------------------------------------- */

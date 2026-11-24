@@ -30,7 +30,8 @@ iDevice and every resource reference, and gives each problem a stable rule code.
    - `findings[]`: `{ code, severity, category, message, details, location, evidence, suggestion }`.
      `severity` is `error`, `warning` or `info`. The code prefix is the layer: `PKG` archive,
      `XML` manifest, `NAV` pages and ids, `META` metadata, `IDEV` iDevices, `ASSET` resources,
-     `COMPAT` format notes. `location` may name `pageId`, `blockId`, `ideviceId` or `path`.
+     `COMPAT` format notes. `PKG022` means the ZIP only wraps a package: extract the
+     nested file and validate that one. `location` may name `pageId`, `blockId`, `ideviceId` or `path`.
    - `metadata.properties` (such as `pp_title`, `pp_author`, `pp_lang`), `pages[]` (titles in
      order), `ideviceSummary`, `assetSummary`.
 3. Summarize for the user: the verdict first, then errors, then warnings, each with its code, what

@@ -23,6 +23,16 @@
         { path: 'index.html', rule: 'PKG004', label: 'entry page' }
     ];
 
+    /* Loaded by every exported page (BASE_LIBRARIES in eXeLearning's src/shared/export/constants.ts) */
+    var BASE_LIBRARIES = [
+        'jquery/jquery.min.js',
+        'common_i18n.js',
+        'common.js',
+        'exe_export.js',
+        'bootstrap/bootstrap.bundle.min.js',
+        'bootstrap/bootstrap.min.css'
+    ];
+
     /* Recommended directories */
     var RECOMMENDED_DIRS = [
         { prefix: 'html/', rule: 'PKG005', label: 'rendered pages' },
@@ -303,11 +313,122 @@
             }
         });
 
+        var isFile = function (name) {
+            return fileNameSet.has(name) && !zipFiles[name].dir;
+        };
+        var hasFolder = function (prefix) {
+            return fileNames.some(function (name) {
+                return name.indexOf(prefix) === 0;
+            });
+        };
+
+        /*
+         * A theme needs its config.xml and at least one stylesheet. Custom themes name their
+         * files freely (content.css, default.js…), so style.css / style.js are not required.
+         */
+        if (hasFolder('theme/')) {
+            var missingTheme = [];
+            if (!isFile('theme/config.xml')) missingTheme.push('theme/config.xml');
+            var hasThemeCss = fileNames.some(function (name) {
+                return /^theme\/[^/]+\.css$/i.test(name);
+            });
+            if (!hasThemeCss) missingTheme.push('theme/*.css');
+            if (missingTheme.length) {
+                findings.push(
+                    createFinding('PKG018', {
+                        details: 'The theme/ folder is missing: ' + missingTheme.join(', ') + '.',
+                        evidence: { missing: missingTheme },
+                        suggestion: 'Export the project again from eXeLearning, or choose another style and export.'
+                    })
+                );
+            }
+        }
+
+        /* The libraries every export loads (BASE_LIBRARIES in eXeLearning). */
+        if (hasFolder('libs/')) {
+            var missingLibs = BASE_LIBRARIES.filter(function (lib) {
+                return !isFile('libs/' + lib);
+            });
+            if (missingLibs.length) {
+                findings.push(
+                    createFinding('PKG019', {
+                        details: 'The libs/ folder is missing: ' + missingLibs.join(', ') + '.',
+                        evidence: { missing: missingLibs },
+                        suggestion:
+                            'Without them the exported pages do not work. Export the project again from eXeLearning.'
+                    })
+                );
+            }
+        }
+
+        /*
+         * A ZIP with no manifest but with packages at its root: eXeLearning opens the nested
+         * one when there is exactly one, and refuses when there are several.
+         */
+        if (!packageInfo.hasContentXml && !packageInfo.hasContentV3Xml) {
+            var nested = fileNames.filter(function (name) {
+                return name.indexOf('/') === -1 && /\.elpx?$/i.test(name);
+            });
+            if (nested.length > 1) {
+                findings.push(
+                    createFinding('PKG021', {
+                        details: 'The ZIP has ' + nested.length + ' packages at its root: ' + nested.join(', ') + '.',
+                        evidence: { packages: nested },
+                        suggestion:
+                            'eXeLearning refuses this file. Extract the ZIP and open the packages one at a time.'
+                    })
+                );
+            } else if (nested.length === 1) {
+                findings.push(
+                    createFinding('PKG022', {
+                        details: 'The ZIP is not a package itself: it contains "' + nested[0] + '".',
+                        evidence: { packages: nested },
+                        suggestion: 'eXeLearning opens the nested package. Extract it to validate it.'
+                    })
+                );
+            }
+        }
+
         return { findings: findings, packageInfo: packageInfo };
+    }
+
+    /**
+     * libs/elpx-manifest.js lists the files of the package so the "download source file"
+     * iDevice can rebuild the .elpx in the browser.
+     *
+     * @param {string} text - The contents of libs/elpx-manifest.js.
+     * @returns {object[]} Findings.
+     */
+    function validateElpxManifest(text) {
+        var invalid = function (details) {
+            return [
+                createFinding('PKG020', {
+                    details: details,
+                    location: { path: 'libs/elpx-manifest.js' },
+                    suggestion:
+                        'Export the project again from eXeLearning: the source download of the published pages depends on this file.'
+                })
+            ];
+        };
+        var match = /window\.__ELPX_MANIFEST__\s*=\s*(\{[\s\S]*\})\s*;?\s*$/.exec(String(text).trim());
+        if (!match) return invalid('It does not assign an object to window.__ELPX_MANIFEST__.');
+        var manifest;
+        try {
+            manifest = JSON.parse(match[1]);
+        } catch (error) {
+            return invalid('The manifest is not valid JSON: ' + error.message);
+        }
+        if (!Array.isArray(manifest.files)) return invalid('The manifest has no "files" list.');
+        if (typeof manifest.projectTitle !== 'string') return invalid('The manifest has no "projectTitle" text.');
+        // The listed files are not checked against the ZIP: a manifest survives re-imports and
+        // re-exports, and eXeLearning's own reference packages carry lists that no longer match.
+        return [];
     }
 
     return {
         validatePackage: validatePackage,
+        validateElpxManifest: validateElpxManifest,
+        BASE_LIBRARIES: BASE_LIBRARIES,
         REQUIRED_FILES: REQUIRED_FILES,
         RECOMMENDED_DIRS: RECOMMENDED_DIRS
     };

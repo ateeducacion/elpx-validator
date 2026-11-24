@@ -13,7 +13,7 @@
     'use strict';
 
     // Kept equal to package.json by tests/shell.test.js: the page has no build step to inject it.
-    var VERSION = '1.1.0';
+    var VERSION = '1.2.0';
     var LANGUAGE_NAMES = { en: 'English', es: 'Español' };
 
     function init(doc) {
