@@ -185,14 +185,18 @@ gh skill install ateeducacion/elpx-validator elpx-validator
 
 La arquitectura del código y el formato de los hallazgos están descritos en el [README en inglés](README.md#architecture).
 
+Las herramientas son las de [Bun](https://bun.com) canary (`bun upgrade --canary`): `bun test`, `bun lint` y `bun fmt`. La CLI publicada se ejecuta con Node.js.
+
 ```bash
-npm ci
-npm start               # sirve la web en local
-npm test                # todos los tests
-npm run test:coverage   # con los umbrales de cobertura que exige el CI
+bun ci
+bun start               # sirve la web en local
+bun test                # todos los tests
+bun run test:coverage   # con los umbrales de cobertura por archivo que exige el CI
+bun run lint            # bun lint + bun fmt --check
+bun run fix             # aplica las correcciones del linter y el formato
 ```
 
-Tras actualizar la dependencia `jszip` ejecuta `npm run vendor`; un test falla mientras la copia de `vendor/` esté desfasada.
+Tras actualizar la dependencia `jszip` ejecuta `bun run vendor`; un test falla mientras la copia de `vendor/` esté desfasada.
 
 ### Publicar una versión
 

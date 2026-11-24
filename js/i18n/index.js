@@ -22,7 +22,7 @@
         try {
             // `window` first: touching localStorage in plain Node (the CLI) prints a warning.
             return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
-        } catch (error) {
+        } catch {
             return false;
         }
     }

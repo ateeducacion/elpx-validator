@@ -304,7 +304,7 @@
                 displayValue = getEmptyValue();
             } else if (typeof displayValue === 'object') {
                 try { displayValue = JSON.stringify(displayValue, null, 2); }
-                catch (e) { displayValue = String(displayValue); }
+                catch { displayValue = String(displayValue); }
             }
             valueElement.textContent = displayValue;
             item.appendChild(keyElement);
@@ -563,7 +563,7 @@
     /*  iDevice panel                                                     */
     /* ================================================================== */
 
-    function renderIdeviceSummary(ideviceSummary, model) {
+    function renderIdeviceSummary(ideviceSummary) {
         if (!ideviceSummaryPanel) return;
         ideviceSummaryPanel.innerHTML = '';
 
@@ -860,7 +860,7 @@
         var zip;
         try {
             var arrayBuffer = await file.arrayBuffer();
-            zip = await JSZip.loadAsync(arrayBuffer);
+            zip = await window.JSZip.loadAsync(arrayBuffer);
             currentZip = zip;
             setChecklistStatus('check-zip', 'success', translate('checklist.zip.success', 'The archive was loaded successfully.'));
         } catch (error) {

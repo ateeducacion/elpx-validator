@@ -5,7 +5,7 @@ const { KNOWN_TYPES, lookup, lookupOrLocal, allKnownTypes } = require('../js/reg
 
 describe('iDevice registry', () => {
     test('all known types have required fields', () => {
-        Object.entries(KNOWN_TYPES).forEach(([name, def]) => {
+        Object.entries(KNOWN_TYPES).forEach(([, def]) => {
             expect(def.label).toBeTruthy();
             expect(def.group).toBeTruthy();
             expect(typeof def.requiresImages).toBe('boolean');

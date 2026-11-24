@@ -14,7 +14,7 @@
     function canUseLocalStorage() {
         try {
             return typeof localStorage !== 'undefined';
-        } catch (error) {
+        } catch {
             return false;
         }
     }

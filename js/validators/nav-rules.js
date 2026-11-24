@@ -143,7 +143,7 @@
         /* ---------------------------------------------------------------- */
 
         // Validate parent page references
-        model.pages.forEach(function (page, pageIndex) {
+        model.pages.forEach(function (page) {
             if (page.odeParentPageId && page.odeParentPageId.trim() !== '') {
                 if (!pageIdMap[page.odeParentPageId]) {
                     findings.push(createFinding('NAV006', {
@@ -333,7 +333,7 @@
     /**
      * Validate that sibling pages (same parent) have consistent ordering.
      */
-    function validateSiblingOrdering(pages, pageIdMap) {
+    function validateSiblingOrdering(pages) {
         var findings = [];
         var siblingGroups = {};
 

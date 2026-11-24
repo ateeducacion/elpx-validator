@@ -122,7 +122,7 @@
             rootElement: {
                 label: 'Comprobando el elemento raíz',
                 labelHtml: 'Comprobando el elemento raíz',
-                success: 'El elemento raíz es \"ode\".',
+                success: 'El elemento raíz es "ode".',
                 skipped: 'Se detectó un formato de manifiesto heredado. Se omitieron las comprobaciones estructurales.'
             },
             navStructures: {

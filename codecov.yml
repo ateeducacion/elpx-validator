@@ -1,4 +1,5 @@
-# Coverage from CI (jest --coverage, lcov). package.json already fails CI under its thresholds;
+# Coverage from CI (bun test --coverage, lcov). bunfig.toml already fails CI when a file covers
+# under 80 % of its lines or functions;
 # Codecov adds a status on every pull request that fails when the project drops under 85 % or the
 # changed lines are under 85 % covered.
 coverage:

@@ -8,7 +8,6 @@ const {
     normalizeResourcePath,
     resolveReferencePath,
     looksLikeAssetPath,
-    extractPathsFromCss,
     inferMime,
     previewType,
     getExtension
@@ -302,7 +301,7 @@ describe('JSON extraction - HTML embedded strings', () => {
                 }]
             }]
         };
-        const { references, referencesByPath } = extractReferences(model);
+        const { referencesByPath } = extractReferences(model);
         // Should extract the image path, not the whole HTML blob
         expect(Object.keys(referencesByPath)).toContain('content/resources/photo.jpg');
         // Ensure the full HTML string was NOT added as a reference

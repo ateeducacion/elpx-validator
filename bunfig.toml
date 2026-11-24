@@ -1,0 +1,33 @@
+[test]
+# The browser globals the web code expects, from jsdom (the DOM the CLI also uses in Node).
+preload = ["./tests/support/dom.js"]
+coverageReporter = ["text", "lcov"]
+coverageSkipTestFiles = true
+# app.js and edia-view.js are the DOM glue of the page; bin/ only wires process streams to main().
+coveragePathIgnorePatterns = ["tests/**", "bin/**", "js/app.js", "js/edia/edia-view.js", "node_modules/**"]
+# Bun applies the threshold to every file, not to the total.
+coverageThreshold = { lines = 0.8, functions = 0.8 }
+
+# Lint (bun lint): Bun's defaults (ESLint recommended) plus these.
+[lint]
+ignorePatterns = ["vendor/", "coverage/"]
+
+[lint.rules]
+"no-console" = ["error", { allow = ["warn", "error"] }]
+"eqeqeq" = ["error", "smart"]
+
+# Format (bun fmt): Prettier's output, in the style the code already had.
+[fmt]
+printWidth = 120
+tabWidth = 4
+singleQuote = true
+trailingComma = "none"
+ignorePatterns = ["vendor/", "coverage/", "LICENSE"]
+
+[[fmt.overrides]]
+files = ["**/*.css", "**/*.yml", "**/*.yaml", "**/*.html"]
+options = { singleQuote = false }
+
+[[fmt.overrides]]
+files = ["**/*.yml", "**/*.yaml", "**/*.json", "**/*.md"]
+options = { tabWidth = 2 }

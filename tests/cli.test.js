@@ -1,4 +1,4 @@
-// Runs in jsdom like the rest: main() finds a DOMParser there. The last test runs the real
+// main() finds the preloaded DOMParser here (tests/support/dom.js). The last test runs the real
 // bin script in plain Node, where the CLI brings its own.
 const fs = require('fs');
 const os = require('os');
@@ -118,6 +118,25 @@ describe('elpx-validator CLI', () => {
             verdict: 'invalid',
             findings: [{ code: 'PKG001', severity: 'error' }]
         });
+    });
+
+    test('a legacy .elp is recognised: metadata only, with a compatibility note', async () => {
+        const legacy = path.join(dir, 'old.elp');
+        const xml = '<instance><dictionary><string value="_title"/><unicode value="Curso antiguo"/></dictionary></instance>';
+        fs.writeFileSync(legacy, await elpx({ 'contentv3.xml': xml }));
+        const report = JSON.parse((await run([legacy, '--json'])).stdout);
+        expect(report.format).toBe('elp');
+        expect(report.findings.map((f) => f.code)).toContain('COMPAT001');
+        expect(report.pages).toEqual([]);
+    });
+
+    test('a ZIP without a manifest is invalid with PKG002', async () => {
+        const empty = path.join(dir, 'empty.elpx');
+        fs.writeFileSync(empty, await elpx({ 'readme.txt': 'nothing here' }));
+        const result = await run([empty, '--json']);
+        expect(result.code).toBe(EXIT.INVALID);
+        expect(JSON.parse(result.stdout)).toMatchObject({ format: 'unknown', verdict: 'invalid' });
+        expect(JSON.parse(result.stdout).findings.map((f) => f.code)).toContain('PKG002');
     });
 
     test('--json prints one report, or an array for several files', async () => {

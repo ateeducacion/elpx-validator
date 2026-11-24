@@ -344,3 +344,52 @@ describe('NAV017/NAV018 conditional by type', () => {
         expect(findings.some(f => f.code === 'NAV018')).toBe(false);
     });
 });
+
+describe('a model with everything missing or mismatched', () => {
+    const component = (extra) => Object.assign({
+        odeIdeviceId: 'i1', odeIdeviceTypeName: 'text', htmlView: '<p>x</p>', jsonProperties: '{}',
+        order: '1', odePageId: 'p1', odeBlockId: 'b1'
+    }, extra);
+    const model = {
+        pages: [
+            { odePageId: '', pageName: '', odeParentPageId: '', order: '', blocks: [] },
+            {
+                odePageId: 'p1', pageName: 'Page', odeParentPageId: '', order: 'first',
+                blocks: [
+                    { odeBlockId: '', blockName: 'No id', components: [] },
+                    {
+                        odeBlockId: 'b1', blockName: 'Block',
+                        components: [
+                            component({ odeIdeviceId: '', odeIdeviceTypeName: '', htmlView: '', jsonProperties: '', order: '' }),
+                            component({ order: 'x' }),
+                            component({ odePageId: 'other-page', odeBlockId: 'other-block' })
+                        ]
+                    }
+                ]
+            }
+        ]
+    };
+    const codes = validateNavigation(model).map((f) => f.code);
+
+    test.each([
+        ['NAV002', 'page without id'],
+        ['NAV003', 'page without name'],
+        ['NAV004', 'page without order'],
+        ['NAV019', 'non-numeric order'],
+        ['NAV009', 'block without id'],
+        ['NAV014', 'component without iDevice id'],
+        ['NAV016', 'component without type'],
+        ['NAV017', 'component without htmlView or jsonProperties'],
+        ['NAV020', 'component without order'],
+        ['NAV015', 'duplicate iDevice id'],
+        ['NAV012', 'component declares another page'],
+        ['NAV013', 'component declares another block'],
+        ['NAV022', 'component references a block that does not exist']
+    ])('%s: %s', (code) => {
+        expect(codes).toContain(code);
+    });
+
+    test('NAV019 is reported for the page and for the component', () => {
+        expect(codes.filter((c) => c === 'NAV019')).toHaveLength(2);
+    });
+});

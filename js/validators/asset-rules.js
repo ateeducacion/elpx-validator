@@ -268,7 +268,7 @@
                             try {
                                 var json = JSON.parse(comp.jsonProperties);
                                 extractPathsFromJson(json, 'jsonProperties', source, references, referencesByPath, null);
-                            } catch (e) {
+                            } catch {
                                 // Fallback to regex
                                 extractPathsFromString(comp.jsonProperties, 'jsonProperties', source, references, referencesByPath, null);
                             }
@@ -460,7 +460,7 @@
      * @param {object}   zipFiles       - The zip.files map.
      * @returns {{ findings: object[], assetSummary: object }}
      */
-    function validateAssets(assets, referencesByPath, zipFiles) {
+    function validateAssets(assets, referencesByPath) {
         var findings = [];
         var assetMap = {};
         var assetLowerMap = {};

@@ -237,7 +237,7 @@ js/
 bin/elpx-validator.js         # CLI entry point
 skills/elpx-validator/        # Agent Skill
 vendor/jszip.min.js           # JSZip for the web app (copied by `npm run vendor`)
-tests/                        # Jest unit tests
+tests/                        # Unit tests (bun test)
 ```
 
 All validation rules return structured finding objects:
@@ -262,29 +262,34 @@ All validation rules return structured finding objects:
 ### Requirements
 
 - A modern browser (Chrome, Firefox, Safari, Edge)
-- Node.js 22 or later (for the CLI and the tests)
+- Node.js 22 or later (for the CLI)
+- Bun canary (for the tests, the linter and the formatter)
 
 ### Running locally
 
 Open `index.html` in a browser, or start a local HTTP server:
 
 ```bash
-npm run start
+bun start
 ```
 
 By default it listens on `http://localhost:8081`.
 
 ### Running tests
 
+The tool chain is [Bun](https://bun.com) canary (`bun upgrade --canary`): `bun test`, `bun lint` and `bun fmt`.
+
 ```bash
-npm ci
-npm test                # all tests
-npm run test:coverage   # with the coverage thresholds CI enforces
+bun ci
+bun test                # all tests
+bun run test:coverage   # with the per-file coverage thresholds CI enforces
+bun run lint            # bun lint + bun fmt --check
+bun run fix             # apply the lint fixes and the formatting
 ```
 
 The tests cover the rules, the project model, each validation layer, the EDIA criteria, the translations, the page shell (header, footer, panels) and the CLI, including the real `bin` script in plain Node.
 
-After updating the `jszip` dependency run `npm run vendor`; a test fails while the copy in `vendor/` is stale.
+After updating the `jszip` dependency run `bun run vendor`; a test fails while the copy in `vendor/` is stale.
 
 ### Releasing
 

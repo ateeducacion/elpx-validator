@@ -81,9 +81,9 @@ describe('page shell', () => {
     });
 
     test('with nothing stored the theme follows the system', () => {
-        window.matchMedia = () => ({ matches: true });
+        globalThis.matchMedia = () => ({ matches: true });
         load();
-        delete window.matchMedia;
+        delete globalThis.matchMedia;
         expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
         expect(localStorage.getItem('elpx-validator.theme')).toBeNull();
     });

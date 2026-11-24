@@ -202,7 +202,7 @@
             for (var i = 0; i < htmlFiles.length; i++) {
                 try {
                     htmlContents[htmlFiles[i]] = await zip.file(htmlFiles[i]).async('string');
-                } catch (e) {
+                } catch {
                     // Skip unreadable files
                 }
             }
@@ -217,7 +217,7 @@
             for (var j = 0; j < cssFiles.length; j++) {
                 try {
                     cssContents[cssFiles[j]] = await zip.file(cssFiles[j]).async('string');
-                } catch (e) {
+                } catch {
                     // Skip unreadable files
                 }
             }
@@ -409,7 +409,7 @@
             try {
                 var json = JSON.parse(text);
                 collectPathsFromJson(json, resourcePaths);
-            } catch (error) {
+            } catch {
                 var match;
                 while ((match = attributeRegex.exec(text)) !== null) {
                     var value = match[1];

@@ -1,11 +1,35 @@
+# Weekly updates for Bun (package.json, bun.lock) and the GitHub Actions.
+# New releases wait a few days (cooldown); security updates are not delayed.
 version: 2
-updates:
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
 
-  - package-ecosystem: "github-actions"
-    directory: "/"
+updates:
+  # bun.lock must stay at lockfileVersion 1: Dependabot's bun ecosystem rejects v2 (dependabot-core#16026).
+  # `bun run check:lockfile` guards it in CI.
+  - package-ecosystem: bun
+    directory: /
     schedule:
-      interval: "weekly"
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Atlantic/Canary
+    cooldown:
+      default-days: 3
+      semver-major-days: 14
+      semver-minor-days: 7
+    commit-message:
+      prefix: Deps
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Atlantic/Canary
+    cooldown:
+      default-days: 3
+    commit-message:
+      prefix: CI
+    groups:
+      github-actions:
+        patterns: ["*"]
