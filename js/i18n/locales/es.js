@@ -9,10 +9,10 @@
 
     return {
         app: {
-            title: 'Validador de paquetes eXeLearning',
-            heading: 'Validador de paquetes eXeLearning',
-            subtitleHtml: 'Valida la estructura de tus proyectos <code>.elp</code> o <code>.elpx</code> directamente en tu navegador.',
-            githubRibbonAriaLabel: 'Haz un fork en GitHub'
+            title: 'elpx-validator — validador de paquetes eXeLearning',
+            tagline: 'Validador de paquetes eXeLearning. Los archivos no salen de tu equipo.',
+            heading: '¿Es válido tu paquete de eXeLearning?',
+            subtitleHtml: 'Comprueba la estructura, la navegación, los iDevices y los recursos de tus proyectos <code>.elpx</code> o <code>.elp</code>.'
         },
         common: {
             language: 'Idioma',
@@ -30,9 +30,28 @@
             components: 'componentes'
         },
         theme: {
-            toggleAriaLabel: 'Cambiar modo de color',
-            light: 'Claro',
-            dark: 'Oscuro'
+            toDark: 'Cambiar a modo oscuro',
+            toLight: 'Cambiar a modo claro'
+        },
+        shell: {
+            cliTitle: 'Desde la terminal',
+            cliIntro: 'La misma validación como orden, con Node.js 22 o posterior. No hay que instalar nada: npx lo descarga la primera vez.',
+            cliStrict: 'Fallar también con advertencias (para CI)',
+            cliJson: 'Informe completo en JSON, con los criterios EDIA',
+            skillTitle: 'Skill para asistentes de IA',
+            skillIntro: 'Una Agent Skill que enseña a asistentes como Claude Code o Copilot a validar paquetes .elpx y explicar los hallazgos.',
+            skillNpx: 'Con npx skills',
+            skillGh: 'Con GitHub CLI',
+            skillNote: 'La skill usa la línea de órdenes de elpx-validator a través de npx.',
+            docs: 'Documentación',
+            copy: 'Copiar',
+            copied: 'Copiado',
+            close: 'Cerrar',
+            licensesTitle: 'Licencias y créditos',
+            licensesIntro: 'elpx-validator es software libre: puedes usarlo, estudiarlo, modificarlo y compartirlo según la licencia GNU Affero General Public License, versión 3 o posterior.',
+            licensesApp: 'Licencia de elpx-validator (AGPL-3.0)',
+            licensesComponents: 'Componentes incluidos',
+            licensesAte: 'El logotipo del ATE es propiedad del Área de Tecnología Educativa del Gobierno de Canarias.'
         },
         tabs: {
             overview: 'Resumen',
@@ -289,10 +308,10 @@
             errorLoading: 'Error al cargar la vista previa: {message}'
         },
         footer: {
-            processing: 'Todo el procesamiento ocurre en tu navegador. No se sube ningún archivo a un servidor.',
-            builtWith: 'Desarrollado con JSZip y JavaScript sin frameworks.',
-            creditsPrefix: '© 2025 – ',
-            creditsSuffix: ' – Gobierno de Canarias'
+            madeBy: 'Creado por el Área de Tecnología Educativa del Gobierno de Canarias',
+            source: 'Código fuente',
+            licenses: 'Licencias',
+            license: 'Software libre (AGPL-3.0)'
         },
         edia: {
             tabAriaLabel: 'Secciones de validación',

@@ -2,33 +2,45 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
 
 permissions:
   contents: read
 
+# A new push to the same branch or pull request cancels the run in progress.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
-        node-version: [ 22.x, 24.x ]
+        node-version: [22.x, 24.x]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v7
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
-          package-manager-cache: false
+          cache: npm
 
-      - name: Install dependencies
-        run: npm install
+      - run: npm ci
+      - run: npm audit --omit=dev --audit-level=high
+      # Fails under the thresholds in package.json (jest.coverageThreshold).
+      - run: npm run test:coverage
 
-      - name: Run tests
-        run: npm test
-
+      # The published CLI: install the packed tarball in a clean folder and use it there.
+      - name: The npm package works
+        run: |
+          npm pack --pack-destination "$RUNNER_TEMP"
+          cd "$(mktemp -d)" && npm init -y >/dev/null && npm install "$RUNNER_TEMP"/elpx-validator-*.tgz
+          npx elpx-validator --version
+          echo "not a zip" > broken.elpx
+          npx elpx-validator broken.elpx --json | grep -q '"PKG001"'
+          node -e "const { runFullValidation } = require('elpx-validator'); const { validateBuffer } = require('elpx-validator/cli'); if (typeof runFullValidation !== 'function' || typeof validateBuffer !== 'function') process.exit(1)"

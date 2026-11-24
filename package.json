@@ -1,27 +1,74 @@
 {
   "name": "elpx-validator",
   "version": "1.0.0",
-  "description": "Client-side validator for eXeLearning .elp and .elpx packages",
-  "scripts": {
-    "test": "jest",
-    "start": "http-server -c-1 .",
-    "serve": "node dev-server.js"
-  },
-  "keywords": [
-    "eXeLearning",
-    "validator",
-    "ELP",
-    "ELPX",
-    "JSZip"
-  ],
-  "author": "Área de Tecnología Educativa",
+  "description": "Validate eXeLearning .elpx and .elp packages: structure, navigation, iDevices, assets and EDIA quality criteria. CLI, static in-browser web app and Agent Skill.",
   "license": "AGPL-3.0-or-later",
+  "author": "Área de Tecnología Educativa",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ateeducacion/elpx-validator.git"
+  },
+  "homepage": "https://ateeducacion.github.io/elpx-validator/",
+  "keywords": [
+    "exelearning",
+    "elpx",
+    "elp",
+    "validator",
+    "education",
+    "oer",
+    "cli"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "elpx-validator": "bin/elpx-validator.js"
+  },
+  "main": "js/validator.js",
+  "exports": {
+    ".": "./js/validator.js",
+    "./cli": "./js/cli.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin/",
+    "js/",
+    "!js/app.js",
+    "!js/shell.js",
+    "!js/theme.js",
+    "!js/preview/",
+    "!js/edia/edia-view.js"
+  ],
+  "scripts": {
+    "start": "http-server -c-1 .",
+    "cli": "node bin/elpx-validator.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "vendor": "cp node_modules/jszip/dist/jszip.min.js vendor/jszip.min.js"
+  },
+  "dependencies": {
+    "jsdom": "^31.0.1",
+    "jszip": "^3.10.2"
+  },
   "devDependencies": {
     "http-server": "^14.1.1",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.2.0"
   },
   "jest": {
-    "testEnvironment": "jsdom"
+    "testEnvironment": "jsdom",
+    "collectCoverageFrom": [
+      "js/**/*.js",
+      "!js/app.js",
+      "!js/edia/edia-view.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 85,
+        "branches": 72,
+        "functions": 92,
+        "lines": 87
+      }
+    }
   }
 }

@@ -80,7 +80,7 @@ describe('ELPXI18n', () => {
 
         const i18n = loadI18n();
 
-        expect(i18n.t('app.title')).toBe('Validador de paquetes eXeLearning');
+        expect(i18n.t('app.title')).toBe('elpx-validator — validador de paquetes eXeLearning');
         expect(i18n.t('common.english')).toBe('English');
         expect(i18n.t('missing.key')).toBe('missing.key');
     });
@@ -100,7 +100,7 @@ describe('ELPXI18n', () => {
 
         i18n.translateDom(document);
 
-        expect(document.querySelector('h1').textContent).toBe('eXeLearning Package Validator');
+        expect(document.querySelector('h1').textContent).toBe('Is your eXeLearning package valid?');
         expect(document.querySelector('p').innerHTML).toContain('<code>.elp</code>');
         expect(document.querySelector('input').getAttribute('placeholder')).toBe('— select a page —');
         expect(document.querySelector('button').getAttribute('title')).toBe('Errors');

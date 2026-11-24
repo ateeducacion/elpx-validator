@@ -9,10 +9,10 @@
 
     return {
         app: {
-            title: 'eXeLearning Package Validator',
-            heading: 'eXeLearning Package Validator',
-            subtitleHtml: 'Validate the structure of your <code>.elp</code> or <code>.elpx</code> projects directly in your browser.',
-            githubRibbonAriaLabel: 'Fork me on GitHub'
+            title: 'elpx-validator — eXeLearning package validator',
+            tagline: 'Validates eXeLearning packages. The files never leave your computer.',
+            heading: 'Is your eXeLearning package valid?',
+            subtitleHtml: 'Check the structure, navigation, iDevices and assets of your <code>.elpx</code> or <code>.elp</code> projects.'
         },
         common: {
             language: 'Language',
@@ -30,9 +30,28 @@
             components: 'components'
         },
         theme: {
-            toggleAriaLabel: 'Toggle color mode',
-            light: 'Light',
-            dark: 'Dark'
+            toDark: 'Switch to dark mode',
+            toLight: 'Switch to light mode'
+        },
+        shell: {
+            cliTitle: 'From the terminal',
+            cliIntro: 'The same validation as a command, with Node.js 22 or later. Nothing to install: npx downloads it the first time.',
+            cliStrict: 'Fail on warnings too (for CI)',
+            cliJson: 'Full report as JSON, with the EDIA criteria',
+            skillTitle: 'Skill for AI assistants',
+            skillIntro: 'An Agent Skill that teaches assistants such as Claude Code or Copilot to validate .elpx packages and explain the findings.',
+            skillNpx: 'With npx skills',
+            skillGh: 'With the GitHub CLI',
+            skillNote: 'The skill uses the elpx-validator command line through npx.',
+            docs: 'Documentation',
+            copy: 'Copy',
+            copied: 'Copied',
+            close: 'Close',
+            licensesTitle: 'Licenses and credits',
+            licensesIntro: 'elpx-validator is free software: you may use, study, modify and share it under the GNU Affero General Public License, version 3 or later.',
+            licensesApp: 'elpx-validator license (AGPL-3.0)',
+            licensesComponents: 'Bundled components',
+            licensesAte: 'The ATE logo belongs to the Educational Technology Area of the Government of the Canary Islands.'
         },
         tabs: {
             overview: 'Overview',
@@ -289,10 +308,10 @@
             errorLoading: 'Error loading preview: {message}'
         },
         footer: {
-            processing: 'All processing happens in your browser. No files are uploaded to a server.',
-            builtWith: 'Built with JSZip and vanilla JavaScript.',
-            creditsPrefix: '© 2025 – ',
-            creditsSuffix: ' – Gobierno de Canarias'
+            madeBy: 'Made by the Educational Technology Area of the Government of the Canary Islands',
+            source: 'Source code',
+            licenses: 'Licenses',
+            license: 'Free software (AGPL-3.0)'
         },
         edia: {
             tabAriaLabel: 'Validation sections',
